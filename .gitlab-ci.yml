@@ -1,0 +1,28 @@
+image: maven:latest
+
+stages:
+  - build
+  - verify
+  - test
+
+build:
+  stage: build
+  script:
+    - cd backend
+    - echo "Building project"
+    - mvn clean compile
+
+lint:
+  stage: verify
+  script:
+    - cd backend
+    - echo "Formatting"
+    - mvn clean formatter:format
+    - echo "Checking formatting"
+    - mvn clean formatter:validate
+
+test:
+  script:
+    - cd backend
+    - echo "Running tests"
+    - mvn clean test
