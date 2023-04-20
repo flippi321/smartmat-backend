@@ -20,6 +20,6 @@ public class Household {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "household", cascade = CascadeType.ALL)
-    private List<Fridge> fridges;
+    @OneToOne(mappedBy = "household")
+    private Fridge fridges;
 }
