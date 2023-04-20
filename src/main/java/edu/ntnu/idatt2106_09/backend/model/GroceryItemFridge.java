@@ -10,22 +10,16 @@ public class GroceryItemFridge {
     @EmbeddedId
     private GroceryItemFridgeId id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("fridgeId")
-    @JoinColumn(name = "fridge_id")
+    //@JoinColumn(name = "fridge_id")
     private Fridge fridge;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("groceryItemId")
-    @JoinColumn(name = "grocery_item_id")
+    //@JoinColumn(name = "grocery_item_id")
     private GroceryItem grocery_item;
 
     @Column(name = "name")
     private String name;
-}
-
-@Embeddable
-class GroceryItemFridgeId implements Serializable {
-    private Long fridgeId;
-    private Long groceryItemId;
 }

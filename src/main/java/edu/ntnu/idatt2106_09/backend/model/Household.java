@@ -1,5 +1,5 @@
 package edu.ntnu.idatt2106_09.backend.model;
-
+/*
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,3 +23,4 @@ public class Household {
     @OneToOne(mappedBy = "household")
     private Fridge fridges;
 }
+*/

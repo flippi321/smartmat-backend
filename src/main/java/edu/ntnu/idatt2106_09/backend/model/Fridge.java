@@ -15,19 +15,22 @@ import java.util.Set;
 public class Fridge {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue//(strategy = GenerationType.IDENTITY)
     @Column(name = "fridge_id", nullable = false)
     private Long fridgeId;
 
+    /*
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "household_id", referencedColumnName = "household_id")
     private Household household;
+
+     */
 
     @OneToMany(
             mappedBy = "fridge",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
-    private List<GroceryItemFridge> groceryItemList = new ArrayList<>();
+    private List<GroceryItemFridge> groceryItemSet = new ArrayList<>();
 
     /**
     // Many to many connection to CalendarDate modelled by the "calendar" table (not modelled)

@@ -13,7 +13,7 @@ import java.util.Set;
 public class GroceryItem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue//(strategy = GenerationType.IDENTITY)
     @Column(name = "grocery_item_id")
     private Long groceryItemId;
 
@@ -21,7 +21,7 @@ public class GroceryItem {
             mappedBy = "grocery_item",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
-    private List<GroceryItemFridge> fridgeList = new ArrayList<>();
+    private List<GroceryItemFridge> fridgeSet = new ArrayList<>();
 
     /**
     // Many-to-many connection with Ad. Ad is parent in this case.
