@@ -10,12 +10,12 @@ public class GroceryItemFridge {
     @EmbeddedId
     private GroceryItemFridgeId id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @MapsId("fridgeId")
     @JoinColumn(name = "fridge_id")
     private Fridge fridge;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @MapsId("groceryItemId")
     @JoinColumn(name = "grocery_item_id")
     private GroceryItem grocery_item;
