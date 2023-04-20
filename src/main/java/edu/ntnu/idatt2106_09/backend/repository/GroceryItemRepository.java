@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GroceryItemRepository extends JpaRepository<GroceryItem, Long> {
+
+    //Set<GroceryItem> findAllBy
 }

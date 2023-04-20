@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "Household")
+@Table(name = "household")
 public class Household {
 
     @Id
