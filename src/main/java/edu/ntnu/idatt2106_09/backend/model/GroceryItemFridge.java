@@ -5,7 +5,6 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Getter
 @Setter
@@ -20,7 +19,7 @@ public class GroceryItemFridge {
 
     public GroceryItemFridge(Fridge fridge, GroceryItem groceryItem) {
         this.fridge = fridge;
-        this.grocery_item = groceryItem;
+        this.groceryItem = groceryItem;
         this.id = new GroceryItemFridgeId(fridge.getFridgeId(), groceryItem.getGroceryItemId());
     }
 
@@ -32,7 +31,7 @@ public class GroceryItemFridge {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("groceryItemId")
     @JoinColumn(name = "grocery_item_id")
-    private GroceryItem grocery_item;
+    private GroceryItem groceryItem;
 
     @Column(name = "amount")
     private int amount;
