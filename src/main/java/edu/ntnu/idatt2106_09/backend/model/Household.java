@@ -19,5 +19,5 @@ public class Household {
     private String name;
 
     @OneToOne(mappedBy = "household")
-    private Fridge fridges;
+    private Fridge fridge;
 }

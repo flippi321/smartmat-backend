@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -12,6 +14,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "grocery_item_fridge")
 public class GroceryItemFridge {
+
     @EmbeddedId
     private GroceryItemFridgeId id;
 
@@ -21,18 +24,24 @@ public class GroceryItemFridge {
         this.id = new GroceryItemFridgeId(fridge.getFridgeId(), groceryItem.getGroceryItemId());
     }
 
-    @ManyToOne//(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("fridgeId")
     @JoinColumn(name = "fridge_id")
     private Fridge fridge;
 
-    @ManyToOne//(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("groceryItemId")
     @JoinColumn(name = "grocery_item_id")
     private GroceryItem grocery_item;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "amount")
+    private int amount;
+
+    @Column(name = "purchase_date")
+    private LocalDate purchaseDate = LocalDate.now();
+
+    @Column(name = "expiration_date")
+    private LocalDate expirationDate = LocalDate.now();
 }
 
 @AllArgsConstructor

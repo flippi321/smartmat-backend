@@ -13,6 +13,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode
 @ToString
 @Entity
@@ -28,10 +29,6 @@ public class Fridge {
 
     @NaturalId
     private String name;
-
-    public Fridge(String name) {
-        this.name = name;
-    }
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "household_id", referencedColumnName = "household_id")

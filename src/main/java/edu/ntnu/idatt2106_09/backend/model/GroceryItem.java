@@ -8,6 +8,7 @@ import java.util.*;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode
 @Entity
 @Table(name = "grocery_item")
@@ -18,11 +19,11 @@ public class GroceryItem {
     @Column(name = "grocery_item_id")
     private Long groceryItemId;
 
+    @Column(name = "name")
     private String name;
 
-    public GroceryItem(String name) {
-        this.name = name;
-    }
+    @Column(name = "expected_expiration_days")
+    private int expectedExpirationDays;
 
     @OneToMany(
             mappedBy = "grocery_item",
