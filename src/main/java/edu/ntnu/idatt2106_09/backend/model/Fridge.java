@@ -41,6 +41,27 @@ public class Fridge {
             orphanRemoval = true)
     private Set<GroceryItemFridge> groceries = new HashSet<>();
 
+
+    public void addGroceryItem(GroceryItem groceryItem) {
+        GroceryItemFridge groceryItemFridge = new GroceryItemFridge(this, groceryItem);
+        groceries.add(groceryItemFridge);
+    }
+
+    public void removeGroceryItem(GroceryItem groceryItem) {
+        for (Iterator<GroceryItemFridge> iterator = groceries.iterator();
+             iterator.hasNext(); ) {
+            GroceryItemFridge groceryItemFridge = iterator.next();
+
+            if (groceryItemFridge.getFridge().equals(this) &&
+                    groceryItemFridge.getGroceryItem().equals(groceryItem)) {
+                iterator.remove();
+                groceryItemFridge.setFridge(null);
+                groceryItemFridge.setGroceryItem(null);
+            }
+        }
+    }
+
+    /**
     public void addGroceryItem(GroceryItem groceryItem) {
         GroceryItemFridge groceryItemFridge = new GroceryItemFridge(this, groceryItem);
         groceries.add(groceryItemFridge);
@@ -61,4 +82,5 @@ public class Fridge {
             }
         }
     }
+     */
 }

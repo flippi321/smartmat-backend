@@ -25,18 +25,23 @@ public class GroceryItem {
     @Column(name = "expected_expiration_days")
     private int expectedExpirationDays;
 
+    /**
     @OneToMany(
             mappedBy = "groceryItem",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private Set<GroceryItemFridge> fridges = new HashSet<>();
+    */
 
+    /**
     public void addFridge(Fridge fridge) {
         GroceryItemFridge groceryItemFridge = new GroceryItemFridge(fridge,this);
         fridges.add(groceryItemFridge);
         fridge.getGroceries().add(groceryItemFridge);
     }
+     */
 
+    /**
     public void removeFridge(Fridge fridge) {
         for (Iterator<GroceryItemFridge> iterator = fridges.iterator();
              iterator.hasNext(); ) {
@@ -51,4 +56,5 @@ public class GroceryItem {
             }
         }
     }
+     */
 }
