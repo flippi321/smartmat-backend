@@ -5,11 +5,21 @@ import lombok.*;
 
 import java.io.Serializable;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@EqualsAndHashCode
 @Entity
 @Table(name = "grocery_item_fridge")
 public class GroceryItemFridge {
     @EmbeddedId
     private GroceryItemFridgeId id;
+
+    public GroceryItemFridge(Fridge fridge, GroceryItem groceryItem) {
+        this.fridge = fridge;
+        this.grocery_item = groceryItem;
+        this.id = new GroceryItemFridgeId(fridge.getFridgeId(), groceryItem.getGroceryItemId());
+    }
 
     @ManyToOne//(fetch = FetchType.LAZY)
     @MapsId("fridgeId")
@@ -25,6 +35,8 @@ public class GroceryItemFridge {
     private String name;
 }
 
+@AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode
 @Embeddable
 class GroceryItemFridgeId implements Serializable {

@@ -2,20 +2,36 @@ package edu.ntnu.idatt2106_09.backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.NaturalIdCache;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 @Entity
 @Table(name = "fridge")
+@NaturalIdCache
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Fridge {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "fridge_id", nullable = false)
     private Long fridgeId;
+
+    @NaturalId
+    private String name;
+
+    public Fridge(String name) {
+        this.name = name;
+    }
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "household_id", referencedColumnName = "household_id")
@@ -25,15 +41,5 @@ public class Fridge {
             mappedBy = "fridge",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
-    //@ToString.Exclude
     private Set<GroceryItemFridge> groceryItemSet = new HashSet<>();
-    //private List<GroceryItemFridge> groceryItemSet = new ArrayList<>();
-
-    /**
-    // Many to many connection to CalendarDate modelled by the "calendar" table (not modelled)
-    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE })
-    @JoinTable(name = "grocery_item_fridge", joinColumns = { @JoinColumn(name = "fridge_id") }, inverseJoinColumns = {
-            @JoinColumn(name = "grocery_item_id") })
-    private Set<GroceryItem> items = new HashSet<>();
-    */
 }
