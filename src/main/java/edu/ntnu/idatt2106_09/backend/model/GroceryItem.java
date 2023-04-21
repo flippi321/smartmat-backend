@@ -26,28 +26,28 @@ public class GroceryItem {
     private int expectedExpirationDays;
 
     @OneToMany(
-            mappedBy = "grocery_item",
+            mappedBy = "groceryItem",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
-    private Set<GroceryItemFridge> fridgeSet = new HashSet<>();
+    private Set<GroceryItemFridge> fridges = new HashSet<>();
 
     public void addFridge(Fridge fridge) {
         GroceryItemFridge groceryItemFridge = new GroceryItemFridge(fridge,this);
-        fridgeSet.add(groceryItemFridge);
-        fridge.getGroceryItemSet().add(groceryItemFridge);
+        fridges.add(groceryItemFridge);
+        fridge.getGroceries().add(groceryItemFridge);
     }
 
     public void removeFridge(Fridge fridge) {
-        for (Iterator<GroceryItemFridge> iterator = fridgeSet.iterator();
+        for (Iterator<GroceryItemFridge> iterator = fridges.iterator();
              iterator.hasNext(); ) {
-            GroceryItemFridge GroceryItemFridge = iterator.next();
+            GroceryItemFridge groceryItemFridge = iterator.next();
 
-            if (GroceryItemFridge.getGrocery_item().equals(this) &&
-                    GroceryItemFridge.getFridge().equals(fridge)) {
+            if (groceryItemFridge.getGroceryItem().equals(this) &&
+                    groceryItemFridge.getFridge().equals(fridge)) {
                 iterator.remove();
-                GroceryItemFridge.getFridge().getGroceryItemSet().remove(GroceryItemFridge);
-                GroceryItemFridge.setGrocery_item(null);
-                GroceryItemFridge.setFridge(null);
+                groceryItemFridge.getFridge().getGroceries().remove(groceryItemFridge);
+                groceryItemFridge.setGroceryItem(null);
+                groceryItemFridge.setFridge(null);
             }
         }
     }
