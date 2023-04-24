@@ -1,5 +1,6 @@
 package edu.ntnu.idatt2106_09.backend.dto;
 
+import edu.ntnu.idatt2106_09.backend.model.Category;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -15,4 +16,6 @@ public class GroceryItemDto {
 
     private Long groceryItemId;
     private String name;
+    private int shelf_life;
+    private Category category;
 }

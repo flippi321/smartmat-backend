@@ -1,5 +1,6 @@
 package edu.ntnu.idatt2106_09.backend.controller;
 
+import edu.ntnu.idatt2106_09.backend.dto.GroceryItemDto;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.Fridge;
 import edu.ntnu.idatt2106_09.backend.model.GroceryItem;
@@ -7,11 +8,13 @@ import edu.ntnu.idatt2106_09.backend.model.GroceryItemFridge;
 import edu.ntnu.idatt2106_09.backend.service.FridgeService;
 import edu.ntnu.idatt2106_09.backend.service.GroceryItemService;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,7 +26,10 @@ public class GroceryItemController {
 
     @Autowired
     private GroceryItemService groceryItemService ;
+    @Autowired
     private FridgeService fridgeService ;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<String> handleNotFoundException(NotFoundException ex) {
@@ -31,7 +37,7 @@ public class GroceryItemController {
     }
 
     // POST (Add a new grocery item to a fridge)
-    @PostMapping("/{fridgeId}")
+    @PostMapping("/fridge/{fridgeId}")
     public ResponseEntity<GroceryItem> addGroceryItemToFridge(@PathVariable Long fridgeId, @RequestBody GroceryItem groceryItem) {
         log.debug("Adding new Grocery Item to Fridge with ID: {}", fridgeId);
         if (groceryItem.getName() == null || groceryItem.getName().trim().isEmpty()) {
@@ -52,8 +58,8 @@ public class GroceryItemController {
     }
 
     // GET (Get all grocery items in a given fridge)
-    @GetMapping("/{fridgeId}")
-    public ResponseEntity<Set<GroceryItem>> getAllGroceryItemsInFridge(@PathVariable Long fridgeId) {
+    @GetMapping("/fridge/{fridgeId}")
+    public ResponseEntity<List<GroceryItemDto>> getAllGroceryItemsInFridge(@PathVariable Long fridgeId) {
         log.debug("[x] Fetching all Grocery Items in Fridge with ID: {}", fridgeId);
         Optional<Fridge> optionalFridge = fridgeService.getFridgeById(fridgeId);
         if (!optionalFridge.isPresent()) {
@@ -61,25 +67,24 @@ public class GroceryItemController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         Fridge fridge = optionalFridge.get();
-        Set<GroceryItem> groceryItems = fridge.getGroceries().stream()
+        List<GroceryItemDto> groceryItemsdto = fridge.getGroceries().stream()
                 .map(GroceryItemFridge::getGroceryItem)
-                .collect(Collectors.toSet());
-        log.info("[x] Total number of Grocery Items retrieved: {}", groceryItems.size());
-        return new ResponseEntity<>(groceryItems, HttpStatus.OK);
+                .map(groceryItem -> modelMapper.map(groceryItem, GroceryItemDto.class))
+                .collect(Collectors.toList());
+        log.info("[x] Total number of Grocery Items retrieved: {}", groceryItemsdto.size());
+        return new ResponseEntity<>(groceryItemsdto, HttpStatus.OK);
     }
 
     // GET (Get a grocery item with a given id)
     @GetMapping("/{groceryItemId}")
-    public ResponseEntity<GroceryItem> getGroceryItemById(@PathVariable Long groceryItemId) {
+    public ResponseEntity<GroceryItemDto> getGroceryItemById(@PathVariable Long groceryItemId) {
         log.debug("Fetching Grocery Item with id: {}", groceryItemId);
-        Optional<GroceryItem> groceryItem = groceryItemService.getGroceryItemById(groceryItemId);
-        if (groceryItem.isPresent()) {
-            log.info("[x] Grocery Item with id {} found", groceryItemId);
-            return new ResponseEntity<>(groceryItem.get(), HttpStatus.OK);
-        } else {
-            log.warn("[x] Grocery Item with id {} not found", groceryItemId);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        GroceryItem groceryItem = groceryItemService.getGroceryItemById(groceryItemId)
+                .orElseThrow(() -> new NotFoundException("groceryItem with id " + groceryItemId + " not found"));
+        log.info("[x] Grocery Item with id {} found", groceryItemId);
+
+        GroceryItemDto groceryItemDto = modelMapper.map(groceryItem, GroceryItemDto.class);
+        return new ResponseEntity<>(groceryItemDto, HttpStatus.OK);
     }
 
     // PUT (Update a grocery item)
