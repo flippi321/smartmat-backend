@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class FridgeService {
@@ -26,8 +27,8 @@ public class FridgeService {
     }
 
     // Read (Get all fridges)
-    public List<Fridge> getAllFridges() {
-        return fridgeRepository.findAll();
+    public Set<Fridge> getAllFridges() {
+        return fridgeRepository.getAllFridges();
     }
 
     // Update (Update a fridge)

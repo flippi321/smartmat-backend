@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -48,7 +49,7 @@ public class FridgeController {
 
     // TODO Vurder dette alternativet
     // GET (Read a fridge by ID)
-    @GetMapping("/{fridgeId}")
+    @GetMapping("/{fridgeIdTwo}")
     public ResponseEntity<Fridge> getFridgeByIdTwo(@PathVariable Long fridgeId) {
         log.debug("Fetching fridge with id: {}", fridgeId);
         Fridge fridge = fridgeService.getFridgeById(fridgeId)
@@ -92,16 +93,16 @@ public class FridgeController {
 
     // GET (Read all fridges)
     @GetMapping
-    public ResponseEntity<List<Fridge>> getAllFridges() {
+    public ResponseEntity<Set<Fridge>> getAllFridges() {
         log.debug("Fetching all fridges");
-        List<Fridge> fridges = fridgeService.getAllFridges();
+        Set<Fridge> fridges = fridgeService.getAllFridges();
         log.debug("Total number of fridges retrieved: {}", fridges.size());
         return new ResponseEntity<>(fridges, HttpStatus.OK);
     }
 
     // TODO Vurder dette alternativet
     // PUT (Update a fridge)
-    @PutMapping("/{fridgeId}")
+    @PutMapping("/{fridgeIdTwo}")
     public ResponseEntity<Fridge> updateFridgeTwo(@PathVariable Long fridgeId, @RequestBody Fridge updatedFridge) {
         log.debug("Updating fridge with id: {}", fridgeId);
         Fridge fridge = fridgeService.getFridgeById(fridgeId)
@@ -132,7 +133,7 @@ public class FridgeController {
 
     // TODO Vurder dette alternativet
     // DELETE (Delete a fridge by ID)
-    @DeleteMapping("/{fridgeId}")
+    @DeleteMapping("/{fridgeIdTwo}")
     public ResponseEntity<Void> deleteFridgeTwo(@PathVariable Long fridgeId) {
         log.debug("Deleting fridge with id: {}", fridgeId);
         Fridge fridge = fridgeService.getFridgeById(fridgeId)
@@ -166,7 +167,7 @@ public class FridgeController {
 
     // TODO Vurder dette alternativet
     // DELETE (Remove a grocery item from a fridge)
-    @DeleteMapping("/{fridgeId}/grocery-items/{groceryItemId}")
+    @DeleteMapping("/{fridgeId}/grocery-items/{groceryItemIdTwo}")
     public ResponseEntity<Fridge> removeGroceryItemFromFridgeTwo(@PathVariable Long fridgeId, @PathVariable Long groceryItemId) {
         log.debug("Removing grocery item with id {} from fridge with id: {}", groceryItemId, fridgeId);
         GroceryItem groceryItem = groceryItemService.getGroceryItemById(groceryItemId)
