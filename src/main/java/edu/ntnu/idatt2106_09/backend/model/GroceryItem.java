@@ -22,8 +22,12 @@ public class GroceryItem {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "expected_expiration_days")
-    private int expectedExpirationDays;
+    @Column(name = "shelf_life")
+    private int shelfLife;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     /**
     @OneToMany(

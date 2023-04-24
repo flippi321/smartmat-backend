@@ -43,7 +43,7 @@ public class FridgeController {
         log.info("Fridge created with id: {}", newFridge.getFridgeId());
         return new ResponseEntity<>(newFridge, HttpStatus.CREATED);
     }
-
+/*
     // TODO Vurder dette alternativet
     // GET (Read a fridge by ID)
     @GetMapping("/{fridgeIdTwo}")
@@ -54,7 +54,7 @@ public class FridgeController {
         log.debug("Fridge with id {} found", fridgeId);
         return new ResponseEntity<>(fridge, HttpStatus.OK);
     }
-
+*/
     // GET (Read a fridge by ID)
     @GetMapping("/{fridgeId}")
     public ResponseEntity<Fridge> getFridgeById(@PathVariable Long fridgeId) {
@@ -96,7 +96,7 @@ public class FridgeController {
         log.debug("Total number of fridges retrieved: {}", fridges.size());
         return new ResponseEntity<>(fridges, HttpStatus.OK);
     }
-
+/*
     // TODO Vurder dette alternativet
     // PUT (Update a fridge)
     @PutMapping("/{fridgeIdTwo}")
@@ -110,7 +110,7 @@ public class FridgeController {
         log.info("Fridge with id {} updated", fridgeId);
         return new ResponseEntity<>(savedFridge, HttpStatus.OK);
     }
-
+*/
     // PUT (Update a fridge)
     @PutMapping("/{fridgeId}")
     public ResponseEntity<Fridge> updateFridge(@PathVariable Long fridgeId, @RequestBody Fridge updatedFridge) {
@@ -127,7 +127,7 @@ public class FridgeController {
         log.warn("Fridge with id {} not found for update request", fridgeId);
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
+/*
     // TODO Vurder dette alternativet
     // DELETE (Delete a fridge by ID)
     @DeleteMapping("/{fridgeIdTwo}")
@@ -139,7 +139,7 @@ public class FridgeController {
         log.info("Fridge with id {} deleted", fridgeId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
+*/
     // DELETE (Delete a fridge by ID)
     @DeleteMapping("/{fridgeId}")
     public ResponseEntity<Void> deleteFridge(@PathVariable Long fridgeId) {
@@ -161,7 +161,7 @@ public class FridgeController {
         log.warn("Couldn't find fridge with id {}", fridgeId);
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
+/*
     // TODO Vurder dette alternativet
     // DELETE (Remove a grocery item from a fridge)
     @DeleteMapping("/{fridgeId}/grocery-items/{groceryItemIdTwo}")
@@ -174,7 +174,7 @@ public class FridgeController {
         log.info("Grocery item with id {} removed from fridge with id: {}", groceryItemId, fridgeId);
         return new ResponseEntity<>(updatedFridge, HttpStatus.OK);
     }
-
+*/
     // DELETE (Remove a grocery item from a fridge)
     @DeleteMapping("/{fridgeId}/grocery-items/{groceryItemId}")
     public ResponseEntity<Fridge> removeGroceryItemFromFridge(@PathVariable Long fridgeId, @PathVariable Long groceryItemId) {
