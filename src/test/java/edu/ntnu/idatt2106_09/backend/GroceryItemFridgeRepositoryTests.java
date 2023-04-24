@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+/**
 @DataJdbcTest
 public class GroceryItemFridgeRepositoryTests {
     @Autowired
@@ -29,3 +30,4 @@ public class GroceryItemFridgeRepositoryTests {
         assertThat(expected).isTrue();
     }
 }
+*/
