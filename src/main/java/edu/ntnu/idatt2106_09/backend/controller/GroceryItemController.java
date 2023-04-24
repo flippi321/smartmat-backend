@@ -26,8 +26,10 @@ public class GroceryItemController {
 
     @Autowired
     private GroceryItemService groceryItemService ;
+
     @Autowired
     private FridgeService fridgeService ;
+
     @Autowired
     private ModelMapper modelMapper;
 
