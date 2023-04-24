@@ -1,14 +1,8 @@
 package edu.ntnu.idatt2106_09.backend.controller;
 
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
-import edu.ntnu.idatt2106_09.backend.model.Fridge;
-import edu.ntnu.idatt2106_09.backend.model.GroceryItem;
-import edu.ntnu.idatt2106_09.backend.model.GroceryItemFridge;
-import edu.ntnu.idatt2106_09.backend.service.CategoryService;
-import edu.ntnu.idatt2106_09.backend.service.FridgeService;
-import edu.ntnu.idatt2106_09.backend.service.GroceryItemService;
+import edu.ntnu.idatt2106_09.backend.service.category.CategoryService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
