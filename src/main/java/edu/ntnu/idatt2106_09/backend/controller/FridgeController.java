@@ -1,10 +1,13 @@
 package edu.ntnu.idatt2106_09.backend.controller;
 
+import edu.ntnu.idatt2106_09.backend.dto.FridgeDto;
+import edu.ntnu.idatt2106_09.backend.exceptionHandling.BadRequestException;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.Fridge;
 import edu.ntnu.idatt2106_09.backend.model.GroceryItem;
 import edu.ntnu.idatt2106_09.backend.service.FridgeService;
 import edu.ntnu.idatt2106_09.backend.service.GroceryItemService;
+import edu.ntnu.idatt2106_09.backend.service.HouseholdService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,173 +27,62 @@ public class FridgeController {
     private FridgeService fridgeService;
 
     @Autowired
-    private GroceryItemService groceryItemService;
+    private HouseholdService householdService;
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<String> handleNotFoundException(NotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    // POST (Create a new fridge)
-    @PostMapping
-    public ResponseEntity<Fridge> addFridge(@RequestBody Fridge fridge) {
-        log.debug("Adding new fridge");
-        if (fridge.getName() == null || fridge.getName().trim().isEmpty()) {
-            log.warn("Fridge name cannot be empty");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        Fridge newFridge = fridgeService.addFridge(fridge);
-        log.info("Fridge created with id: {}", newFridge.getFridgeId());
-        return new ResponseEntity<>(newFridge, HttpStatus.CREATED);
-    }
-/*
-    // TODO Vurder dette alternativet
-    // GET (Read a fridge by ID)
-    @GetMapping("/{fridgeIdTwo}")
-    public ResponseEntity<Fridge> getFridgeByIdTwo(@PathVariable Long fridgeId) {
-        log.debug("Fetching fridge with id: {}", fridgeId);
-        Fridge fridge = fridgeService.getFridgeById(fridgeId)
-                .orElseThrow(() -> new NotFoundException("Fridge with id " + fridgeId + " not found"));
-        log.debug("Fridge with id {} found", fridgeId);
-        return new ResponseEntity<>(fridge, HttpStatus.OK);
-    }
-*/
-    // GET (Read a fridge by ID)
-    @GetMapping("/{fridgeId}")
-    public ResponseEntity<Fridge> getFridgeById(@PathVariable Long fridgeId) {
-        log.debug("Fetching fridge with id: {}", fridgeId);
-        Optional<Fridge> fridge = fridgeService.getFridgeById(fridgeId);
-        if (fridge.isPresent()) {
-            log.debug("Fridge with id {} found", fridgeId);
-            return new ResponseEntity<>(fridge.get(), HttpStatus.OK); //TODO Skal .get() brukes her?
-        } else {
-            log.warn("Fridge with id {} not found", fridgeId);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<String> handleNotFoundException(BadRequestException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    //TODO Metode foreslått av GPT - bruke funksjonell programmering slik?
-    /**
-    // GET (Read a fridge by ID)
-    @GetMapping("/{fridgeId}")
-    public ResponseEntity<Fridge> getFridgeById(@PathVariable Long fridgeId) {
-        log.info("Fetching fridge with ID: {}", fridgeId);
-        Optional<Fridge> fridgeOptional = fridgeService.getFridgeById(fridgeId);
-        return fridgeOptional
-                .map(fridge -> {
-                    log.info("Fridge found: {}", fridge);
-                    return new ResponseEntity<>(fridge, HttpStatus.OK);
-                })
-                .orElseGet(() -> {
-                    log.warn("Fridge with ID {} not found", fridgeId);
-                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                });
-    }
-    */
+    @PostMapping("/add")
+    public ResponseEntity<FridgeDto> addFridge(@RequestBody FridgeDto fridgeDto) {
+        log.debug("[X] Adding new fridgeDto");
 
-    // GET (Read all fridges)
+        // Check if the fridgeDto name is valid
+        if (fridgeDto.getName() == null || fridgeDto.getName().trim().isEmpty()) {
+            log.warn("[X] Fridge name cannot be empty");
+            throw new BadRequestException("Fridge name cannot be empty");
+        }
+
+        // Check if the household ID exists in the database
+        Long householdId = fridgeDto.getHousehold().getHouseholdId();
+        householdService.getHouseholdById(householdId)
+                .orElseThrow(() -> new BadRequestException("Household with ID " + householdId + " not found"));
+
+        FridgeDto newFridgeDto = fridgeService.addFridge(fridgeDto);
+        log.info("[X] Fridge created with id: {}", newFridgeDto.getFridgeId());
+        return new ResponseEntity<>(newFridgeDto, HttpStatus.CREATED);
+    }
+
     @GetMapping
     public ResponseEntity<Set<Fridge>> getAllFridges() {
-        log.debug("Fetching all fridges");
+        log.debug("[X] Fetching all fridges");
         Set<Fridge> fridges = fridgeService.getAllFridges();
-        log.debug("Total number of fridges retrieved: {}", fridges.size());
+        log.debug("[X] Total number of fridges retrieved: {}", fridges.size());
         return new ResponseEntity<>(fridges, HttpStatus.OK);
     }
-/*
+
     // TODO Vurder dette alternativet
-    // PUT (Update a fridge)
-    @PutMapping("/{fridgeIdTwo}")
-    public ResponseEntity<Fridge> updateFridgeTwo(@PathVariable Long fridgeId, @RequestBody Fridge updatedFridge) {
-        log.debug("Updating fridge with id: {}", fridgeId);
-        Fridge fridge = fridgeService.getFridgeById(fridgeId)
-                .orElseThrow(() -> new NotFoundException("Fridge with id " + fridgeId + " not found for update"));
-        fridge.setName(updatedFridge.getName());
-        fridge.setHousehold(updatedFridge.getHousehold());
-        Fridge savedFridge = fridgeService.updateFridge(fridge);
-        log.info("Fridge with id {} updated", fridgeId);
-        return new ResponseEntity<>(savedFridge, HttpStatus.OK);
-    }
-*/
-    // PUT (Update a fridge)
-    @PutMapping("/{fridgeId}")
-    public ResponseEntity<Fridge> updateFridge(@PathVariable Long fridgeId, @RequestBody Fridge updatedFridge) {
-        log.debug("Updating fridge with id: {}", fridgeId);
-        Optional<Fridge> fridgeToUpdate = fridgeService.getFridgeById(fridgeId);
-        if (fridgeToUpdate.isPresent()) {
-            Fridge fridge = fridgeToUpdate.get(); //TODO Gir dette mening?
-            fridge.setName(updatedFridge.getName());
-            fridge.setHousehold(updatedFridge.getHousehold());
-            Fridge savedFridge = fridgeService.updateFridge(fridge);
-            log.info("Fridge with id {} updated", fridgeId); //TODO Hvorfor er denne .info når den over er .debug?
-            return new ResponseEntity<>(savedFridge, HttpStatus.OK);
-        }
-        log.warn("Fridge with id {} not found for update request", fridgeId);
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
-/*
-    // TODO Vurder dette alternativet
-    // DELETE (Delete a fridge by ID)
     @DeleteMapping("/{fridgeIdTwo}")
     public ResponseEntity<Void> deleteFridgeTwo(@PathVariable Long fridgeId) {
-        log.debug("Deleting fridge with id: {}", fridgeId);
+        log.debug("[X] Deleting fridge with id: {}", fridgeId);
         Fridge fridge = fridgeService.getFridgeById(fridgeId)
                 .orElseThrow(() -> new NotFoundException("Fridge with id " + fridgeId + " not found for deletion"));
         fridgeService.deleteFridge(fridgeId);
-        log.info("Fridge with id {} deleted", fridgeId);
+        log.debug("[X] Fridge with id {} deleted", fridgeId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-*/
-    // DELETE (Delete a fridge by ID)
+
     @DeleteMapping("/{fridgeId}")
     public ResponseEntity<Void> deleteFridge(@PathVariable Long fridgeId) {
-        log.debug("Deleting fridge with id: {}", fridgeId);
+        log.debug("[X] Deleting fridge with id: {}", fridgeId);
         fridgeService.deleteFridge(fridgeId);
-        log.info("Fridge with id {} deleted", fridgeId);
+        log.debug("[X] Fridge with id {} deleted", fridgeId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT); //TODO Exception handling?
-    }
-
-    // POST (Add a grocery item to a fridge)
-    @PostMapping("/{fridgeId}/grocery-items")
-    public ResponseEntity<Fridge> addGroceryItemToFridge(@PathVariable Long fridgeId, @RequestBody GroceryItem groceryItem) {
-        log.debug("Adding grocery item to fridge with id: {}", fridgeId);
-        Fridge updatedFridge = fridgeService.addGroceryItemToFridge(fridgeId, groceryItem);
-        if (updatedFridge != null) {
-            log.info("Grocery item added to fridge with id: {}", fridgeId);
-            return new ResponseEntity<>(updatedFridge, HttpStatus.OK);
-        }
-        log.warn("Couldn't find fridge with id {}", fridgeId);
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
-/*
-    // TODO Vurder dette alternativet
-    // DELETE (Remove a grocery item from a fridge)
-    @DeleteMapping("/{fridgeId}/grocery-items/{groceryItemIdTwo}")
-    public ResponseEntity<Fridge> removeGroceryItemFromFridgeTwo(@PathVariable Long fridgeId, @PathVariable Long groceryItemId) {
-        log.debug("Removing grocery item with id {} from fridge with id: {}", groceryItemId, fridgeId);
-        GroceryItem groceryItem = groceryItemService.getGroceryItemById(groceryItemId)
-                .orElseThrow(() -> new NotFoundException("Grocery item with id " + groceryItemId + " not found for removal"));
-        Fridge updatedFridge = fridgeService.removeGroceryItemFromFridge(fridgeId, groceryItem);
-                //.orElseThrow(() -> new FridgeNotFoundException("Fridge with id " + fridgeId + " not found for removing grocery item"));
-        log.info("Grocery item with id {} removed from fridge with id: {}", groceryItemId, fridgeId);
-        return new ResponseEntity<>(updatedFridge, HttpStatus.OK);
-    }
-*/
-    // DELETE (Remove a grocery item from a fridge)
-    @DeleteMapping("/{fridgeId}/grocery-items/{groceryItemId}")
-    public ResponseEntity<Fridge> removeGroceryItemFromFridge(@PathVariable Long fridgeId, @PathVariable Long groceryItemId) {
-        log.debug("Removing grocery item with id {} from fridge with id: {}", groceryItemId, fridgeId);
-        Optional<GroceryItem> groceryItemToRemove = groceryItemService.getGroceryItemById(groceryItemId);
-        if (groceryItemToRemove.isPresent()) {
-            GroceryItem groceryItem = groceryItemToRemove.get();
-            Fridge updatedFridge = fridgeService.removeGroceryItemFromFridge(fridgeId, groceryItem);
-            if (updatedFridge != null) { //TODO Gir denne mening?
-                log.info("Grocery item with id {} removed from fridge with id: {}", groceryItemId, fridgeId);
-                return new ResponseEntity<>(updatedFridge, HttpStatus.OK);
-            }
-            log.warn("Fridge with id {} not found for removing grocery item", fridgeId);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        log.warn("The grocery item with id {} was not found in the fridge", groceryItemId);
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }
