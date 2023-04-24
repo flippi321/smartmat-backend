@@ -1,4 +1,4 @@
-package edu.ntnu.idatt2106_09.backend.service;
+package edu.ntnu.idatt2106_09.backend.service.household;
 
 import edu.ntnu.idatt2106_09.backend.model.Household;
 import edu.ntnu.idatt2106_09.backend.repository.HouseholdRepository;
@@ -8,12 +8,12 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class HouseholdService {
-    // Add the HouseholdRepository dependency
+public class HouseholdServiceImplementation implements HouseholdService {
+
     @Autowired
     private HouseholdRepository householdRepository;
 
-    // Get a household by ID
+    @Override
     public Optional<Household> getHouseholdById(Long householdId) {
         return householdRepository.findById(householdId);
     }

@@ -1,4 +1,4 @@
-package edu.ntnu.idatt2106_09.backend.service;
+package edu.ntnu.idatt2106_09.backend.service.fridge;
 
 import edu.ntnu.idatt2106_09.backend.dto.FridgeDto;
 import edu.ntnu.idatt2106_09.backend.model.Fridge;
@@ -13,46 +13,45 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-public class FridgeService {
+public class FridgeServiceImplementation implements FridgeService {
 
     @Autowired
     private FridgeRepository fridgeRepository;
 
-    // Add ModelMapper as a class member
     private final ModelMapper modelMapper = new ModelMapper();
 
-    // Create (Add a new fridge)
+    @Override
     public Fridge addFridge(Fridge fridge) {
         return fridgeRepository.save(fridge);
     }
 
-    // Create (Add a new fridge)
+    @Override
     public FridgeDto addFridge(FridgeDto fridgeDTO) {
         Fridge newFridge = modelMapper.map(fridgeDTO, Fridge.class);
         return modelMapper.map(fridgeRepository.save(newFridge), FridgeDto.class);
     }
 
-    // Read (Get a fridge by ID)
+    @Override
     public Optional<Fridge> getFridgeById(Long fridgeId) {
         return fridgeRepository.findById(fridgeId);
     }
 
-    // Read (Get all fridges)
+    @Override
     public Set<Fridge> getAllFridges() {
         return fridgeRepository.getAllFridges();
     }
 
-    // Update (Update a fridge)
+    @Override
     public Fridge updateFridge(Fridge fridge) {
         return fridgeRepository.save(fridge);
     }
 
-    // Delete (Delete a fridge by ID)
+    @Override
     public void deleteFridge(Long fridgeId) {
         fridgeRepository.deleteById(fridgeId);
     }
 
-    // Add a grocery item to a fridge
+    @Override
     public Fridge addGroceryItemToFridge(Long fridgeId, GroceryItem groceryItem) {
         Optional<Fridge> fridgeOptional = fridgeRepository.findById(fridgeId);
         if (fridgeOptional.isPresent()) {
@@ -63,7 +62,7 @@ public class FridgeService {
         return null;
     }
 
-    // Remove a grocery item from a fridge
+    @Override
     public Fridge removeGroceryItemFromFridge(Long fridgeId, GroceryItem groceryItem) {
         Optional<Fridge> fridgeOptional = fridgeRepository.findById(fridgeId);
         if (fridgeOptional.isPresent()) {

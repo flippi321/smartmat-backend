@@ -1,37 +1,30 @@
-package edu.ntnu.idatt2106_09.backend.service;
+package edu.ntnu.idatt2106_09.backend.service.groceryItem;
 
-import edu.ntnu.idatt2106_09.backend.model.Fridge;
 import edu.ntnu.idatt2106_09.backend.model.GroceryItem;
-import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
-public class GroceryItemService {
+public class GroceryItemServiceImplementation implements GroceryItemService {
 
     @Autowired
     private GroceryItemRepository groceryItemRepository;
 
-    // Create (Add a new groceryItem)
+    @Override
     public GroceryItem addGroceryItemToFridge(GroceryItem groceryItem) {
         return groceryItemRepository.save(groceryItem);
     }
 
-    // Get a grocery item by ID
+    @Override
     public Optional<GroceryItem> getGroceryItemById(Long groceryItemId) {
         return groceryItemRepository.findById(groceryItemId);
     }
 
-
-    // Update (Update a groceryItem)
+    @Override
     public GroceryItem updateGroceryItem(GroceryItem groceryItem) {
         return groceryItemRepository.save(groceryItem);
     }
-
-
 }

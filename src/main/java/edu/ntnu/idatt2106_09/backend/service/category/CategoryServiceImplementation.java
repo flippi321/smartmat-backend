@@ -1,27 +1,29 @@
-package edu.ntnu.idatt2106_09.backend.service;
+package edu.ntnu.idatt2106_09.backend.service.category;
 
 import edu.ntnu.idatt2106_09.backend.model.Category;
 import edu.ntnu.idatt2106_09.backend.repository.CategoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
 @Service
-public class CategoryService {
+public class CategoryServiceImplementation implements CategoryService {
 
-    private final CategoryRepository categoryRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
-    public CategoryService(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
-
+    @Override
     public Set<Category> getAllCategories() {
         return categoryRepository.getAllCategories();
     }
 
+    @Override
     public Category addCategory(Category category) {
         return categoryRepository.save(category);
     }
+
+    @Override
     public Category updateCategory(Long id, Category updatedCategory) {
         return categoryRepository.findById(id)
                 .map(category -> {
@@ -32,6 +34,7 @@ public class CategoryService {
                 .orElseThrow(() -> new RuntimeException("Category not found"));
     }
 
+    @Override
     public void deleteCategory(Long id) {
         categoryRepository.deleteById(id);
     }
