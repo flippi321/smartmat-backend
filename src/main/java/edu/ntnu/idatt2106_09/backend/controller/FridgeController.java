@@ -31,9 +31,6 @@ public class FridgeController {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-
-    //TODO Burde de over bli brukt på try-catch metoden?
-
     // POST (Create a new fridge)
     @PostMapping
     public ResponseEntity<Fridge> addFridge(@RequestBody Fridge fridge) {
