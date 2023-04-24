@@ -1,7 +1,6 @@
 package edu.ntnu.idatt2106_09.backend.controller;
 
-import edu.ntnu.idatt2106_09.backend.exceptionHandling.FridgeNotFoundException;
-import edu.ntnu.idatt2106_09.backend.exceptionHandling.GroceryItemNotFoundException;
+import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.Fridge;
 import edu.ntnu.idatt2106_09.backend.model.GroceryItem;
 import edu.ntnu.idatt2106_09.backend.service.FridgeService;
@@ -26,15 +25,11 @@ public class FridgeController {
     @Autowired
     private GroceryItemService groceryItemService;
 
-    @ExceptionHandler(FridgeNotFoundException.class)
-    public ResponseEntity<String> handleFridgeNotFoundException(FridgeNotFoundException ex) {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<String> handleNotFoundException(NotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(GroceryItemNotFoundException.class)
-    public ResponseEntity<String> handleGroceryItemNotFoundException(GroceryItemNotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
 
     //TODO Burde de over bli brukt på try-catch metoden?
 
@@ -57,7 +52,7 @@ public class FridgeController {
     public ResponseEntity<Fridge> getFridgeByIdTwo(@PathVariable Long fridgeId) {
         log.debug("Fetching fridge with id: {}", fridgeId);
         Fridge fridge = fridgeService.getFridgeById(fridgeId)
-                .orElseThrow(() -> new FridgeNotFoundException("Fridge with id " + fridgeId + " not found"));
+                .orElseThrow(() -> new NotFoundException("Fridge with id " + fridgeId + " not found"));
         log.debug("Fridge with id {} found", fridgeId);
         return new ResponseEntity<>(fridge, HttpStatus.OK);
     }
@@ -110,7 +105,7 @@ public class FridgeController {
     public ResponseEntity<Fridge> updateFridgeTwo(@PathVariable Long fridgeId, @RequestBody Fridge updatedFridge) {
         log.debug("Updating fridge with id: {}", fridgeId);
         Fridge fridge = fridgeService.getFridgeById(fridgeId)
-                .orElseThrow(() -> new FridgeNotFoundException("Fridge with id " + fridgeId + " not found for update"));
+                .orElseThrow(() -> new NotFoundException("Fridge with id " + fridgeId + " not found for update"));
         fridge.setName(updatedFridge.getName());
         fridge.setHousehold(updatedFridge.getHousehold());
         Fridge savedFridge = fridgeService.updateFridge(fridge);
@@ -141,7 +136,7 @@ public class FridgeController {
     public ResponseEntity<Void> deleteFridgeTwo(@PathVariable Long fridgeId) {
         log.debug("Deleting fridge with id: {}", fridgeId);
         Fridge fridge = fridgeService.getFridgeById(fridgeId)
-                .orElseThrow(() -> new FridgeNotFoundException("Fridge with id " + fridgeId + " not found for deletion"));
+                .orElseThrow(() -> new NotFoundException("Fridge with id " + fridgeId + " not found for deletion"));
         fridgeService.deleteFridge(fridgeId);
         log.info("Fridge with id {} deleted", fridgeId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -175,7 +170,7 @@ public class FridgeController {
     public ResponseEntity<Fridge> removeGroceryItemFromFridgeTwo(@PathVariable Long fridgeId, @PathVariable Long groceryItemId) {
         log.debug("Removing grocery item with id {} from fridge with id: {}", groceryItemId, fridgeId);
         GroceryItem groceryItem = groceryItemService.getGroceryItemById(groceryItemId)
-                .orElseThrow(() -> new GroceryItemNotFoundException("Grocery item with id " + groceryItemId + " not found for removal"));
+                .orElseThrow(() -> new NotFoundException("Grocery item with id " + groceryItemId + " not found for removal"));
         Fridge updatedFridge = fridgeService.removeGroceryItemFromFridge(fridgeId, groceryItem);
                 //.orElseThrow(() -> new FridgeNotFoundException("Fridge with id " + fridgeId + " not found for removing grocery item"));
         log.info("Grocery item with id {} removed from fridge with id: {}", groceryItemId, fridgeId);
