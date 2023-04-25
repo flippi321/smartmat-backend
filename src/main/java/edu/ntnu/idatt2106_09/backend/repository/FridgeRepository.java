@@ -16,6 +16,9 @@ public interface FridgeRepository extends JpaRepository<Fridge, Long> {
     @Query("SELECT f FROM Fridge f")
     Set<Fridge> getAllFridges();
 
+    @Query("SELECT f FROM Fridge f WHERE f.name = :name AND f.household.householdId = :householdId")
+    Fridge findByNameAndHouseholdId(@Param("name") String name, @Param("householdId") Long householdId);
+
     @Query("SELECT g.groceryItem FROM Fridge f JOIN f.groceries g WHERE f.fridgeId= :id")
     Set<GroceryItem> getAllGroceryItemsInFridge(@Param("id") long id);
 

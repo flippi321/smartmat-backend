@@ -15,8 +15,6 @@ import java.util.Set;
 @Service
 public interface FridgeService {
 
-    public Fridge addFridge(Fridge fridge);
-
     public FridgeDto addFridge(FridgeDto fridgeDTO);
 
     public Optional<Fridge> getFridgeById(Long fridgeId);

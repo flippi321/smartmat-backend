@@ -22,40 +22,15 @@ public class FridgeController {
     @Autowired
     private FridgeService fridgeService;
 
-    @Autowired
-    private HouseholdService householdService;
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> handleNotFoundException(NotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<String> handleNotFoundException(BadRequestException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
     @PostMapping("/add")
     public ResponseEntity<FridgeDto> addFridge(@RequestBody FridgeDto fridgeDto) {
-        log.debug("[X] Adding new fridgeDto");
-
-        // Check if the fridgeDto name is valid
-        if (fridgeDto.getName() == null || fridgeDto.getName().trim().isEmpty()) {
-            log.warn("[X] Fridge name cannot be empty");
-            throw new BadRequestException("Fridge name cannot be empty");
-        }
-
-        // Check if the household ID exists in the database
-        Long householdId = fridgeDto.getHousehold().getHouseholdId();
-        householdService.getHouseholdById(householdId)
-                .orElseThrow(() -> new BadRequestException("Household with ID " + householdId + " not found"));
-
-        FridgeDto newFridgeDto = fridgeService.addFridge(fridgeDto);
-        log.info("[X] Fridge created with id: {}", newFridgeDto.getFridgeId());
-        return new ResponseEntity<>(newFridgeDto, HttpStatus.CREATED);
+        log.debug("[X] Adding new fridge");
+        FridgeDto newFridge = fridgeService.addFridge(fridgeDto);
+        log.info("[X] Fridge created with id: {}", newFridge.getFridgeId());
+        return new ResponseEntity<>(newFridge, HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<Set<Fridge>> getAllFridges() {
         log.debug("[X] Fetching all fridges");
         Set<Fridge> fridges = fridgeService.getAllFridges();
@@ -63,22 +38,27 @@ public class FridgeController {
         return new ResponseEntity<>(fridges, HttpStatus.OK);
     }
 
-    // TODO Vurder dette alternativet
-    @DeleteMapping("/{fridgeIdTwo}")
-    public ResponseEntity<Void> deleteFridgeTwo(@PathVariable Long fridgeId) {
+    // In FridgeController
+    @DeleteMapping("/{fridgeId}")
+    public ResponseEntity<Void> deleteFridge(@PathVariable Long fridgeId) {
         log.debug("[X] Deleting fridge with id: {}", fridgeId);
         Fridge fridge = fridgeService.getFridgeById(fridgeId)
                 .orElseThrow(() -> new NotFoundException("Fridge with id " + fridgeId + " not found for deletion"));
         fridgeService.deleteFridge(fridgeId);
-        log.debug("[X] Fridge with id {} deleted", fridgeId);
+        log.info("[X] Fridge with id {} deleted", fridgeId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+
+    /**
     @DeleteMapping("/{fridgeId}")
     public ResponseEntity<Void> deleteFridge(@PathVariable Long fridgeId) {
         log.debug("[X] Deleting fridge with id: {}", fridgeId);
+        Fridge fridge = fridgeService.getFridgeById(fridgeId)
+                .orElseThrow(() -> new NotFoundException("Fridge with id " + fridgeId + " not found for deletion"));
         fridgeService.deleteFridge(fridgeId);
-        log.debug("[X] Fridge with id {} deleted", fridgeId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT); //TODO Exception handling?
+        log.info("[X] Fridge with id {} deleted", fridgeId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+    */
 }
