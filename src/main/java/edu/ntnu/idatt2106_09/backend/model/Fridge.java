@@ -28,11 +28,11 @@ public class Fridge {
     @Column(name = "fridge_id", nullable = false)
     private Long fridgeId;
 
-    @NaturalId
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "household_id", referencedColumnName = "household_id")
+    @OneToOne
+    @JoinColumn(name = "household_id", referencedColumnName = "household_id", unique = true)
     private Household household;
 
     @OneToMany(
@@ -40,7 +40,6 @@ public class Fridge {
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private Set<GroceryItemFridge> groceries = new HashSet<>();
-
 
     public void addGroceryItem(GroceryItem groceryItem) {
         GroceryItemFridge groceryItemFridge = new GroceryItemFridge(this, groceryItem);

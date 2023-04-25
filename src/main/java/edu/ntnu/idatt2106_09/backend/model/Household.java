@@ -20,6 +20,6 @@ public class Household {
     @Column(name = "name")
     private String name;
 
-    @OneToOne(mappedBy = "household")
+    @OneToOne(mappedBy = "household", cascade = CascadeType.ALL, orphanRemoval = true)
     private Fridge fridge;
 }
