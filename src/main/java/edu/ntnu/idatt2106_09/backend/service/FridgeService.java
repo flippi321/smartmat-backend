@@ -1,8 +1,10 @@
 package edu.ntnu.idatt2106_09.backend.service;
 
+import edu.ntnu.idatt2106_09.backend.dto.FridgeDTO;
 import edu.ntnu.idatt2106_09.backend.model.Fridge;
 import edu.ntnu.idatt2106_09.backend.model.GroceryItem;
 import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,9 @@ import java.util.Set;
 
 @Service
 public class FridgeService {
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Autowired
     private FridgeRepository fridgeRepository;
@@ -61,5 +66,10 @@ public class FridgeService {
             return fridgeRepository.save(fridge);
         }
         return null;
+    }
+
+    public FridgeDTO castFridgeDTO(Fridge fridge) {
+        return modelMapper.map(fridge, FridgeDTO.class);
+
     }
 }

@@ -16,8 +16,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class GroceryItemFridgeDTO {
-    private GroceryItemFridge groceryItemFridge;
-    private GroceryItem groceryItem;
+    private FridgeDTO fridgeDTO;
+    private GroceryItemDTO groceryItem;
     private int amount;
     private LocalDate purchaseDate;
     private LocalDate expirationDate;

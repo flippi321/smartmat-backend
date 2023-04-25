@@ -1,13 +1,9 @@
 package edu.ntnu.idatt2106_09.backend.service;
 
-import edu.ntnu.idatt2106_09.backend.dto.GroceryItemDTO;
-import edu.ntnu.idatt2106_09.backend.dto.GroceryItemFridgeDTO;
+import edu.ntnu.idatt2106_09.backend.dto.*;
 
-import edu.ntnu.idatt2106_09.backend.dto.GroceryItemRecipeDTO;
-import edu.ntnu.idatt2106_09.backend.dto.RecipeDTO;
-import edu.ntnu.idatt2106_09.backend.model.GroceryItem;
-import edu.ntnu.idatt2106_09.backend.model.GroceryItemRecipe;
-import edu.ntnu.idatt2106_09.backend.model.Recipe;
+import edu.ntnu.idatt2106_09.backend.model.*;
+import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRecipeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRepository;
 import edu.ntnu.idatt2106_09.backend.repository.RecipeRepository;
@@ -27,8 +23,12 @@ public class RecipeService {
     @Autowired
     private GroceryItemRecipeRepository groceryItemRecipeRepository;
 
+
     @Autowired
-    private GroceryItemRepository groceryItemRepository;
+    private FridgeService fridgeService;
+
+    @Autowired
+    private FridgeRepository fridgeRepository;
 
     @Autowired
     private GroceryItemService groceryItemService;
@@ -58,14 +58,32 @@ public class RecipeService {
     // 5. Compute recipe list based on exp date
 
 
-    private HashMap<String, GroceryItemFridgeDTO> retriveFridgeItemsHashMap(){
-
+    private HashMap<String, GroceryItemFridgeDTO> retrieveFridgeItemsHashMap(long fridgeId) {
         HashMap<String, GroceryItemFridgeDTO> map = new HashMap<>();
 
+        Fridge fridge = fridgeRepository.findById(fridgeId).get();
+        FridgeDTO fridgeDTO = fridgeService.castFridgeDTO(fridge);
+        Set<GroceryItemFridge> groceryItemFridge = fridge.getGroceries();
 
+
+        GroceryItemFridgeDTO currentGroceryItemFridgeDTO;
+
+        for (GroceryItemFridge gif : groceryItemFridge) {
+
+            currentGroceryItemFridgeDTO = new GroceryItemFridgeDTO();
+            currentGroceryItemFridgeDTO.setAmount(gif.getAmount());
+            currentGroceryItemFridgeDTO.setExpirationDate(gif.getExpirationDate());
+            currentGroceryItemFridgeDTO.setPurchaseDate(gif.getPurchaseDate());
+            currentGroceryItemFridgeDTO.setFridgeDTO(fridgeDTO);
+            currentGroceryItemFridgeDTO.setGroceryItem(groceryItemService.castGroceryItemDto(gif.getGroceryItem()));
+
+
+            map.put(gif.getGroceryItem().getName(), currentGroceryItemFridgeDTO);
+        }
 
         return map;
     }
+
 
 
 
@@ -80,13 +98,10 @@ public class RecipeService {
 
         GroceryItemRecipeDTO currentGIRDTO;
         RecipeDTO currentRecipeDTO;
-        GroceryItemDTO currentGroceryItemDTO;
 
 
         for (Recipe recipe : allRecipes) {
-
             allGroceryItemRecipe = recipe.getGroceries();
-
             currentGIRDTOList = new ArrayList<>();
 
 
@@ -101,7 +116,7 @@ public class RecipeService {
                 currentGIRDTO.setAmount(groceryItemRecipe.getAmount());
                 currentGIRDTO.setRecipe(currentRecipeDTO);
                 currentGIRDTO.setGroceryItem(groceryItemService.castGroceryItemDto(
-                        groceryItemRecipeRepository.findById(recipe.getRecipe_id().longValue())
+                        groceryItemRecipeRepository.findById(recipe.getRecipe_id())
                                 .get().getGroceryItem()
                 ));
                 currentGIRDTOList.add(currentGIRDTO);
