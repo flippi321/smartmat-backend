@@ -23,7 +23,4 @@ public class Category {
 
     @Column(name = "unit")
     private String unit;
-
-    @OneToMany(mappedBy = "category")
-    private Set<GroceryItem> groceryItems;
 }

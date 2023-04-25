@@ -1,5 +1,6 @@
 package edu.ntnu.idatt2106_09.backend.controller;
 
+import edu.ntnu.idatt2106_09.backend.dto.CategoryDto;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.service.category.CategoryService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,45 +29,27 @@ public class CategoryController {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping
-    public ResponseEntity<Set<Category>> getAllCategories() {
-        log.debug("[x] Fetching all Categories");
-        Set<Category> categories = categoryService.getAllCategories();
-        log.info("[x] Total number of Categories retrieved: {}", categories.size());
-        return new ResponseEntity<>(categories, HttpStatus.OK);
+    @GetMapping("/all")
+    public ResponseEntity<Set<CategoryDto>> getAllCategories() {
+        log.debug("[X] Call to return all grocery items");
+        return categoryService.getAllCategories();
     }
 
-    @PostMapping
-    public ResponseEntity<Category> addCategory(@RequestBody Category category) {
-        log.debug("[x] Adding new Category: {}", category);
-        Category savedCategory = categoryService.addCategory(category);
-        log.info("[x] Category added with ID: {}", savedCategory.getCategory());
-        return new ResponseEntity<>(savedCategory, HttpStatus.CREATED);
+    @GetMapping("/{groceryItemId}")
+    public ResponseEntity<CategoryDto> getCategoryById(@PathVariable Long categoryId) {
+        log.debug("[X] Call to return a grocery item by id");
+        return categoryService.getCategoryById(categoryId);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestBody Category category) {
-        log.debug("[x] Updating Category with ID: {}", id);
-        try {
-            Category updatedCategory = categoryService.updateCategory(id, category);
-            log.info("[x] Category with ID {} updated", id);
-            return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            log.warn("[x] Category with ID {} not found", id);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @PutMapping("/update/{groceryItemId}")
+    public ResponseEntity<CategoryDto> updateCategory(@PathVariable Long categoryId, @RequestBody CategoryDto updatedCategoryDto) {
+        log.debug("[X] Call to update a category item with id = {}", categoryId);
+        return categoryService.updateCategory(categoryId, updatedCategoryDto);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
-        log.debug("[x] Deleting Category with ID: {}", id);
-        try {
-            categoryService.deleteCategory(id);
-            log.info("[x] Category with ID {} deleted", id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (EmptyResultDataAccessException e) {
-            log.warn("[x] Category with ID {} not found", id);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @DeleteMapping("/delete/{groceryItemId}")
+    public ResponseEntity<CategoryDto> deleteCategory(@PathVariable Long categoryId) {
+        log.debug("[X] Call to delete a category item with id = {}", categoryId);
+        return categoryService.deleteCategory(categoryId);
     }
 }
