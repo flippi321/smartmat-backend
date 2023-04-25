@@ -1,21 +1,40 @@
 package edu.ntnu.idatt2106_09.backend.service;
 
+import edu.ntnu.idatt2106_09.backend.dto.GroceryItemDTO;
 import edu.ntnu.idatt2106_09.backend.dto.GroceryItemFridgeDTO;
 
+import edu.ntnu.idatt2106_09.backend.dto.GroceryItemRecipeDTO;
+import edu.ntnu.idatt2106_09.backend.dto.RecipeDTO;
+import edu.ntnu.idatt2106_09.backend.model.GroceryItem;
+import edu.ntnu.idatt2106_09.backend.model.GroceryItemRecipe;
 import edu.ntnu.idatt2106_09.backend.model.Recipe;
+import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRecipeRepository;
+import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRepository;
 import edu.ntnu.idatt2106_09.backend.repository.RecipeRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class RecipeService {
 
     @Autowired
     private RecipeRepository recipeRepository;
+
+    @Autowired
+    private GroceryItemRecipeRepository groceryItemRecipeRepository;
+
+    @Autowired
+    private GroceryItemRepository groceryItemRepository;
+
+    @Autowired
+    private GroceryItemService groceryItemService;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     public Recipe addRecipe(Recipe recipe) {
         return recipeRepository.save(recipe);
@@ -43,11 +62,55 @@ public class RecipeService {
 
         HashMap<String, GroceryItemFridgeDTO> map = new HashMap<>();
 
+
+
         return map;
     }
 
-    private void getIngredientSetFromRecipe() {
 
+
+    private List<List<GroceryItemRecipeDTO>> getRecipeList() {
+
+        Set<Recipe> allRecipes = recipeRepository.getAllRecipes();
+
+        Set<GroceryItemRecipe> allGroceryItemRecipe;
+
+        List<List<GroceryItemRecipeDTO>> GroceryItemRecipeDTOList = new ArrayList<>();
+        List<GroceryItemRecipeDTO> currentGIRDTOList;
+
+        GroceryItemRecipeDTO currentGIRDTO;
+        RecipeDTO currentRecipeDTO;
+        GroceryItemDTO currentGroceryItemDTO;
+
+
+        for (Recipe recipe : allRecipes) {
+
+            allGroceryItemRecipe = recipe.getGroceries();
+
+            currentGIRDTOList = new ArrayList<>();
+
+
+            currentRecipeDTO = RecipeDTO.builder()
+                    .recipe_id(recipe.getRecipe_id())
+                    .name(recipe.getName())
+                    .description(recipe.getDescription())
+                    .build();
+
+            for(GroceryItemRecipe groceryItemRecipe : allGroceryItemRecipe) {
+                currentGIRDTO = new GroceryItemRecipeDTO();
+                currentGIRDTO.setAmount(groceryItemRecipe.getAmount());
+                currentGIRDTO.setRecipe(currentRecipeDTO);
+                currentGIRDTO.setGroceryItem(groceryItemService.castGroceryItemDto(
+                        groceryItemRecipeRepository.findById(recipe.getRecipe_id().longValue())
+                                .get().getGroceryItem()
+                ));
+                currentGIRDTOList.add(currentGIRDTO);
+            }
+
+            GroceryItemRecipeDTOList.add(currentGIRDTOList);
+        }
+
+        return GroceryItemRecipeDTOList;
     }
 
     private void compareFridgeAndRecipeList(){
