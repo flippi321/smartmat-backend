@@ -41,6 +41,10 @@ public class GroceryItemFridge {
 
     @Column(name = "expiration_date")
     private LocalDate expirationDate = LocalDate.now();
+
+    public Long getGroceryItemId() {
+        return groceryItem.getGroceryItemId();
+    }
 }
 
 @AllArgsConstructor
