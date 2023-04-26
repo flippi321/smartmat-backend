@@ -31,10 +31,12 @@ public class GroceryItemController {
     //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A SHOPPINGLIST AND A FRIDGE
 
     // POST (Add a new grocery item to a shoppinglist)
-    @PostMapping("/transfer/{shoppinglistId}/{fridgeId}/{groceryItemId}")
-    public ResponseEntity<FridgeDto> transferGroceryItemToFridge(@PathVariable("shoppinglistId") Long shoppinglistId, @PathVariable("fridgeId") Long fridgeId, @PathVariable("groceryItemId") Long groceryItemId) {
-        log.debug("[X] Call to remove a grocery from shoppinglist and ad it to fridge");
-        return groceryItemService.transferGroceryItemToFridge(shoppinglistId, fridgeId, groceryItemId);
+    @PostMapping("/transfer/{shoppinglistId}/{fridgeId}")
+    public void transferGroceryItemsToFridge(@PathVariable("shoppinglistId") Long shoppinglistId, @PathVariable("fridgeId") Long fridgeId, @RequestBody Long[] groceryItemIds) {
+        log.debug("[X] Call to remove groceries from shoppinglist and add them to fridge");
+        for (Long groceryItemId : groceryItemIds) {
+            groceryItemService.transferGroceryItemToFridge(shoppinglistId, fridgeId, groceryItemId);
+        }
     }
 
 
@@ -54,7 +56,7 @@ public class GroceryItemController {
         return groceryItemService.getAllGroceryItemsInShoppinglist(shoppinglistId);
     }
 
-    @GetMapping("/shoppinglist/{fridgeId}/{groceryItemId}")
+    @GetMapping("/shoppinglist/{shoppinglistId}/{groceryItemId}")
     public ResponseEntity<GroceryItemShoppinglistDto> getGroceryItemsByIdInShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @PathVariable("groceryItemId") Long groceryItemId){
         log.debug("[X] Call to return aa grocery items by id in a given shoppinglist");
         return groceryItemService.getGroceryItemsByIdInShoppinglist(shoppinglistId, groceryItemId);
@@ -63,13 +65,13 @@ public class GroceryItemController {
     @DeleteMapping("/shoppinglist/deleteAll/{shoppinglistId}")
     public ResponseEntity<Void> deleteAllGroceryItemsInShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId){
         log.debug("[X] Call to delete all groceries in shoppinglist = {}", shoppinglistId);
-        return groceryItemService.deleteAllGroceryItemsInFridge(shoppinglistId);
+        return groceryItemService.deleteAllGroceryItemsInShoppinglist(shoppinglistId);
     }
 
-    @DeleteMapping("/shoppinglist/deleteItem/{shoppinglistId}")
-    public ResponseEntity<ShoppinglistDto> removeGroceryItemFromShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @RequestBody GroceryItem groceryItem){
+    @DeleteMapping("/shoppinglist/deleteItem/{shoppinglistId}/{groceryItemID}")
+    public ResponseEntity<ShoppinglistDto> removeGroceryItemFromShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @PathVariable("groceryItemID") Long groceryItemID){
         log.debug("[X] Call to delete a given grocery from shoppinglist");
-        return groceryItemService.removeGroceryItemFromShoppinglist(shoppinglistId, groceryItem);
+        return groceryItemService.removeGroceryItemFromShoppinglist(shoppinglistId, groceryItemID);
     }
 
 
@@ -106,10 +108,10 @@ public class GroceryItemController {
         return groceryItemService.deleteAllGroceryItemsInFridge(fridgeId);
     }
 
-    @DeleteMapping("/fridge/deleteItem/{fridgeId}")
-    public ResponseEntity<FridgeDto> removeGroceryItemFromFridge(@PathVariable Long fridgeId, @RequestBody GroceryItem groceryItem) {
+    @DeleteMapping("/fridge/deleteItem/{fridgeId}/{groceryItemID}")
+    public ResponseEntity<FridgeDto> removeGroceryItemFromFridge(@PathVariable Long fridgeId, @PathVariable("groceryItemID") Long groceryItemID) {
         log.debug("[X] Call to delete a given grocery from fridge");
-        return groceryItemService.removeGroceryItemFromFridge(fridgeId, groceryItem);
+        return groceryItemService.removeGroceryItemFromFridge(fridgeId, groceryItemID);
     }
 
 
