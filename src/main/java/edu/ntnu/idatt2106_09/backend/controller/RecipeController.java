@@ -37,8 +37,8 @@ public class RecipeController {
         return new ResponseEntity<>(recipeDTO, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{recipeId}")
-    public ResponseEntity<RecipeDTO> getRecipeById(@PathVariable Long recipeId) {
+    @GetMapping("/simplified/{recipeId}")
+    public ResponseEntity<RecipeDTO> getSimplifiedRecipeById(@PathVariable Long recipeId) {
         log.debug("Fetching recipe with id: {}", recipeId);
         Recipe recipe = recipeService.getRecipeById(recipeId)
                 .orElseThrow(() -> new NotFoundException("recipe with id " + recipeId + " not found"));
@@ -47,8 +47,8 @@ public class RecipeController {
         return new ResponseEntity<>(recipeDTO, HttpStatus.OK);
     }
 
-    @GetMapping("/improved/{recipeId}")
-    public ResponseEntity<RecipeResponseDTO> getRecipeByIdImproved(@PathVariable Long recipeId) {
+    @GetMapping("/{recipeId}")
+    public ResponseEntity<RecipeResponseDTO> getRecipeById(@PathVariable Long recipeId) {
         RecipeResponseDTO responseDTO = recipeService.getRecipeAndAllIngredients(recipeId);
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
