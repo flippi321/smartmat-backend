@@ -1,28 +1,16 @@
 package edu.ntnu.idatt2106_09.backend.controller;
 
-import edu.ntnu.idatt2106_09.backend.dto.FridgeDto;
-import edu.ntnu.idatt2106_09.backend.dto.GroceryItemDto;
-import edu.ntnu.idatt2106_09.backend.dto.GroceryItemFridgeDto;
-import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
-import edu.ntnu.idatt2106_09.backend.model.Fridge;
+import edu.ntnu.idatt2106_09.backend.dto.*;
 import edu.ntnu.idatt2106_09.backend.model.GroceryItem;
-import edu.ntnu.idatt2106_09.backend.model.GroceryItemFridge;
-import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
-import edu.ntnu.idatt2106_09.backend.repository.GroceryItemFridgeRepository;
-import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRepository;
-import edu.ntnu.idatt2106_09.backend.service.fridge.FridgeService;
 import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+
 
 @Slf4j
 @RestController
@@ -30,62 +18,139 @@ import java.util.stream.Collectors;
 public class GroceryItemController {
 
     @Autowired
-    private GroceryItemService groceryItemService ;
-
-    @Autowired
-    private FridgeService fridgeService ;
+    private GroceryItemService groceryItemService;
 
     @Autowired
     private ModelMapper modelMapper;
 
-    private GroceryItemFridgeDto castObject2(GroceryItemFridge groceryItemFridge){
-        return modelMapper.map(groceryItemFridge, GroceryItemFridgeDto.class);
+    private GroceryItem castDtoToGroceryItem(GroceryItemDto groceryItemDto) {
+        return modelMapper.map(groceryItemDto, GroceryItem.class);
     }
 
-    @Autowired
-    private GroceryItemRepository groceryItemRepository;
-    @Autowired
-    private FridgeRepository fridgeRepository;
-    @Autowired
-    private GroceryItemFridgeRepository groceryItemFridgeRepository;
 
+    //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A SHOPPINGLIST
+
+    // POST (Add a new grocery item to a shoppinglist)
+    /*@PostMapping("/transfer/{shoppinglistId}/{fridgeId}/{groceryItemId}")
+    public ResponseEntity<FridgeDto> transferGroceryItemToFridge(@PathVariable("shoppinglistId") Long shoppinglistId, @PathVariable("fridgeId") Long fridgeId, @PathVariable("groceryItemId") Long groceryItemId) {
+        log.debug("[X] Call to remove a grocery from shoppinglist and ad it to fridge");
+        ResponseEntity<GroceryItemDto> groceryItemDto = groceryItemService.getGroceryItemById(groceryItemId);
+        groceryItemService.removeGroceryItemFromShoppinglist(shoppinglistId, groceryItemToTransfer);
+        return groceryItemService.addGroceryItemToFridge(fridgeId, groceryItemToTransfer, amount);
+    }*/
+
+
+    //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A SHOPPINGLIST
+
+    // POST (Add a new grocery item to a shoppinglist)
+    @PostMapping("/shoppinglist/{shoppinglistId}/grocery-item/{amount}")
+    public ResponseEntity<ShoppinglistDto> addGroceryItemToShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistID, @RequestBody GroceryItem groceryItem, @PathVariable("amount") int amount){
+        log.debug("[X] Call to add crocery to shoppinglist");
+        return groceryItemService.addGroceryItemToShoppinglist(shoppinglistID, groceryItem, amount);
+    }
+
+    // GET (Get all grocery items in a given fridge)
+    @GetMapping("/shoppinglist/{shoppinglistId}")
+    public ResponseEntity<Set<GroceryItemShoppinglistDto>> getAllGroceryItemsInShoppinglist( @PathVariable("shoppinglistId") Long shoppinglistId){
+        log.debug("[X] Call to return all grocery items in a given shoppinglist");
+        return groceryItemService.getAllGroceryItemsInShoppinglist(shoppinglistId);
+    }
+
+    @GetMapping("/shoppinglist/{fridgeId}/{groceryItemId}")
+    public ResponseEntity<GroceryItemShoppinglistDto> getGroceryItemsByIdInShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @PathVariable("groceryItemId") Long groceryItemId){
+        log.debug("[X] Call to return aa grocery items by id in a given shoppinglist");
+        return groceryItemService.getGroceryItemsByIdInShoppinglist(shoppinglistId, groceryItemId);
+    }
+
+    @DeleteMapping("/shoppinglist/deleteAll/{shoppinglistId}")
+    public ResponseEntity<Void> deleteAllGroceryItemsInShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId){
+        log.debug("[X] Call to delete all groceries in shoppinglist = {}", shoppinglistId);
+        return groceryItemService.deleteAllGroceryItemsInFridge(shoppinglistId);
+    }
+
+    @DeleteMapping("/shoppinglist/deleteItem/{shoppinglistId}")
+    public ResponseEntity<ShoppinglistDto> removeGroceryItemFromShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @RequestBody GroceryItem groceryItem){
+        log.debug("[X] Call to delete a given grocery from shoppinglist");
+        return groceryItemService.removeGroceryItemFromShoppinglist(shoppinglistId, groceryItem);
+    }
+
+
+
+
+
+
+
+    //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A FRIDGE
 
     // POST (Add a new grocery item to a fridge)
     /*json
     {
-    "groceryItem": {
-    "grocery_item_id" = 1
+    "groceryItemId": 6,
+    "name": "Egg",
+    "shelfLife": 30,
+    "category": {
+        "category": 3,
+        "name": "Kjøtt",
+        "unit": "kg"
     },
-    "amount": 2,
-    "purchaseDate": "2023-04-25"
+    "amount": 32
     }   */
-    @PostMapping("/fridge/{fridgeId}/grocery-item")
-    public GroceryItemFridge addGroceryItemToFridge(@RequestBody GroceryItemFridge groceryItemFridge) {
-        /*log.debug("[X] Call to add crocery to fridge");
-        return groceryItemService.addGroceryItemToFridge(fridgeId, groceryItem);*/
-        return groceryItemFridgeRepository.save(groceryItemFridge);
+    @PostMapping("/fridge/{fridgeId}/grocery-item/{amount}")
+    public ResponseEntity<FridgeDto> addGroceryItemToFridge(@PathVariable("fridgeId") Long fridgeId, @RequestBody GroceryItem groceryItem, @PathVariable("amount") int amount) {
+        log.debug("[X] Call to add crocery to fridge");
+        return groceryItemService.addGroceryItemToFridge(fridgeId, groceryItem, amount);
     }
 
     // GET (Get all grocery items in a given fridge)
+    /* json
+    [
+    {
+        "groceryItemId": 5,
+        "name": "Melk",
+        "shelfLife": 7,
+        "category": {
+            "category": 3,
+            "name": "Kjøtt",
+            "unit": "kg"
+        },
+        "amount": 0,
+        "purchaseDate": "2023-04-25",
+        "expirationDate": "2023-04-25"
+    }
+    ]
+     */
     @GetMapping("/fridge/{fridgeId}")
-    public ResponseEntity<Set<GroceryItemDto>> getAllGroceryItemsInFridge(@PathVariable("fridgeId") Long fridgeId) {
+    public ResponseEntity<Set<GroceryItemFridgeDto>> getAllGroceryItemsInFridge(@PathVariable Long fridgeId) {
         log.debug("[X] Call to return all grocery items in a given fridge");
         return groceryItemService.getAllGroceryItemsInFridge(fridgeId);
     }
 
-    @DeleteMapping("/fridge/delete/{fridgeId}")
+    @GetMapping("/fridge/{fridgeId}/{groceryItemId}")
+    public ResponseEntity<GroceryItemFridgeDto> getGroceryItemsByIdInFridge(@PathVariable Long fridgeId, @PathVariable Long groceryItemId) {
+        log.debug("[X] Call to return aa grocery items by id in a given fridge");
+        return groceryItemService.getGroceryItemsByIdInFridge(fridgeId, groceryItemId);
+    }
+
+    @DeleteMapping("/fridge/deleteAll/{fridgeId}")
     public ResponseEntity<Void> deleteAllGroceryItemsInFridge(@PathVariable Long fridgeId) {
         log.debug("[X] Call to delete all groceries in fridge = {}", fridgeId);
         return groceryItemService.deleteAllGroceryItemsInFridge(fridgeId);
     }
 
-    @DeleteMapping("/fridge/deleteItem/{fridgeId}/{groceryItemId}")
-    public ResponseEntity<Void> deleteGroceryItemInFridge(@PathVariable Long fridgeId, @PathVariable Long groceryItemId) {
-        fridgeRepository.deleteGroceryItemInFridge(fridgeId, groceryItemId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    @DeleteMapping("/fridge/deleteItem/{fridgeId}")
+    public ResponseEntity<FridgeDto> removeGroceryItemFromFridge(@PathVariable Long fridgeId, @RequestBody GroceryItem groceryItem) {
+        log.debug("[X] Call to delete a given grocery from fridge");
+        return groceryItemService.removeGroceryItemFromFridge(fridgeId, groceryItem);
     }
 
-    //DONE
+
+
+
+
+
+
+
+    //BELOW ARE API CALLS FOR GROCERYITEM ALONE
     // GET (Get all grocery items)
     @GetMapping("/all")
     public ResponseEntity<Set<GroceryItemDto>>  getAllGroceryItems() {
@@ -123,26 +188,5 @@ public class GroceryItemController {
         return groceryItemService.deleteGroceryItem(groceryItemId);
     }
 
-    // DELETE (Delete a grocery item by ID in a given fridge)
-    /*@DeleteMapping("/{fridgeId}/{groceryItemId}")
-    public ResponseEntity<Void> removeGroceryItemFromFridge(@PathVariable Long fridgeId, @PathVariable Long groceryItemId) {
-        log.debug("[x] Removing Grocery Item with ID {} from Fridge with ID: {}", groceryItemId, fridgeId);
-        Optional<Fridge> optionalFridge = fridgeService.getFridgeById(fridgeId);
-        if (!optionalFridge.isPresent()) {
-            log.warn("[x] Fridge with ID {} not found", fridgeId);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        Fridge fridge = optionalFridge.get();
-        Optional<GroceryItem> optionalGroceryItem = groceryItemService.getGroceryItemById(groceryItemId);
-        if (!optionalGroceryItem.isPresent()) {
-            log.warn("[x] Grocery Item with ID {} not found", groceryItemId);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        GroceryItem groceryItem = optionalGroceryItem.get();
-        fridge.removeGroceryItem(groceryItem);
-        fridgeService.updateFridge(fridge);
-        log.debug("[x] Grocery Item with ID {} removed from Fridge with ID {}", groceryItemId, fridgeId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }*/
 
 }

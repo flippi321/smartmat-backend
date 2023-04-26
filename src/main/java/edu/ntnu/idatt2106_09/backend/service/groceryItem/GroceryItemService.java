@@ -1,8 +1,6 @@
 package edu.ntnu.idatt2106_09.backend.service.groceryItem;
 
-import edu.ntnu.idatt2106_09.backend.dto.FridgeDto;
-import edu.ntnu.idatt2106_09.backend.dto.GroceryItemDto;
-import edu.ntnu.idatt2106_09.backend.dto.GroceryItemFridgeDto;
+import edu.ntnu.idatt2106_09.backend.dto.*;
 import edu.ntnu.idatt2106_09.backend.model.GroceryItem;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,15 +15,33 @@ import java.util.Set;
 @Service
 public interface GroceryItemService {
 
+    //BELOW ARE CRUD METHODS FOR GROCERY ITEM IN RELATION TO A SHOPPINGLIST
+    public ResponseEntity<ShoppinglistDto> addGroceryItemToShoppinglist(Long shoppinglistId, GroceryItem groceryItem, int amount);
+
+    public ResponseEntity<Set<GroceryItemShoppinglistDto>> getAllGroceryItemsInShoppinglist(Long shoppinglistId);
+
+    public ResponseEntity<GroceryItemShoppinglistDto> getGroceryItemsByIdInShoppinglist(Long shoppinglistId, Long groceryItemId);
+
+    public ResponseEntity<Void> deleteAllGroceryItemsInShoppinglist(Long shoppinglistId);
+
+    public ResponseEntity<ShoppinglistDto> removeGroceryItemFromShoppinglist( Long shoppinglistId, GroceryItem groceryItem);
+
+
+
+    //BELOW ARE CRUD METHODS FOR GROCERY ITEM IN RELATION TO A FRIDGE
+    public ResponseEntity<FridgeDto> addGroceryItemToFridge(Long fridgeId, GroceryItem groceryItem, int amount);
+
+    public ResponseEntity<Set<GroceryItemFridgeDto>> getAllGroceryItemsInFridge(Long fridgeId);
+
+    public ResponseEntity<GroceryItemFridgeDto> getGroceryItemsByIdInFridge(Long fridgeId, Long groceryItemId);
+
+    public ResponseEntity<Void> deleteAllGroceryItemsInFridge(Long fridgeId);
+
+    public ResponseEntity<FridgeDto> removeGroceryItemFromFridge( Long fridgeId, GroceryItem groceryItem);
+
+
+    //BELOW ARE CRUD METHODS FOR GROCERY ITEM ALONE
     public ResponseEntity<Set<GroceryItemDto>>  getAllGroceryItems();
-
-    public ResponseEntity<FridgeDto> addGroceryItemToFridge(Long fridgeId, GroceryItem groceryItem);
-
-    public ResponseEntity<Set<GroceryItemDto>> getAllGroceryItemsInFridge(@PathVariable Long fridgeId);
-
-    public ResponseEntity<Void> deleteAllGroceryItemsInFridge(@PathVariable Long fridgeId);
-
-    public ResponseEntity<Void> deleteGroceryItemInFridge(@PathVariable Long fridgeId, @PathVariable Long groceryItemId);
 
     public ResponseEntity<GroceryItemDto> getGroceryItemById(Long groceryItemId);
 

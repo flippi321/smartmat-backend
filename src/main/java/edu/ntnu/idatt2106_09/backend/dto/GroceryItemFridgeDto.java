@@ -16,11 +16,7 @@ package edu.ntnu.idatt2106_09.backend.dto;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class GroceryItemFridgeDto {
-
-    private Fridge fridge;
-    private GroceryItem groceryItem;
+public class GroceryItemFridgeDto extends GroceryItemDto {
     private int amount;
     private LocalDate purchaseDate;
     private LocalDate expirationDate;
