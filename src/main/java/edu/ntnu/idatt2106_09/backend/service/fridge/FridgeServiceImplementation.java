@@ -143,7 +143,7 @@ public class FridgeServiceImplementation implements FridgeService {
 
 
 
-    @Override
+    /*@Override
     public Fridge addGroceryItemToFridge(Long fridgeId, GroceryItem groceryItem) {
         Optional<Fridge> fridgeOptional = fridgeRepository.findById(fridgeId);
         if (fridgeOptional.isPresent()) {
@@ -163,5 +163,5 @@ public class FridgeServiceImplementation implements FridgeService {
             return fridgeRepository.save(fridge);
         }
         return null;
-    }
+    }*/
 }

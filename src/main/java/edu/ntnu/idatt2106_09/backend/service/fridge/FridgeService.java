@@ -25,7 +25,7 @@ public interface FridgeService {
 
     public void deleteFridge(Long fridgeId);
 
-    public Fridge addGroceryItemToFridge(Long fridgeId, GroceryItem groceryItem);
+    //public Fridge addGroceryItemToFridge(Long fridgeId, GroceryItem groceryItem);
 
-    public Fridge removeGroceryItemFromFridge(Long fridgeId, GroceryItem groceryItem);
+    //public Fridge removeGroceryItemFromFridge(Long fridgeId, GroceryItem groceryItem);
 }

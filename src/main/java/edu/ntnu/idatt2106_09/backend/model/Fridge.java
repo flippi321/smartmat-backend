@@ -15,7 +15,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = "groceries")
 @ToString
 @Entity
 @Table(name = "fridge")
@@ -41,8 +41,8 @@ public class Fridge {
             orphanRemoval = true)
     private Set<GroceryItemFridge> groceries = new HashSet<>();
 
-    public void addGroceryItem(GroceryItem groceryItem) {
-        GroceryItemFridge groceryItemFridge = new GroceryItemFridge(this, groceryItem);
+    public void addGroceryItem(GroceryItem groceryItem, int amount) {
+        GroceryItemFridge groceryItemFridge = new GroceryItemFridge(this, groceryItem, amount);
         groceries.add(groceryItemFridge);
     }
 
