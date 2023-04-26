@@ -22,4 +22,7 @@ public interface FridgeRepository extends JpaRepository<Fridge, Long> {
 
     @Query("SELECT f FROM Fridge f WHERE f.name = :name AND f.household.householdId = :householdId AND f.fridgeId != :fridgeId")
     Fridge findByNameAndHouseholdIdExcludeFridgeId(String name, Long householdId, Long fridgeId);
+
+    @Query("SELECT f FROM Fridge f WHERE f.household.householdId = :householdId")
+    Optional<Fridge> findByHouseholdId(@Param("householdId") Long householdId);
 }
