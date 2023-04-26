@@ -16,6 +16,6 @@ public class GroceryItemDto {
 
     private Long groceryItemId;
     private String name;
-    private int shelfLife;
+    private int expected_shelf_life;
     private Category category;
 }

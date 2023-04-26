@@ -18,7 +18,7 @@ package edu.ntnu.idatt2106_09.backend.dto;
 @AllArgsConstructor
 public class GroceryItemFridgeDto extends GroceryItemDto {
     private int amount;
-    private LocalDate purchaseDate;
-    private LocalDate expirationDate;
+    private long days_since_purchase;
+    private long days_until_spoilt;
 }
 

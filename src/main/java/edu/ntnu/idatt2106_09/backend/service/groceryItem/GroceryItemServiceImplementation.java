@@ -13,7 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -57,6 +60,19 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
 
     @Override
     public ResponseEntity<Set<GroceryItemShoppinglistDto>> getAllGroceryItemsInShoppinglist(Long shoppinglistId) {
+
+        /*Optional<Shoppinglist> shoppinglistOptional = shoppinglistRepository.findById(shoppinglistId);
+        if (shoppinglistOptional.isPresent()) {
+            Shoppinglist shoppinglist = shoppinglistOptional.get();
+            Set<GroceryItemShoppinglist> groceries = shoppinglist.getGroceries();
+            ModelMapper modelMapper = new ModelMapper();
+            Set<GroceryItemShoppinglistDto> groceryItemDtos = groceries.stream()
+                    .map(grocery -> modelMapper.map(grocery, GroceryItemShoppinglistDto.class))
+                    .collect(Collectors.toSet());
+            return new ResponseEntity<>(groceryItemDtos, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }*/
         Optional<Shoppinglist> shoppinglistOptional = shoppinglistRepository.findById(shoppinglistId);
         if (shoppinglistOptional.isPresent()) {
             Shoppinglist shoppinglist = shoppinglistOptional.get();
@@ -66,7 +82,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                 GroceryItemShoppinglistDto groceryItemDto = new GroceryItemShoppinglistDto();
                 groceryItemDto.setGroceryItemId(grocery.getGroceryItemId());
                 groceryItemDto.setName(grocery.getGroceryItem().getName());
-                groceryItemDto.setShelfLife(grocery.getGroceryItem().getShelfLife());
+                groceryItemDto.setExpected_shelf_life(grocery.getGroceryItem().getShelfLife());
                 groceryItemDto.setCategory(grocery.getGroceryItem().getCategory());
                 groceryItemDto.setAmount(grocery.getAmount());
                 groceryItemDtos.add(groceryItemDto);
@@ -88,7 +104,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                     GroceryItemShoppinglistDto groceryItemDto = new GroceryItemShoppinglistDto();
                     groceryItemDto.setGroceryItemId(grocery.getGroceryItemId());
                     groceryItemDto.setName(grocery.getGroceryItem().getName());
-                    groceryItemDto.setShelfLife(grocery.getGroceryItem().getShelfLife());
+                    groceryItemDto.setExpected_shelf_life(grocery.getGroceryItem().getShelfLife());
                     groceryItemDto.setCategory(grocery.getGroceryItem().getCategory());
                     groceryItemDto.setAmount(grocery.getAmount());
                     return new ResponseEntity<>(groceryItemDto, HttpStatus.OK);
@@ -158,11 +174,11 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                GroceryItemFridgeDto groceryItemDto = new GroceryItemFridgeDto();
                groceryItemDto.setGroceryItemId(grocery.getGroceryItemId());
                groceryItemDto.setName(grocery.getGroceryItem().getName());
-               groceryItemDto.setShelfLife(grocery.getGroceryItem().getShelfLife());
+               groceryItemDto.setExpected_shelf_life(grocery.getGroceryItem().getShelfLife());
                groceryItemDto.setCategory(grocery.getGroceryItem().getCategory());
                groceryItemDto.setAmount(grocery.getAmount());
-               groceryItemDto.setPurchaseDate(grocery.getPurchaseDate());
-               groceryItemDto.setExpirationDate(grocery.getExpirationDate());
+               groceryItemDto.setDays_since_purchase(ChronoUnit.DAYS.between(LocalDate.now(), grocery.getPurchaseDate()));
+               groceryItemDto.setDays_until_spoilt(ChronoUnit.DAYS.between(LocalDate.now(), grocery.getExpirationDate()));
                groceryItemDtos.add(groceryItemDto);
            }
            return new ResponseEntity<>(groceryItemDtos, HttpStatus.OK);
@@ -182,11 +198,11 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                     GroceryItemFridgeDto groceryItemDto = new GroceryItemFridgeDto();
                     groceryItemDto.setGroceryItemId(grocery.getGroceryItemId());
                     groceryItemDto.setName(grocery.getGroceryItem().getName());
-                    groceryItemDto.setShelfLife(grocery.getGroceryItem().getShelfLife());
+                    groceryItemDto.setExpected_shelf_life(grocery.getGroceryItem().getShelfLife());
                     groceryItemDto.setCategory(grocery.getGroceryItem().getCategory());
                     groceryItemDto.setAmount(grocery.getAmount());
-                    groceryItemDto.setPurchaseDate(grocery.getPurchaseDate());
-                    groceryItemDto.setExpirationDate(grocery.getExpirationDate());
+                    groceryItemDto.setDays_since_purchase(ChronoUnit.DAYS.between(LocalDate.now(), grocery.getPurchaseDate()));
+                    groceryItemDto.setDays_until_spoilt(ChronoUnit.DAYS.between(LocalDate.now(), grocery.getExpirationDate()));
                     return new ResponseEntity<>(groceryItemDto, HttpStatus.OK);
                 }
             }
@@ -266,8 +282,8 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
             if (updatedGroceryItemDto.getName() != null) {
                 groceryItem.setName(updatedGroceryItemDto.getName());
             }
-            if (updatedGroceryItemDto.getShelfLife() != 0) {
-                groceryItem.setShelfLife(updatedGroceryItemDto.getShelfLife());
+            if (updatedGroceryItemDto.getExpected_shelf_life() != 0) {
+                groceryItem.setShelfLife(updatedGroceryItemDto.getExpected_shelf_life());
             }
             if (updatedGroceryItemDto.getCategory() != null) {
                 groceryItem.setCategory(updatedGroceryItemDto.getCategory());
