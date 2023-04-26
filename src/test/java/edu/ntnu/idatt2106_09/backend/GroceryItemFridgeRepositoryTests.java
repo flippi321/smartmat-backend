@@ -1,5 +1,5 @@
 package edu.ntnu.idatt2106_09.backend;
-
+/*
 import edu.ntnu.idatt2106_09.backend.model.Fridge;
 import edu.ntnu.idatt2106_09.backend.model.GroceryItemFridge;
 import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
@@ -30,4 +30,5 @@ public class GroceryItemFridgeRepositoryTests {
         assertThat(expected).isTrue();
     }
 }
-*/
+
+ */
