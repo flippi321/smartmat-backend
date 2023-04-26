@@ -3,17 +3,20 @@ package edu.ntnu.idatt2106_09.backend.service;
 import edu.ntnu.idatt2106_09.backend.config.RecipeRecommenderConstants;
 import edu.ntnu.idatt2106_09.backend.dto.*;
 
+import edu.ntnu.idatt2106_09.backend.dto.recipe.IngredientDTO;
+import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeDTO;
+import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeResponseDTO;
+import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.*;
 import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
+import edu.ntnu.idatt2106_09.backend.repository.GroceryItemFridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRecipeRepository;
-import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRepository;
 import edu.ntnu.idatt2106_09.backend.repository.RecipeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class RecipeService {
@@ -23,6 +26,9 @@ public class RecipeService {
 
     @Autowired
     private GroceryItemRecipeRepository groceryItemRecipeRepository;
+
+    @Autowired
+    private GroceryItemFridgeRepository groceryItemFridgeRepository;
 
 
     @Autowired
@@ -53,13 +59,13 @@ public class RecipeService {
      recipeRepository.deleteById(recipeId);
     }
 
-
+    // Need to Change hashmap key from Long to add new values to hashmap. Cant have multiple of the sane product
     private HashMap<Long, GroceryItemFridgeDTO> retrieveFridgeItemsHashMap(long fridgeId) {
         HashMap<Long, GroceryItemFridgeDTO> map = new HashMap<>();
 
         Fridge fridge = fridgeRepository.findById(fridgeId).get();
         FridgeDTO fridgeDTO = fridgeService.castFridgeDTO(fridge);
-        Set<GroceryItemFridge> groceryItemFridge = fridge.getGroceries();
+        Set<GroceryItemFridge> groceryItemFridge = groceryItemFridgeRepository.findAllByFridgeId(fridgeId);
 
 
         GroceryItemFridgeDTO currentGroceryItemFridgeDTO;
@@ -84,12 +90,9 @@ public class RecipeService {
     private List<List<GroceryItemRecipeDTO>> getAllRecipeList() {
 
         Set<Recipe> allRecipes = recipeRepository.getAllRecipes();
-
         Set<GroceryItemRecipe> allGroceryItemRecipe;
-
         List<List<GroceryItemRecipeDTO>> GroceryItemRecipeDTOList = new ArrayList<>();
         List<GroceryItemRecipeDTO> currentGIRDTOList;
-
         GroceryItemRecipeDTO currentGIRDTO;
         RecipeDTO currentRecipeDTO;
 
@@ -109,10 +112,8 @@ public class RecipeService {
                 currentGIRDTO = new GroceryItemRecipeDTO();
                 currentGIRDTO.setAmount(groceryItemRecipe.getAmount());
                 currentGIRDTO.setRecipe(currentRecipeDTO);
-                currentGIRDTO.setGroceryItem(groceryItemService.castGroceryItemDto(
-                        groceryItemRecipeRepository.findById(recipe.getRecipe_id())
-                                .get().getGroceryItem()
-                ));
+                currentGIRDTO.setGroceryItem(groceryItemService.castGroceryItemDto(groceryItemRecipe.getGroceryItem())
+                );
                 currentGIRDTOList.add(currentGIRDTO);
             }
 
@@ -137,9 +138,7 @@ public class RecipeService {
         double currentPercentage = 0.0;
         double ingredientPercentage;
 
-
         for(int i = 0; i<recipe.size(); i++){
-            ingredientPercentage = 0.0;
             recipeItem = recipe.get(i);
 
 
@@ -184,9 +183,6 @@ public class RecipeService {
 
     }
 
-
-
-
     /**
      * Calculates the weight of each recipe in the recipesOverThreshold list based on the available fridge items.
      * The weight represents how closely the fridge items match the recipe's required grocery items.
@@ -195,7 +191,7 @@ public class RecipeService {
      * @param recipesOverThreshold A list of lists of GroceryItemRecipeDTO objects representing the filtered recipes that meet or exceed the threshold.
      * @return A double array containing the weight of each recipe in the recipesOverThreshold list.
      */
-    private double[] WeightList(HashMap<Long, GroceryItemFridgeDTO> fridgeMap, List<List<GroceryItemRecipeDTO>> recipesOverThreshold) {
+    private double[] getWeightListOfRecipeList(HashMap<Long, GroceryItemFridgeDTO> fridgeMap, List<List<GroceryItemRecipeDTO>> recipesOverThreshold) {
         int numRecipes = recipesOverThreshold.size();
         double[] weights = new double[numRecipes];
 
@@ -260,7 +256,38 @@ public class RecipeService {
     }
 
 
-
-
+    public List<List<GroceryItemRecipeDTO>> getRecommendedRecipes(Long fridgeId) {
+        HashMap<Long, GroceryItemFridgeDTO> fridge = retrieveFridgeItemsHashMap(fridgeId);
+        List<List<GroceryItemRecipeDTO>> recipeList = getAllRecipeList();
+        List<List<GroceryItemRecipeDTO>> recommendedRecipeList = getRecipesOverThreshold(fridge,recipeList);
+        double[] weightList = getWeightListOfRecipeList(fridge,recommendedRecipeList);
+        quickSort(weightList, recommendedRecipeList, 0 , weightList.length-1);
+        return recommendedRecipeList;
 
     }
+
+    public List<RecipeResponseDTO> convertToRecipeResponseDTO(List<List<GroceryItemRecipeDTO>> listOfGroceryItemRecipeLists) {
+        List<RecipeResponseDTO> response = new ArrayList<>();
+
+        for (List<GroceryItemRecipeDTO> groceryItemRecipeList : listOfGroceryItemRecipeLists) {
+            RecipeDTO recipe = groceryItemRecipeList.get(0).getRecipe();
+            RecipeResponseDTO recipeResponseDTO = new RecipeResponseDTO();
+            recipeResponseDTO.setId(recipe.getRecipe_id());
+            recipeResponseDTO.setName(recipe.getName());
+            recipeResponseDTO.setDescription(recipe.getDescription());
+
+            List<IngredientDTO> ingredients = new ArrayList<>();
+            for (GroceryItemRecipeDTO groceryItemRecipeDTO : groceryItemRecipeList) {
+                IngredientDTO ingredientDTO = new IngredientDTO();
+                ingredientDTO.setId(groceryItemRecipeDTO.getGroceryItem().getGroceryItemId());
+                ingredientDTO.setName(groceryItemRecipeDTO.getGroceryItem().getName());
+                ingredientDTO.setAmount(groceryItemRecipeDTO.getAmount());
+                ingredientDTO.setUnit("unit");
+                ingredients.add(ingredientDTO);
+            }
+            recipeResponseDTO.setIngredients(ingredients);
+            response.add(recipeResponseDTO);
+        }
+        return response;
+    }
+}

@@ -1,8 +1,9 @@
 package edu.ntnu.idatt2106_09.backend.controller;
 
-import edu.ntnu.idatt2106_09.backend.dto.RecipeDTO;
+import edu.ntnu.idatt2106_09.backend.dto.GroceryItemRecipeDTO;
+import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeDTO;
+import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeResponseDTO;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
-import edu.ntnu.idatt2106_09.backend.model.Fridge;
 import edu.ntnu.idatt2106_09.backend.model.Recipe;
 import edu.ntnu.idatt2106_09.backend.service.RecipeService;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -61,5 +63,13 @@ public class RecipeController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @GetMapping("/recommender/{fridgeId}")
+    public ResponseEntity<List<RecipeResponseDTO>> getRecipeRecommendedList(@PathVariable Long fridgeId) {
+        // Retrieve the List<List<GroceryItemRecipeDTO>> based on the fridgeId (implement this in your service layer)
+        List<List<GroceryItemRecipeDTO>> listOfGroceryItemRecipeLists = recipeService.getRecommendedRecipes(fridgeId);
+        // Convert the list of GroceryItemRecipeDTO to the desired format
+        List<RecipeResponseDTO> response = recipeService.convertToRecipeResponseDTO(listOfGroceryItemRecipeLists);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
 }

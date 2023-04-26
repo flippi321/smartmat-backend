@@ -1,5 +1,6 @@
 package edu.ntnu.idatt2106_09.backend.dto;
 
+import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeDTO;
 import lombok.*;
 
 @Getter

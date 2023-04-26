@@ -1,4 +1,4 @@
-package edu.ntnu.idatt2106_09.backend.dto;
+package edu.ntnu.idatt2106_09.backend.dto.recipe;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
