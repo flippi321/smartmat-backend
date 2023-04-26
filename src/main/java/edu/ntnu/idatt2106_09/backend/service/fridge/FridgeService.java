@@ -17,15 +17,9 @@ public interface FridgeService {
 
     public FridgeDto addFridge(FridgeDto fridgeDTO);
 
-    public Optional<Fridge> getFridgeById(Long fridgeId);
+    public FridgeDto getFridgeById(Long fridgeId);
 
-    public Set<Fridge> getAllFridges();
-
-    public Fridge updateFridge(Fridge fridge);
+    public FridgeDto updateFridge(FridgeDto fridgeDto);
 
     public void deleteFridge(Long fridgeId);
-
-    //public Fridge addGroceryItemToFridge(Long fridgeId, GroceryItem groceryItem);
-
-    //public Fridge removeGroceryItemFromFridge(Long fridgeId, GroceryItem groceryItem);
 }
