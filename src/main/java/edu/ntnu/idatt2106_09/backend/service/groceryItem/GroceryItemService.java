@@ -15,8 +15,12 @@ import java.util.Set;
 @Service
 public interface GroceryItemService {
 
+
+    //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A SHOPPINGLIST AND A FRIDGE
+    public ResponseEntity<FridgeDto> transferGroceryItemToFridge(Long shoppinglistId, Long fridgeId, Long groceryItemId);
+
     //BELOW ARE CRUD METHODS FOR GROCERY ITEM IN RELATION TO A SHOPPINGLIST
-    public ResponseEntity<ShoppinglistDto> addGroceryItemToShoppinglist(Long shoppinglistId, GroceryItem groceryItem, int amount);
+    public ResponseEntity<ShoppinglistDto> addGroceryItemToShoppinglist(Long shoppinglistId, Long groceryItemId, int amount);
 
     public ResponseEntity<Set<GroceryItemShoppinglistDto>> getAllGroceryItemsInShoppinglist(Long shoppinglistId);
 
@@ -29,7 +33,7 @@ public interface GroceryItemService {
 
 
     //BELOW ARE CRUD METHODS FOR GROCERY ITEM IN RELATION TO A FRIDGE
-    public ResponseEntity<FridgeDto> addGroceryItemToFridge(Long fridgeId, GroceryItem groceryItem, int amount);
+    public ResponseEntity<FridgeDto> addGroceryItemToFridge(Long fridgeId, Long groceryItemId, int amount);
 
     public ResponseEntity<Set<GroceryItemFridgeDto>> getAllGroceryItemsInFridge(Long fridgeId);
 

@@ -43,9 +43,51 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
     @Autowired
     private ShoppinglistRepository shoppinglistRepository;
 
+    //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A SHOPPINGLIST AND A FRIDGE
+    @Override
+    public ResponseEntity<FridgeDto> transferGroceryItemToFridge(Long shoppinglistId, Long fridgeId, Long groceryItemId) {
+
+        log.debug("Fetching Grocery Item with id: {}", groceryItemId);
+        GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
+                .orElseThrow(() -> new NotFoundException("groceryItem with id " + groceryItemId + " not found"));
+        log.info("[x] Grocery Item with id {} found", groceryItemId);
+
+        Optional<Shoppinglist> shoppinglistOptional = shoppinglistRepository.findById(shoppinglistId);
+        if (shoppinglistOptional.isPresent()) {
+            Shoppinglist shoppinglist = shoppinglistOptional.get();
+            Set<GroceryItemShoppinglist> groceries = shoppinglist.getGroceries();
+            for (GroceryItemShoppinglist grocery : groceries) {
+                if (grocery.getGroceryItemId().equals(groceryItemId)) {
+                    Optional<Fridge> fridgeOptional = fridgeRepository.findById(fridgeId);
+                    if (fridgeOptional.isPresent()) {
+                        Fridge fridge = fridgeOptional.get();
+                        fridge.addGroceryItem(groceryItem, grocery.getAmount());
+                        fridgeRepository.save(fridge);
+                        FridgeDto fridgeDto = castFridgeToDto(fridge);
+                        shoppinglist.removeGroceryItem(groceryItem);
+                        shoppinglistRepository.save(shoppinglist);
+                        return new ResponseEntity<>(fridgeDto, HttpStatus.OK);
+                    } else {
+                        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                    }
+                } else {
+                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                }
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+
+
+
     //BELOW ARE CRUD METHODS FOR GROCERY ITEM IN RELATION TO A SHOPPINGLIST
     @Override
-    public ResponseEntity<ShoppinglistDto> addGroceryItemToShoppinglist(Long shoppinglistId, GroceryItem groceryItem, int amount) {
+    public ResponseEntity<ShoppinglistDto> addGroceryItemToShoppinglist(Long shoppinglistId, Long groceryItemId, int amount) {
+        log.debug("Fetching Grocery Item with id: {}", groceryItemId);
+        GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
+                .orElseThrow(() -> new NotFoundException("groceryItem with id " + groceryItemId + " not found"));
+        log.info("[x] Grocery Item with id {} found", groceryItemId);
         Optional<Shoppinglist> shoppinglistOptional = shoppinglistRepository.findById(shoppinglistId);
         if (shoppinglistOptional.isPresent()) {
             Shoppinglist shoppinglist = shoppinglistOptional.get();
@@ -60,19 +102,6 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
 
     @Override
     public ResponseEntity<Set<GroceryItemShoppinglistDto>> getAllGroceryItemsInShoppinglist(Long shoppinglistId) {
-
-        /*Optional<Shoppinglist> shoppinglistOptional = shoppinglistRepository.findById(shoppinglistId);
-        if (shoppinglistOptional.isPresent()) {
-            Shoppinglist shoppinglist = shoppinglistOptional.get();
-            Set<GroceryItemShoppinglist> groceries = shoppinglist.getGroceries();
-            ModelMapper modelMapper = new ModelMapper();
-            Set<GroceryItemShoppinglistDto> groceryItemDtos = groceries.stream()
-                    .map(grocery -> modelMapper.map(grocery, GroceryItemShoppinglistDto.class))
-                    .collect(Collectors.toSet());
-            return new ResponseEntity<>(groceryItemDtos, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }*/
         Optional<Shoppinglist> shoppinglistOptional = shoppinglistRepository.findById(shoppinglistId);
         if (shoppinglistOptional.isPresent()) {
             Shoppinglist shoppinglist = shoppinglistOptional.get();
@@ -150,7 +179,13 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
 
     //BELOW ARE CRUD METHODS FOR GROCERY ITEM IN RELATION TO A FRIDGE
     @Override
-    public ResponseEntity<FridgeDto> addGroceryItemToFridge(Long fridgeId, GroceryItem groceryItem, int amount) {
+    public ResponseEntity<FridgeDto> addGroceryItemToFridge(Long fridgeId, Long groceryItemId, int amount) {
+
+        log.debug("Fetching Grocery Item with id: {}", groceryItemId);
+        GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
+                .orElseThrow(() -> new NotFoundException("groceryItem with id " + groceryItemId + " not found"));
+        log.info("[x] Grocery Item with id {} found", groceryItemId);
+
         Optional<Fridge> fridgeOptional = fridgeRepository.findById(fridgeId);
         if (fridgeOptional.isPresent()) {
             Fridge fridge = fridgeOptional.get();

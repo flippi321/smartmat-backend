@@ -28,25 +28,23 @@ public class GroceryItemController {
     }
 
 
-    //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A SHOPPINGLIST
+    //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A SHOPPINGLIST AND A FRIDGE
 
     // POST (Add a new grocery item to a shoppinglist)
-    /*@PostMapping("/transfer/{shoppinglistId}/{fridgeId}/{groceryItemId}")
+    @PostMapping("/transfer/{shoppinglistId}/{fridgeId}/{groceryItemId}")
     public ResponseEntity<FridgeDto> transferGroceryItemToFridge(@PathVariable("shoppinglistId") Long shoppinglistId, @PathVariable("fridgeId") Long fridgeId, @PathVariable("groceryItemId") Long groceryItemId) {
         log.debug("[X] Call to remove a grocery from shoppinglist and ad it to fridge");
-        ResponseEntity<GroceryItemDto> groceryItemDto = groceryItemService.getGroceryItemById(groceryItemId);
-        groceryItemService.removeGroceryItemFromShoppinglist(shoppinglistId, groceryItemToTransfer);
-        return groceryItemService.addGroceryItemToFridge(fridgeId, groceryItemToTransfer, amount);
-    }*/
+        return groceryItemService.transferGroceryItemToFridge(shoppinglistId, fridgeId, groceryItemId);
+    }
 
 
     //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A SHOPPINGLIST
 
     // POST (Add a new grocery item to a shoppinglist)
-    @PostMapping("/shoppinglist/{shoppinglistId}/grocery-item/{amount}")
-    public ResponseEntity<ShoppinglistDto> addGroceryItemToShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistID, @RequestBody GroceryItem groceryItem, @PathVariable("amount") int amount){
+    @PostMapping("/shoppinglist/{shoppinglistId}/{groceryItemId}/{amount}")
+    public ResponseEntity<ShoppinglistDto> addGroceryItemToShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistID, @PathVariable("groceryItemId") Long groceryItemId, @PathVariable("amount") int amount){
         log.debug("[X] Call to add crocery to shoppinglist");
-        return groceryItemService.addGroceryItemToShoppinglist(shoppinglistID, groceryItem, amount);
+        return groceryItemService.addGroceryItemToShoppinglist(shoppinglistID, groceryItemId, amount);
     }
 
     // GET (Get all grocery items in a given fridge)
@@ -83,42 +81,13 @@ public class GroceryItemController {
     //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A FRIDGE
 
     // POST (Add a new grocery item to a fridge)
-    /*json
-    {
-    "groceryItemId": 6,
-    "name": "Egg",
-    "shelfLife": 30,
-    "category": {
-        "category": 3,
-        "name": "Kjøtt",
-        "unit": "kg"
-    },
-    "amount": 32
-    }   */
-    @PostMapping("/fridge/{fridgeId}/grocery-item/{amount}")
-    public ResponseEntity<FridgeDto> addGroceryItemToFridge(@PathVariable("fridgeId") Long fridgeId, @RequestBody GroceryItem groceryItem, @PathVariable("amount") int amount) {
+    @PostMapping("/fridge/{fridgeId}/{groceryItemId}/{amount}")
+    public ResponseEntity<FridgeDto> addGroceryItemToFridge(@PathVariable("fridgeId") Long fridgeId, @PathVariable("groceryItemId") Long groceryItemId, @PathVariable("amount") int amount) {
         log.debug("[X] Call to add crocery to fridge");
-        return groceryItemService.addGroceryItemToFridge(fridgeId, groceryItem, amount);
+        return groceryItemService.addGroceryItemToFridge(fridgeId, groceryItemId, amount);
     }
 
     // GET (Get all grocery items in a given fridge)
-    /* json
-    [
-    {
-        "groceryItemId": 5,
-        "name": "Melk",
-        "shelfLife": 7,
-        "category": {
-            "category": 3,
-            "name": "Kjøtt",
-            "unit": "kg"
-        },
-        "amount": 0,
-        "purchaseDate": "2023-04-25",
-        "expirationDate": "2023-04-25"
-    }
-    ]
-     */
     @GetMapping("/fridge/{fridgeId}")
     public ResponseEntity<Set<GroceryItemFridgeDto>> getAllGroceryItemsInFridge(@PathVariable Long fridgeId) {
         log.debug("[X] Call to return all grocery items in a given fridge");

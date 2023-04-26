@@ -13,7 +13,6 @@ import lombok.Builder;
 @AllArgsConstructor
 @Builder
 public class GroceryItemDto {
-
     private Long groceryItemId;
     private String name;
     private int expected_shelf_life;
