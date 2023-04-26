@@ -65,6 +65,12 @@ public class FridgeServiceImplementation implements FridgeService {
             throw new BadRequestException("Fridge with name '" + fridgeDto.getName() + "' already exists for household ID " + householdId);
         }
 
+        // Check if the household already has a fridge
+        if (!fridgeRepository.findByHouseholdId(householdId).isEmpty()) {
+            log.warn("[X] Household ID {} already has a fridge", householdId);
+            throw new BadRequestException("Household ID " + householdId + " already has a fridge");
+        }
+
         // Convert FridgeDto to Fridge
         Fridge fridgeToSave = castDtoToFridge(fridgeDto);
 
