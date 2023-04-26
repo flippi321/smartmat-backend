@@ -81,57 +81,60 @@ public class FridgeServiceImplementation implements FridgeService {
     }
 
     @Override
-    public Optional<Fridge> getFridgeById(Long fridgeId) {
-        return fridgeRepository.findById(fridgeId);
+    public FridgeDto updateFridge(FridgeDto fridgeDto) {
+        // Check if the fridgeDto ID and name are valid
+        if (fridgeDto.getFridgeId() == null || fridgeDto.getName() == null || fridgeDto.getName().trim().isEmpty()) {
+            log.warn("[X] Fridge ID and name cannot be empty");
+            throw new BadRequestException("Fridge ID and name cannot be empty");
+        }
+
+        // Check if the Fridge exists in the database
+        Fridge fridgeToUpdate = fridgeRepository.findById(fridgeDto.getFridgeId())
+                .orElseThrow(() -> new BadRequestException("Fridge with ID " + fridgeDto.getFridgeId() + " not found"));
+
+        // Check if the household ID exists in the database
+        Long householdId = fridgeDto.getHousehold().getHouseholdId();
+        Household household = householdService.getHouseholdById(householdId)
+                .orElseThrow(() -> new BadRequestException("Household with ID " + householdId + " not found"));
+
+        // Check if a fridge with the same name already exists for the household, excluding the current fridge
+        Fridge existingFridge = fridgeRepository.findByNameAndHouseholdIdExcludeFridgeId(fridgeDto.getName(), householdId, fridgeDto.getFridgeId());
+        if (existingFridge != null) {
+            log.warn("[X] Fridge with name '{}' already exists for household ID {}", fridgeDto.getName(), householdId);
+            throw new BadRequestException("Fridge with name '" + fridgeDto.getName() + "' already exists for household ID " + householdId);
+        }
+
+        // Update the Fridge properties
+        fridgeToUpdate.setName(fridgeDto.getName());
+        fridgeToUpdate.setHousehold(household);
+
+        // Save the updated Fridge to the database
+        Fridge updatedFridge = fridgeRepository.save(fridgeToUpdate);
+
+        // Convert the updated Fridge to FridgeDto
+        FridgeDto updatedFridgeDto = castFridgetoToDto(updatedFridge);
+
+        return updatedFridgeDto;
     }
 
     @Override
-    public Set<Fridge> getAllFridges() {
-        return fridgeRepository.getAllFridges();
-    }
-
-    @Override
-    public Fridge updateFridge(Fridge fridge) {
-        return fridgeRepository.save(fridge);
-    }
-
-    /**
-    public void removeFridgeFromHousehold(Long fridgeId) {
+    public FridgeDto getFridgeById(Long fridgeId) {
+        log.debug("Fetching Fridge by id: {}", fridgeId);
         Fridge fridge = fridgeRepository.findById(fridgeId)
-                .orElseThrow(() -> new NotFoundException("Fridge with id " + fridgeId + " not found for deletion"));
-        Household household = fridge.getHousehold();
-        if (household != null) {
-            household.setFridge(null);
-            fridge.setHousehold(null);
-            householdRepository.save(household);
-            fridgeRepository.save(fridge);
-        }
-    }
-     */
-
-    /**
-    // In FridgeService
-    public void removeFridgeFromHousehold(Long fridgeId) {
-        Fridge fridge = fridgeRepository.findById(fridgeId)
-                .orElseThrow(() -> new NotFoundException("Fridge with id " + fridgeId + " not found for deletion"));
-        Household household = fridge.getHousehold();
-        if (household != null) {
-            household.setFridge(null);
-            fridge.setHousehold(null);
-            householdRepository.save(household);
-            fridgeRepository.save(fridge);
-        }
+                .orElseThrow(() -> {
+                        log.warn("Fridge not found with id: {}", fridgeId);
+                        return new NotFoundException("Fridge with id " + fridgeId + " not found");
+                });
+        return castFridgetoToDto(fridge);
     }
 
     @Override
     public void deleteFridge(Long fridgeId) {
-        removeFridgeFromHousehold(fridgeId);
-        fridgeRepository.deleteById(fridgeId);
-    }*/
-
-    public void deleteFridge(Long fridgeId) {
         Fridge fridge = fridgeRepository.findById(fridgeId)
-                .orElseThrow(() -> new NotFoundException("Fridge with id " + fridgeId + " not found for deletion"));
+                .orElseThrow(() -> {
+                    log.warn("Fridge not found with id: {}", fridgeId);
+                    return new NotFoundException("Fridge with id " + fridgeId + " not found for deletion");
+                });
         Household household = fridge.getHousehold();
         if (household != null) {
             household.setFridge(null);
@@ -140,28 +143,4 @@ public class FridgeServiceImplementation implements FridgeService {
             householdRepository.save(household); // Update the household without the fridge
         }
     }
-
-
-
-    /*@Override
-    public Fridge addGroceryItemToFridge(Long fridgeId, GroceryItem groceryItem) {
-        Optional<Fridge> fridgeOptional = fridgeRepository.findById(fridgeId);
-        if (fridgeOptional.isPresent()) {
-            Fridge fridge = fridgeOptional.get();
-            fridge.addGroceryItem(groceryItem);
-            return fridgeRepository.save(fridge);
-        }
-        return null;
-    }
-
-    @Override
-    public Fridge removeGroceryItemFromFridge(Long fridgeId, GroceryItem groceryItem) {
-        Optional<Fridge> fridgeOptional = fridgeRepository.findById(fridgeId);
-        if (fridgeOptional.isPresent()) {
-            Fridge fridge = fridgeOptional.get();
-            fridge.removeGroceryItem(groceryItem);
-            return fridgeRepository.save(fridge);
-        }
-        return null;
-    }*/
 }
