@@ -47,6 +47,12 @@ public class RecipeController {
         return new ResponseEntity<>(recipeDTO, HttpStatus.OK);
     }
 
+    @GetMapping("/improved/{recipeId}")
+    public ResponseEntity<RecipeResponseDTO> getRecipeByIdImproved(@PathVariable Long recipeId) {
+        RecipeResponseDTO responseDTO = recipeService.getRecipeAndAllIngredients(recipeId);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+
     @GetMapping
     public ResponseEntity<Set<RecipeDTO>> getAllRecipes() {
         Set<Recipe> recipes = recipeService.getAllRecipe();

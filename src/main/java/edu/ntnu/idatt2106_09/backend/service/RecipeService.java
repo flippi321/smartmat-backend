@@ -51,6 +51,38 @@ public class RecipeService {
         return recipeRepository.findById(recipeId);
     }
 
+    public RecipeResponseDTO getRecipeAndAllIngredients(Long recipeId) {
+        Recipe recipe = recipeRepository.findById(recipeId).
+                orElseThrow(() -> new NotFoundException("recipe with id " + recipeId + " not found"));
+
+
+
+        RecipeResponseDTO recipeResponseDTO = new RecipeResponseDTO();
+
+        recipeResponseDTO.setId(recipe.getRecipe_id());
+        recipeResponseDTO.setName(recipe.getName());
+        recipeResponseDTO.setDescription(recipe.getDescription());
+
+
+        Set<GroceryItemRecipe> ingredients = groceryItemRecipeRepository.findGroceryItemRecipeByRecipeId(recipeId);
+
+        List<IngredientDTO> ingredientDTOList = new ArrayList<>();
+        IngredientDTO currentIngredient;
+        for(GroceryItemRecipe gir : ingredients) {
+            currentIngredient = new IngredientDTO();
+            currentIngredient.setAmount(gir.getAmount());
+            currentIngredient.setName(gir.getGroceryItem().getName());
+            currentIngredient.setId(gir.getGroceryItem().getGroceryItemId());
+            currentIngredient.setUnit("unit");
+            ingredientDTOList.add(currentIngredient);
+        }
+
+        recipeResponseDTO.setIngredients(ingredientDTOList);
+
+        return recipeResponseDTO;
+
+    }
+
     public Set<Recipe> getAllRecipe() {
         return recipeRepository.getAllRecipes();
     }
