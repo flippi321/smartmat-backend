@@ -6,6 +6,8 @@ import edu.ntnu.idatt2106_09.backend.model.*;
 import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRepository;
 import edu.ntnu.idatt2106_09.backend.repository.ShoppinglistRepository;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class GroceryItemServiceImplementation implements GroceryItemService {
+
 
     @Autowired
     private ModelMapper modelMapper;
@@ -42,6 +45,13 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
     private FridgeRepository fridgeRepository;
     @Autowired
     private ShoppinglistRepository shoppinglistRepository;
+
+    /**
+     * Made for mocking in 'GroceryItemTest'
+     */
+    public GroceryItemServiceImplementation(GroceryItemRepository groceryItemRepository) {
+        this.groceryItemRepository = groceryItemRepository;
+    }
 
     //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A SHOPPINGLIST AND A FRIDGE
     @Override
