@@ -15,5 +15,5 @@ package edu.ntnu.idatt2106_09.backend.repository;
 public interface ShoppinglistRepository extends JpaRepository<Shoppinglist, Long> {
 
     @Query("SELECT s FROM Shoppinglist s")
-    Set<Fridge> getAllShoppinglists();
+    Set<Shoppinglist> getAllShoppinglists();
 }
