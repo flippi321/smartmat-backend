@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 
 import java.util.HashSet;
@@ -18,15 +17,15 @@ import java.util.Set;
 @EqualsAndHashCode(exclude = "groceries")
 @ToString
 @Entity
-@Table(name = "fridge")
+@Table(name = "shoppinglist")
 @NaturalIdCache
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Fridge {
+public class Shoppinglist {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "fridge_id", nullable = false)
-    private Long fridgeId;
+    @Column(name = "shoppinglist_id", nullable = false)
+    private Long shoppinglistId;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -36,27 +35,26 @@ public class Fridge {
     private Household household;
 
     @OneToMany(
-            mappedBy = "fridge",
+            mappedBy = "shoppinglist",
             cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.EAGER)
-    private Set<GroceryItemFridge> groceries = new HashSet<>();
+            orphanRemoval = true)
+    private Set<GroceryItemShoppinglist> groceries = new HashSet<>();
 
     public void addGroceryItem(GroceryItem groceryItem, int amount) {
-        GroceryItemFridge groceryItemFridge = new GroceryItemFridge(this, groceryItem, amount);
-        groceries.add(groceryItemFridge);
+        GroceryItemShoppinglist groceryItemShoppinglist = new GroceryItemShoppinglist(this, groceryItem, amount);
+        groceries.add(groceryItemShoppinglist);
     }
 
     public void removeGroceryItem(GroceryItem groceryItem) {
-        for (Iterator<GroceryItemFridge> iterator = groceries.iterator();
+        for (Iterator<GroceryItemShoppinglist> iterator = groceries.iterator();
              iterator.hasNext(); ) {
-            GroceryItemFridge groceryItemFridge = iterator.next();
+            GroceryItemShoppinglist groceryItemShoppinglist = iterator.next();
 
-            if (groceryItemFridge.getFridge().equals(this) &&
-                    groceryItemFridge.getGroceryItem().equals(groceryItem)) {
+            if (groceryItemShoppinglist.getShoppinglist().equals(this) &&
+                    groceryItemShoppinglist.getGroceryItem().equals(groceryItem)) {
                 iterator.remove();
-                groceryItemFridge.setFridge(null);
-                groceryItemFridge.setGroceryItem(null);
+                groceryItemShoppinglist.setShoppinglist(null);
+                groceryItemShoppinglist.setGroceryItem(null);
             }
         }
     }
