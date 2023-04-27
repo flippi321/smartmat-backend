@@ -10,7 +10,6 @@ import lombok.Builder;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class FridgeDto {
     private Long fridgeId;
     private String name;
