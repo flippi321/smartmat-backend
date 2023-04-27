@@ -1,16 +1,12 @@
 package edu.ntnu.idatt2106_09.backend.dto;
 
-        import edu.ntnu.idatt2106_09.backend.model.Category;
-        import edu.ntnu.idatt2106_09.backend.model.Fridge;
-        import edu.ntnu.idatt2106_09.backend.model.GroceryItem;
-        import jakarta.persistence.*;
-        import lombok.Getter;
-        import lombok.Setter;
-        import lombok.NoArgsConstructor;
-        import lombok.AllArgsConstructor;
-        import lombok.Builder;
+import java.time.LocalDate;
 
-        import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter

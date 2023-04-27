@@ -8,8 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class GroceryItemRecipeDTO {
+public class GroceryItemRecipeDto {
     private RecipeDTO recipe;
-    private GroceryItemDTO groceryItem;
+    private GroceryItemDto groceryItem;
     private int amount;
 }
