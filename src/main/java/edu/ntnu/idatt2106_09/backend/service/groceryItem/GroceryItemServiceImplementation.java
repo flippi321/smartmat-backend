@@ -55,46 +55,51 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
 
     //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A SHOPPINGLIST AND A FRIDGE
     @Override
-    public ResponseEntity<FridgeDto> transferGroceryItemToFridge(Long shoppinglistId, Long fridgeId, Long groceryItemId) {
-        log.debug("Fetching Grocery Item with id: {}", groceryItemId);
-        try {
-            GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
-                    .orElseThrow(() -> new NotFoundException("groceryItem with id " + groceryItemId + " not found"));
-            log.info("[x] Grocery Item with id {} found", groceryItemId);
+    public ResponseEntity<FridgeDto> transferGroceryItemsToFridge(Long shoppinglistId, Long fridgeId, Long[] groceryItemIds) {
+        FridgeDto fridgeDto = null;
+        for (Long groceryItemId : groceryItemIds) {
+            log.debug("Fetching Grocery Item with id: {}", groceryItemId);
+            try {
+                GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
+                        .orElseThrow(() -> new NotFoundException("groceryItem with id " + groceryItemId + " not found"));
+                log.info("[x] Grocery Item with id {} found", groceryItemId);
 
-            Optional<Shoppinglist> shoppinglistOptional = shoppinglistRepository.findById(shoppinglistId);
-            if (shoppinglistOptional.isPresent()) {
-                Shoppinglist shoppinglist = shoppinglistOptional.get();
-                log.info("[x] Shoppinglist with id {} found", shoppinglistId);
-                Set<GroceryItemShoppinglist> groceries = shoppinglist.getGroceries();
-                for (GroceryItemShoppinglist grocery : groceries) {
-                    if (grocery.getGroceryItemId().equals(groceryItemId)) {
-                        Optional<Fridge> fridgeOptional = fridgeRepository.findById(fridgeId);
-                        if (fridgeOptional.isPresent()) {
-                            Fridge fridge = fridgeOptional.get();
-                            log.info("[x] Fridge with id {} found", fridgeId);
-                            fridge.addGroceryItem(groceryItem, grocery.getAmount());
-                            fridgeRepository.save(fridge);
-                            FridgeDto fridgeDto = castFridgeToDto(fridge);
-                            shoppinglist.removeGroceryItem(groceryItem);
-                            shoppinglistRepository.save(shoppinglist);
-                            log.info("[x] Grocery Item with id {} transferred from Shoppinglist with id {} to Fridge with id {}", groceryItemId, shoppinglistId, fridgeId);
-                            return new ResponseEntity<>(fridgeDto, HttpStatus.OK);
-                        } else {
-                            throw new NotFoundException("fridge with id " + fridgeId + " not found");
+                Optional<Shoppinglist> shoppinglistOptional = shoppinglistRepository.findById(shoppinglistId);
+                if (shoppinglistOptional.isPresent()) {
+                    Shoppinglist shoppinglist = shoppinglistOptional.get();
+                    log.info("[x] Shoppinglist with id {} found", shoppinglistId);
+                    Set<GroceryItemShoppinglist> groceries = shoppinglist.getGroceries();
+                    boolean groceryItemFoundInShoppingList = false;
+                    for (GroceryItemShoppinglist grocery : groceries) {
+                        if (grocery.getGroceryItemId().equals(groceryItemId)) {
+                            groceryItemFoundInShoppingList = true;
+                            Optional<Fridge> fridgeOptional = fridgeRepository.findById(fridgeId);
+                            if (fridgeOptional.isPresent()) {
+                                Fridge fridge = fridgeOptional.get();
+                                log.info("[x] Fridge with id {} found", fridgeId);
+                                fridge.addGroceryItem(groceryItem, grocery.getAmount());
+                                fridgeRepository.save(fridge);
+                                fridgeDto = castFridgeToDto(fridge);
+                                shoppinglist.removeGroceryItem(groceryItem);
+                                shoppinglistRepository.save(shoppinglist);
+                                log.info("[x] Grocery Item with id {} transferred from Shoppinglist with id {} to Fridge with id {}", groceryItemId, shoppinglistId, fridgeId);
+                            } else {
+                                throw new NotFoundException("fridge with id " + fridgeId + " not found");
+                            }
                         }
-                    } else {
-                        throw new NotFoundException("groceryItem with id " + groceryItemId + " not found in shoppingList with id " + shoppinglistId);
                     }
+                    if (!groceryItemFoundInShoppingList) {
+                        log.warn("[x] Grocery Item with id {} not found in ShoppingList with id {}", groceryItemId, shoppinglistId);
+                    }
+                } else {
+                    throw new NotFoundException("shoppingList with id " + shoppinglistId + " not found");
                 }
-            } else {
-                throw new NotFoundException("shoppingList with id " + shoppinglistId + " not found");
+            } catch (NotFoundException ex) {
+                log.warn("[x] Exception caught: {}", ex.getMessage());
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-        } catch (NotFoundException ex) {
-            log.warn("[x] Exception caught: {}", ex.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(fridgeDto, HttpStatus.OK);
     }
 
 

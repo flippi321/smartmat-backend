@@ -17,7 +17,7 @@ public interface GroceryItemService {
 
 
     //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A SHOPPINGLIST AND A FRIDGE
-    public ResponseEntity<FridgeDto> transferGroceryItemToFridge(Long shoppinglistId, Long fridgeId, Long groceryItemId);
+    public ResponseEntity<FridgeDto> transferGroceryItemsToFridge(Long shoppinglistId, Long fridgeId, Long[] groceryItemIds);
 
     //BELOW ARE CRUD METHODS FOR GROCERY ITEM IN RELATION TO A SHOPPINGLIST
     public ResponseEntity<ShoppinglistDto> addGroceryItemToShoppinglist(Long shoppinglistId, Long groceryItemId, int amount);
