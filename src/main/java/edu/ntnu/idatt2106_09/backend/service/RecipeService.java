@@ -326,4 +326,46 @@ public class RecipeService {
         }
         return response;
     }
+
+    public void updateFridgeAfterRecipe(HashMap<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe) {
+        GroceryItemRecipeDto recipeItem;
+        int fridgeItemAmount;
+        int updatedAmount;
+
+        for (int i = 0; i < recipe.size(); i++) {
+            recipeItem = recipe.get(i);
+            Long groceryItemId = recipeItem.getGroceryItem().getGroceryItemId();
+
+            if (fridge.get(groceryItemId) != null) {
+                fridgeItemAmount = fridge.get(groceryItemId).getAmount();
+                updatedAmount = fridgeItemAmount - recipeItem.getAmount();
+
+                if (updatedAmount <= 0) {
+                    fridge.remove(groceryItemId);
+                } else {
+                    fridge.get(groceryItemId).setAmount(updatedAmount);
+                }
+            }
+        }
+    }
+
+
+
+    public void retrieveRecommendedWeekMenu(Long fridgeId) {
+        HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
+        List<List<GroceryItemRecipeDto>> recipeList = getAllRecipeList();
+
+        List<List<GroceryItemRecipeDto>> weekMenu = new ArrayList<>();
+
+        for (int i = 0; i < 7; i++) {
+            List<List<GroceryItemRecipeDto>> recommendedRecipeList = getRecipesOverThreshold(fridge, recipeList);
+            double[] weightList = getWeightListOfRecipeList(fridge, recommendedRecipeList);
+            quickSort(weightList, recommendedRecipeList, 0, weightList.length - 1);
+
+            weekMenu.add(recommendedRecipeList.get(0));
+            updateFridgeAfterRecipe(fridge, weekMenu.get(i));
+            recipeList.remove(recommendedRecipeList.get(0));
+        }
+    }
+
 }
