@@ -12,6 +12,8 @@ import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.GroceryItemFridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRecipeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.RecipeRepository;
+import edu.ntnu.idatt2106_09.backend.service.fridge.FridgeServiceImplementation;
+import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemServiceImplementation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,13 +34,13 @@ public class RecipeService {
 
 
     @Autowired
-    private FridgeService fridgeService;
+    private FridgeServiceImplementation fridgeService;
 
     @Autowired
     private FridgeRepository fridgeRepository;
 
     @Autowired
-    private GroceryItemService groceryItemService;
+    private GroceryItemServiceImplementation groceryItemService;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -92,24 +94,24 @@ public class RecipeService {
     }
 
     // Need to Change hashmap key from Long to add new values to hashmap. Cant have multiple of the sane product
-    private HashMap<Long, GroceryItemFridgeDTO> retrieveFridgeItemsHashMap(long fridgeId) {
-        HashMap<Long, GroceryItemFridgeDTO> map = new HashMap<>();
+    private HashMap<Long, GroceryItemFridgeAlgoDto> retrieveFridgeItemsHashMap(long fridgeId) {
+        HashMap<Long, GroceryItemFridgeAlgoDto> map = new HashMap<>();
 
         Optional<Fridge> optionalFridge = fridgeRepository.findById(fridgeId);
         if (optionalFridge.isPresent()) {
             Fridge fridge = optionalFridge.get();
-            FridgeDTO fridgeDTO = fridgeService.castFridgeDTO(fridge);
+            FridgeDto fridgeDTO = modelMapper.map(fridge,FridgeDto.class);
             Set<GroceryItemFridge> groceryItemFridge = groceryItemFridgeRepository.findAllByFridgeId(fridgeId);
 
-            GroceryItemFridgeDTO currentGroceryItemFridgeDTO;
+            GroceryItemFridgeAlgoDto currentGroceryItemFridgeDTO;
 
             for (GroceryItemFridge gif : groceryItemFridge) {
-                currentGroceryItemFridgeDTO = new GroceryItemFridgeDTO();
+                currentGroceryItemFridgeDTO = new GroceryItemFridgeAlgoDto();
                 currentGroceryItemFridgeDTO.setAmount(gif.getAmount());
                 currentGroceryItemFridgeDTO.setExpirationDate(gif.getExpirationDate());
                 currentGroceryItemFridgeDTO.setPurchaseDate(gif.getPurchaseDate());
-                currentGroceryItemFridgeDTO.setFridgeDTO(fridgeDTO);
-                currentGroceryItemFridgeDTO.setGroceryItem(groceryItemService.castGroceryItemDto(gif.getGroceryItem()));
+                currentGroceryItemFridgeDTO.setFridgeDto(fridgeDTO);
+                currentGroceryItemFridgeDTO.setGroceryItem(modelMapper.map(gif.getGroceryItem(), GroceryItemDto.class));
 
                 map.put(gif.getGroceryItem().getGroceryItemId(), currentGroceryItemFridgeDTO);
             }
@@ -120,13 +122,13 @@ public class RecipeService {
 
 
 
-    private List<List<GroceryItemRecipeDTO>> getAllRecipeList() {
+    private List<List<GroceryItemRecipeDto>> getAllRecipeList() {
 
         Set<Recipe> allRecipes = recipeRepository.getAllRecipes();
         Set<GroceryItemRecipe> allGroceryItemRecipe;
-        List<List<GroceryItemRecipeDTO>> groceryItemRecipeDTOList = new ArrayList<>();
-        List<GroceryItemRecipeDTO> currentGIRDTOList;
-        GroceryItemRecipeDTO currentGIRDTO;
+        List<List<GroceryItemRecipeDto>> groceryItemRecipeDTOList = new ArrayList<>();
+        List<GroceryItemRecipeDto> currentGIRDTOList;
+        GroceryItemRecipeDto currentGIRDTO;
         RecipeDTO currentRecipeDTO;
 
 
@@ -142,11 +144,10 @@ public class RecipeService {
                     .build();
 
             for(GroceryItemRecipe groceryItemRecipe : allGroceryItemRecipe) {
-                currentGIRDTO = new GroceryItemRecipeDTO();
+                currentGIRDTO = new GroceryItemRecipeDto();
                 currentGIRDTO.setAmount(groceryItemRecipe.getAmount());
                 currentGIRDTO.setRecipe(currentRecipeDTO);
-                currentGIRDTO.setGroceryItem(groceryItemService.castGroceryItemDto(groceryItemRecipe.getGroceryItem())
-                );
+                currentGIRDTO.setGroceryItem(modelMapper.map(groceryItemRecipe.getGroceryItem(), GroceryItemDto.class));
                 currentGIRDTOList.add(currentGIRDTO);
             }
 
@@ -165,8 +166,8 @@ public class RecipeService {
      * @return a double value between 0 and 1 representing the level of matching between the fridge contents and the recipe
      */
     private double compareFridgeAndRecipeList
-            (HashMap<Long, GroceryItemFridgeDTO> fridge, List<GroceryItemRecipeDTO> recipe) {
-        GroceryItemRecipeDTO recipeItem;
+            (HashMap<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe) {
+        GroceryItemRecipeDto recipeItem;
         double fridgeItemAmount;
         double currentPercentage = 0.0;
         double ingredientPercentage;
@@ -200,11 +201,11 @@ public class RecipeService {
      */
 
 
-    private List<List<GroceryItemRecipeDTO>> getRecipesOverThreshold(
-                    HashMap<Long, GroceryItemFridgeDTO> fridge,
-                    List<List<GroceryItemRecipeDTO>> recipeList) {
+    private List<List<GroceryItemRecipeDto>> getRecipesOverThreshold(
+                    HashMap<Long, GroceryItemFridgeAlgoDto> fridge,
+                    List<List<GroceryItemRecipeDto>> recipeList) {
 
-        List<List<GroceryItemRecipeDTO>> recipesAboveTheThreshold = new ArrayList<>();
+        List<List<GroceryItemRecipeDto>> recipesAboveTheThreshold = new ArrayList<>();
 
         for(int i = 0; i<recipeList.size(); i++){
             if(compareFridgeAndRecipeList(fridge, recipeList.get(i))>= RecipeRecommenderConstants.RECOMMENDATION_THRESHOLD)
@@ -222,12 +223,12 @@ public class RecipeService {
      * @param recipesOverThreshold A list of lists of GroceryItemRecipeDTO objects representing the filtered recipes that meet or exceed the threshold.
      * @return A double array containing the weight of each recipe in the recipesOverThreshold list.
      */
-    private double[] getWeightListOfRecipeList(HashMap<Long, GroceryItemFridgeDTO> fridgeMap, List<List<GroceryItemRecipeDTO>> recipesOverThreshold) {
+    private double[] getWeightListOfRecipeList(HashMap<Long, GroceryItemFridgeAlgoDto> fridgeMap, List<List<GroceryItemRecipeDto>> recipesOverThreshold) {
         int numRecipes = recipesOverThreshold.size();
         double[] weights = new double[numRecipes];
 
         for (int i = 0; i < numRecipes; i++) {
-            List<GroceryItemRecipeDTO> recipe = recipesOverThreshold.get(i);
+            List<GroceryItemRecipeDto> recipe = recipesOverThreshold.get(i);
             double weight = compareFridgeAndRecipeList(fridgeMap, recipe);
             weights[i] = weight;
         }
@@ -245,7 +246,7 @@ public class RecipeService {
      * @param low The starting index of the subarray to be sorted.
      * @param high The ending index of the subarray to be sorted.
      */
-    public void quickSort(double[] weight, List<List<GroceryItemRecipeDTO>> recipes, int low, int high) {
+    public void quickSort(double[] weight, List<List<GroceryItemRecipeDto>> recipes, int low, int high) {
         if (low < high) {
             int pivotIndex = partition(weight, recipes, low, high);
             quickSort(weight, recipes, low, pivotIndex - 1);
@@ -253,7 +254,7 @@ public class RecipeService {
         }
     }
 
-    private int partition(double[] weight, List<List<GroceryItemRecipeDTO>> recipes, int low, int high) {
+    private int partition(double[] weight, List<List<GroceryItemRecipeDto>> recipes, int low, int high) {
         double pivot = weight[high];
         int i = low - 1;
 
@@ -267,7 +268,7 @@ public class RecipeService {
                 weight[j] = tempWeight;
 
                 // Swap recipes.get(i) and recipes.get(j)
-                List<GroceryItemRecipeDTO> tempRecipe = recipes.get(i);
+                List<GroceryItemRecipeDto> tempRecipe = recipes.get(i);
                 recipes.set(i, recipes.get(j));
                 recipes.set(j, tempRecipe);
             }
@@ -279,7 +280,7 @@ public class RecipeService {
         weight[high] = tempWeight;
 
         // Swap recipes.get(i + 1) and recipes.get(high)
-        List<GroceryItemRecipeDTO> tempRecipe = recipes.get(i + 1);
+        List<GroceryItemRecipeDto> tempRecipe = recipes.get(i + 1);
         recipes.set(i + 1, recipes.get(high));
         recipes.set(high, tempRecipe);
 
@@ -287,10 +288,10 @@ public class RecipeService {
     }
 
 
-    public List<List<GroceryItemRecipeDTO>> getRecommendedRecipes(Long fridgeId) {
-        HashMap<Long, GroceryItemFridgeDTO> fridge = retrieveFridgeItemsHashMap(fridgeId);
-        List<List<GroceryItemRecipeDTO>> recipeList = getAllRecipeList();
-        List<List<GroceryItemRecipeDTO>> recommendedRecipeList;
+    public List<List<GroceryItemRecipeDto>> getRecommendedRecipes(Long fridgeId) {
+        HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
+        List<List<GroceryItemRecipeDto>> recipeList = getAllRecipeList();
+        List<List<GroceryItemRecipeDto>> recommendedRecipeList;
 
         recommendedRecipeList = getRecipesOverThreshold(fridge, recipeList);
         double[] weightList = getWeightListOfRecipeList(fridge, recommendedRecipeList);
@@ -301,10 +302,10 @@ public class RecipeService {
     }
 
 
-    public List<RecipeResponseDTO> convertToRecipeResponseDTO(List<List<GroceryItemRecipeDTO>> listOfGroceryItemRecipeLists) {
+    public List<RecipeResponseDTO> convertToRecipeResponseDTO(List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists) {
         List<RecipeResponseDTO> response = new ArrayList<>();
 
-        for (List<GroceryItemRecipeDTO> groceryItemRecipeList : listOfGroceryItemRecipeLists) {
+        for (List<GroceryItemRecipeDto> groceryItemRecipeList : listOfGroceryItemRecipeLists) {
             RecipeDTO recipe = groceryItemRecipeList.get(0).getRecipe();
             RecipeResponseDTO recipeResponseDTO = new RecipeResponseDTO();
             recipeResponseDTO.setId(recipe.getRecipe_id());
@@ -312,7 +313,7 @@ public class RecipeService {
             recipeResponseDTO.setDescription(recipe.getDescription());
 
             List<IngredientDTO> ingredients = new ArrayList<>();
-            for (GroceryItemRecipeDTO groceryItemRecipeDTO : groceryItemRecipeList) {
+            for (GroceryItemRecipeDto groceryItemRecipeDTO : groceryItemRecipeList) {
                 IngredientDTO ingredientDTO = new IngredientDTO();
                 ingredientDTO.setId(groceryItemRecipeDTO.getGroceryItem().getGroceryItemId());
                 ingredientDTO.setName(groceryItemRecipeDTO.getGroceryItem().getName());
@@ -325,4 +326,46 @@ public class RecipeService {
         }
         return response;
     }
+
+    public void updateFridgeAfterRecipe(HashMap<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe) {
+        GroceryItemRecipeDto recipeItem;
+        int fridgeItemAmount;
+        int updatedAmount;
+
+        for (int i = 0; i < recipe.size(); i++) {
+            recipeItem = recipe.get(i);
+            Long groceryItemId = recipeItem.getGroceryItem().getGroceryItemId();
+
+            if (fridge.get(groceryItemId) != null) {
+                fridgeItemAmount = fridge.get(groceryItemId).getAmount();
+                updatedAmount = fridgeItemAmount - recipeItem.getAmount();
+
+                if (updatedAmount <= 0) {
+                    fridge.remove(groceryItemId);
+                } else {
+                    fridge.get(groceryItemId).setAmount(updatedAmount);
+                }
+            }
+        }
+    }
+
+
+
+    public void retrieveRecommendedWeekMenu(Long fridgeId) {
+        HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
+        List<List<GroceryItemRecipeDto>> recipeList = getAllRecipeList();
+
+        List<List<GroceryItemRecipeDto>> weekMenu = new ArrayList<>();
+
+        for (int i = 0; i < 7; i++) {
+            List<List<GroceryItemRecipeDto>> recommendedRecipeList = getRecipesOverThreshold(fridge, recipeList);
+            double[] weightList = getWeightListOfRecipeList(fridge, recommendedRecipeList);
+            quickSort(weightList, recommendedRecipeList, 0, weightList.length - 1);
+
+            weekMenu.add(recommendedRecipeList.get(0));
+            updateFridgeAfterRecipe(fridge, weekMenu.get(i));
+            recipeList.remove(recommendedRecipeList.get(0));
+        }
+    }
+
 }

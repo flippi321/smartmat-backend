@@ -1,6 +1,6 @@
 package edu.ntnu.idatt2106_09.backend.controller;
 
-import edu.ntnu.idatt2106_09.backend.dto.GroceryItemRecipeDTO;
+import edu.ntnu.idatt2106_09.backend.dto.GroceryItemRecipeDto;
 import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeDTO;
 import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeResponseDTO;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
@@ -72,7 +72,7 @@ public class RecipeController {
     @GetMapping("/recommender/{fridgeId}")
     public ResponseEntity<List<RecipeResponseDTO>> getRecipeRecommendedList(@PathVariable Long fridgeId) {
         // Retrieve the List<List<GroceryItemRecipeDTO>> based on the fridgeId (implement this in your service layer)
-        List<List<GroceryItemRecipeDTO>> listOfGroceryItemRecipeLists = recipeService.getRecommendedRecipes(fridgeId);
+        List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeService.getRecommendedRecipes(fridgeId);
         // Convert the list of GroceryItemRecipeDTO to the desired format
         List<RecipeResponseDTO> response = recipeService.convertToRecipeResponseDTO(listOfGroceryItemRecipeLists);
         return new ResponseEntity<>(response, HttpStatus.OK);
