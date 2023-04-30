@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -25,7 +24,8 @@ public class RecipeController {
     @Autowired
     private RecipeService recipeService;
 
-    private ModelMapper modelMapper = new ModelMapper();
+    @Autowired
+    private ModelMapper modelMapper;
 
 
 
@@ -71,6 +71,11 @@ public class RecipeController {
         List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeService.getRecommendedRecipes(fridgeId);
         // Convert the list of GroceryItemRecipeDTO to the desired format
         List<RecipeResponseDTO> response = recipeService.convertToRecipeResponseDTO(listOfGroceryItemRecipeLists);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    @GetMapping("/weekRecommender/{fridgeId}")
+    public ResponseEntity<List<List<GroceryItemRecipeDto>>> getRecommendedWeekMenuList(@PathVariable Long fridgeId) {
+        List<List<GroceryItemRecipeDto>> response = recipeService.retrieveRecommendedWeekMenu(fridgeId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

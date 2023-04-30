@@ -39,20 +39,14 @@ public class RecipeService {
 
 
     @Autowired
-    private FridgeServiceImplementation fridgeService;
-
-    @Autowired
     private FridgeRepository fridgeRepository;
-
-    @Autowired
-    private GroceryItemServiceImplementation groceryItemService;
 
     @Autowired
     private ModelMapper modelMapper;
 
     public ResponseEntity<RecipeDTO> addRecipe(RecipeDTO recipe) {
         try {
-            Recipe savedRecipe = recipeRepository.save(modelMapper.map(recipe, Recipe.class));
+            recipeRepository.save(modelMapper.map(recipe, Recipe.class));
             return new ResponseEntity<>(recipe, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -385,7 +379,7 @@ public class RecipeService {
 
 
 
-    public void retrieveRecommendedWeekMenu(Long fridgeId) {
+    public List<List<GroceryItemRecipeDto>> retrieveRecommendedWeekMenu(Long fridgeId) {
         HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
         List<List<GroceryItemRecipeDto>> recipeList = getAllRecipeList();
 
@@ -395,11 +389,14 @@ public class RecipeService {
             List<List<GroceryItemRecipeDto>> recommendedRecipeList = getRecipesOverThreshold(fridge, recipeList);
             double[] weightList = getWeightListOfRecipeList(fridge, recommendedRecipeList);
             quickSort(weightList, recommendedRecipeList, 0, weightList.length - 1);
-
+            if(recommendedRecipeList.size()<=i ) return weekMenu;
             weekMenu.add(recommendedRecipeList.get(0));
             updateFridgeAfterRecipe(fridge, weekMenu.get(i));
             recipeList.remove(recommendedRecipeList.get(0));
         }
+
+
+        return weekMenu;
     }
 
 }
