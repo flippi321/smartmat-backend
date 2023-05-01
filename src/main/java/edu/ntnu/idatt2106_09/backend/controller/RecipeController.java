@@ -54,9 +54,8 @@ public class RecipeController {
 
     @GetMapping("/{recipeId}")
     @Operation(summary = "Get a recipe by ID", description = "Get a recipe with the specified ID along with all its ingredients")
-    public ResponseEntity<RecipeResponseDTO> getRecipeById(@PathVariable Long recipeId) {
-        RecipeResponseDTO responseDTO = recipeService.getRecipeAndAllIngredients(recipeId);
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    public ResponseEntity<Object> getRecipeById(@PathVariable Long recipeId) {
+        return recipeService.getRecipeAndAllIngredients(recipeId);
     }
 
     @GetMapping
