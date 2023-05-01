@@ -2,6 +2,9 @@ package edu.ntnu.idatt2106_09.backend.controller;
 
 import edu.ntnu.idatt2106_09.backend.dto.*;
 import edu.ntnu.idatt2106_09.backend.model.GroceryItem;
+import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
+import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRepository;
+import edu.ntnu.idatt2106_09.backend.repository.ShoppinglistRepository;
 import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -14,17 +17,15 @@ import java.util.Set;
 
 @Slf4j
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/groceryItems")
 public class GroceryItemController {
 
     @Autowired
     private GroceryItemService groceryItemService;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
-    private GroceryItem castDtoToGroceryItem(GroceryItemDto groceryItemDto) {
-        return modelMapper.map(groceryItemDto, GroceryItem.class);
+    public GroceryItemController(GroceryItemService groceryItemService) {
+        this.groceryItemService = groceryItemService;
     }
 
 
@@ -43,7 +44,7 @@ public class GroceryItemController {
     // POST (Add a new grocery item to a shoppinglist)
     @PostMapping("/shoppinglist/{shoppinglistId}/{groceryItemId}/{amount}")
     public ResponseEntity<ShoppinglistDto> addGroceryItemToShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistID, @PathVariable("groceryItemId") Long groceryItemId, @PathVariable("amount") int amount){
-        log.debug("[X] Call to add crocery to shoppinglist");
+        log.debug("[X] Call to add grocery to shoppinglist");
         return groceryItemService.addGroceryItemToShoppinglist(shoppinglistID, groceryItemId, amount);
     }
 
@@ -72,6 +73,12 @@ public class GroceryItemController {
         return groceryItemService.removeGroceryItemFromShoppinglist(shoppinglistId, groceryItemID);
     }
 
+    @DeleteMapping("/shoppinglist/deleteItems/{shoppinglistId}")
+    public ResponseEntity<ShoppinglistDto> removeGroceryItemsFromShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @RequestBody Long[] groceryItemIds){
+        log.debug("[X] Call to delete a given grocery from shoppinglist");
+        return groceryItemService.removeGroceryItemsFromShoppinglist(shoppinglistId, groceryItemIds);
+    }
+
 
 
 
@@ -83,7 +90,7 @@ public class GroceryItemController {
     // POST (Add a new grocery item to a fridge)
     @PostMapping("/fridge/{fridgeId}/{groceryItemId}/{amount}")
     public ResponseEntity<FridgeDto> addGroceryItemToFridge(@PathVariable("fridgeId") Long fridgeId, @PathVariable("groceryItemId") Long groceryItemId, @PathVariable("amount") int amount) {
-        log.debug("[X] Call to add crocery to fridge");
+        log.debug("[X] Call to add grocery to fridge");
         return groceryItemService.addGroceryItemToFridge(fridgeId, groceryItemId, amount);
     }
 
@@ -110,6 +117,12 @@ public class GroceryItemController {
     public ResponseEntity<FridgeDto> removeGroceryItemFromFridge(@PathVariable Long fridgeId, @PathVariable("groceryItemID") Long groceryItemID) {
         log.debug("[X] Call to delete a given grocery from fridge");
         return groceryItemService.removeGroceryItemFromFridge(fridgeId, groceryItemID);
+    }
+
+    @DeleteMapping("/fridge/deleteItems/{fridgeId}")
+    public ResponseEntity<FridgeDto> removeGroceryItemsFromFridge(@PathVariable("fridgeId") Long fridgeId, @RequestBody Long[] groceryItemIds){
+        log.debug("[X] Call to delete a given grocery from shoppinglist");
+        return groceryItemService.removeGroceryItemsFromFridge(fridgeId, groceryItemIds);
     }
 
 

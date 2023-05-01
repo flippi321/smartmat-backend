@@ -15,6 +15,7 @@ import java.util.Set;
 
 @Slf4j
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/fridges")
 public class FridgeController {
 

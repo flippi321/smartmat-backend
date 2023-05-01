@@ -3,6 +3,7 @@ package edu.ntnu.idatt2106_09.backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Getter
@@ -10,6 +11,7 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@Builder
 @Entity
 @Table(name = "grocery_item")
 public class GroceryItem {
@@ -22,12 +24,19 @@ public class GroceryItem {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "shelf_life")
-    private int shelfLife;
+    @Column(name = "expected_shelf_life")
+    private int expectedShelfLife;
+
+    @Column(name = "actual_shelf_life")
+    private int actualShelfLife;
+
+    @Column(name = "image_link")
+    private String imageLink;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "category_id")
     private Category category;
+
 
     /**
     @OneToMany(
