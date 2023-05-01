@@ -41,9 +41,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // When we make a call, we need to pass the jwt token within the header. Under, we're extracting this header.
+        // When we make a call, we need to pass the token token within the header. Under, we're extracting this header.
         final String authorizationHeader = request.getHeader("Authorization");
-        final String jwt;
+        final String token;
         final String userEmail;
 
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
@@ -52,15 +52,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // Extracting the token from the auth-header.
-        jwt = authorizationHeader.substring(7); // Starting from pos no. 7 as we're skipping 'Bearer '.
+        token = authorizationHeader.substring(7); // Starting from pos no. 7 as we're skipping 'Bearer '.
         // Extracting the user email from the token.
-        userEmail = jwtService.extractUsername(jwt);
+        userEmail = jwtService.extractUsername(token);
 
         // Checks that the user exists and that it's not already authenticated yet. Because if the user is authenticated,
         // we don't need to perform all the checks in the if-sentence again.
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-            if(jwtService.isTokenValid(jwt, userDetails)) {
+            if(jwtService.isTokenValid(token, userDetails)) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
