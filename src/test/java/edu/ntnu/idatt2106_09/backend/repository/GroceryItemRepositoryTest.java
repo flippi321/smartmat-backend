@@ -31,8 +31,8 @@ class GroceryItemRepositoryTest {
         // Given
         Category category = new Category();
         entityManager.persist(category);
-        GroceryItem item1 = new GroceryItem(null, "item1", 7, category);
-        GroceryItem item2 = new GroceryItem(null, "item2", 14, category);
+        GroceryItem item1 = new GroceryItem(null, "item1", 7, 8, "test", category);
+        GroceryItem item2 = new GroceryItem(null, "item2", 14, 15, "test", category);
         entityManager.persist(item1);
         entityManager.persist(item2);
 
