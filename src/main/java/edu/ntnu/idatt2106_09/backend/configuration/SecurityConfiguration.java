@@ -27,7 +27,7 @@ public class SecurityConfiguration {
                 .csrf()
                 .disable() // Disabling cross-site scripting.
                 .authorizeHttpRequests()
-                .requestMatchers("")
+                .requestMatchers("/api/v1/auth/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
