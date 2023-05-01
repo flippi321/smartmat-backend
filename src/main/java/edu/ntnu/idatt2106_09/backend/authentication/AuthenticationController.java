@@ -1,6 +1,7 @@
 package edu.ntnu.idatt2106_09.backend.authentication;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,15 +13,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthenticationController {
 
-    private final AuthenticationService service;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public void register() {
-        //TODO Add code for a register request
+    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegistrationRequest registrationRequest) {
+        return ResponseEntity.ok(authenticationService.register(registrationRequest));
     }
 
     @PostMapping("/authenticate")
-    public void authenticate(@RequestBody AuthenticationRequest request) {
-        //TODO Add code for a authentication request
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest authenticationRequest) {
+        return ResponseEntity.ok(authenticationService.authenticate(authenticationRequest));
     }
 }
