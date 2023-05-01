@@ -12,11 +12,14 @@ import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.GroceryItemFridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRecipeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.RecipeRepository;
+import edu.ntnu.idatt2106_09.backend.service.fridge.FridgeService;
 import edu.ntnu.idatt2106_09.backend.service.fridge.FridgeServiceImplementation;
+import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemService;
 import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemServiceImplementation;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.Banner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -50,6 +53,53 @@ public class RecipeService {
     @Autowired
     private ModelMapper modelMapper;
 
+    public RecipeService(RecipeRepository recipeRepository){
+        this.recipeRepository = recipeRepository;
+    }
+    public RecipeService(RecipeRepository recipeRepository, GroceryItemRecipeRepository groceryItemRecipeRepository){
+        this.recipeRepository = recipeRepository;
+        this.groceryItemRecipeRepository = groceryItemRecipeRepository;
+    }
+    public RecipeService(GroceryItemFridgeRepository groceryItemFridgeRepository, FridgeRepository fridgeRepository,
+                         FridgeServiceImplementation fridgeService, GroceryItemServiceImplementation groceryItemService){
+        this.groceryItemFridgeRepository = groceryItemFridgeRepository;
+        this.fridgeRepository = fridgeRepository;
+        this.fridgeService = fridgeService;
+        this.groceryItemService = groceryItemService;
+
+    }
+    public RecipeService(GroceryItemFridgeRepository groceryItemFridgeRepository, FridgeRepository fridgeRepository,
+                         FridgeServiceImplementation fridgeService, GroceryItemServiceImplementation groceryItemService,
+                         ModelMapper modelMapper){
+        this.groceryItemFridgeRepository = groceryItemFridgeRepository;
+        this.fridgeRepository = fridgeRepository;
+        this.fridgeService = fridgeService;
+        this.groceryItemService = groceryItemService;
+        this.modelMapper = modelMapper;
+
+    }
+
+
+    public RecipeService(RecipeRepository recipeRepository, GroceryItemServiceImplementation groceryItemService){
+        this.recipeRepository = recipeRepository;
+        this.groceryItemService = groceryItemService;
+    }
+
+
+    public RecipeService(RecipeRepository recipeRepository, GroceryItemServiceImplementation groceryItemService,
+                         ModelMapper modelMapper){
+        this.recipeRepository = recipeRepository;
+        this.groceryItemService = groceryItemService;
+        this.modelMapper = modelMapper;
+
+    }
+    public RecipeService(RecipeRepository recipeRepository, ModelMapper modelMapper){
+        this.recipeRepository = recipeRepository;
+        this.modelMapper = modelMapper;
+    }
+    public RecipeService(){
+
+    }
     public ResponseEntity<RecipeDTO> addRecipe(RecipeDTO recipe) {
         try {
             Recipe savedRecipe = recipeRepository.save(modelMapper.map(recipe, Recipe.class));
@@ -98,6 +148,7 @@ public class RecipeService {
     }
 
 
+
     public ResponseEntity<Set<RecipeDTO>>  getAllRecipe() {
 
             Set<Recipe> recipes = recipeRepository.getAllRecipes();
@@ -128,7 +179,7 @@ public class RecipeService {
     }
 
     // Need to Change hashmap key from Long to add new values to hashmap. Cant have multiple of the sane product
-    private HashMap<Long, GroceryItemFridgeAlgoDto> retrieveFridgeItemsHashMap(long fridgeId) {
+    public HashMap<Long, GroceryItemFridgeAlgoDto> retrieveFridgeItemsHashMap(long fridgeId) {
         HashMap<Long, GroceryItemFridgeAlgoDto> map = new HashMap<>();
 
         Optional<Fridge> optionalFridge = fridgeRepository.findById(fridgeId);
@@ -156,7 +207,7 @@ public class RecipeService {
 
 
 
-    private List<List<GroceryItemRecipeDto>> getAllRecipeList() {
+    public List<List<GroceryItemRecipeDto>> getAllRecipeList() {
 
         Set<Recipe> allRecipes = recipeRepository.getAllRecipes();
         Set<GroceryItemRecipe> allGroceryItemRecipe;
