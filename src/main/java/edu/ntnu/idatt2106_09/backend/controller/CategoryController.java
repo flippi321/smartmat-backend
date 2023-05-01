@@ -15,7 +15,8 @@ import java.util.Set;
 
 @Slf4j
 @RestController
-@RequestMapping("/categories")
+@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/api/categories")
 public class CategoryController {
 
     private final CategoryService categoryService;
