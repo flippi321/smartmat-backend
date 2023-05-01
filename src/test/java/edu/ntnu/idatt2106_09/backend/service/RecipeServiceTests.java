@@ -20,11 +20,11 @@ import edu.ntnu.idatt2106_09.backend.repository.GroceryItemFridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRecipeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.RecipeRepository;
 
-import edu.ntnu.idatt2106_09.backend.service.RecipeService;
 import edu.ntnu.idatt2106_09.backend.service.fridge.FridgeService;
 import edu.ntnu.idatt2106_09.backend.service.fridge.FridgeServiceImplementation;
 import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemService;
 import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemServiceImplementation;
+import edu.ntnu.idatt2106_09.backend.service.recipe.RecipeServiceImplementation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -63,7 +63,7 @@ class RecipeServiceTests {
         Long recipeId = 1L;
         GroceryItemRecipeRepository groceryItemRecipeRepository = mock(GroceryItemRecipeRepository.class);
         RecipeRepository recipeRepository = mock(RecipeRepository.class);
-        RecipeService recipeService = new RecipeService(recipeRepository, groceryItemRecipeRepository);
+        RecipeServiceImplementation recipeService = new RecipeServiceImplementation(recipeRepository, groceryItemRecipeRepository);
 
         // Oppsett av mock-objekter
         Recipe recipe = new Recipe();
@@ -137,7 +137,7 @@ class RecipeServiceTests {
         FridgeServiceImplementation fridgeService = mock(FridgeServiceImplementation.class);
         GroceryItemServiceImplementation groceryItemService = mock(GroceryItemServiceImplementation.class);
 
-        RecipeService recipeService = new RecipeService(groceryItemFridgeRepository, fridgeRepository,
+        RecipeServiceImplementation recipeService = new RecipeServiceImplementation(groceryItemFridgeRepository, fridgeRepository,
                 fridgeService, groceryItemService, modelMapper);
 
         // Oppsett av mock-objekter
@@ -199,7 +199,7 @@ class RecipeServiceTests {
         ModelMapper modelMapper = mock(ModelMapper.class);
 
         // Opprett instans av RecipeService og sett mock-objekter
-        RecipeService recipeService = new RecipeService(recipeRepository, modelMapper);
+        RecipeServiceImplementation recipeService = new RecipeServiceImplementation(recipeRepository, modelMapper);
 
         // Opprett testdata
         Recipe recipe1 = new Recipe();
@@ -239,7 +239,7 @@ class RecipeServiceTests {
     @Test
     public void convertToRecipeResponseDTOTest() {
         // Create mock data
-        RecipeService recipeService = new RecipeService();
+        RecipeServiceImplementation recipeService = new RecipeServiceImplementation();
         RecipeDTO recipeDTO = new RecipeDTO(1L, "Spaghetti Carbonara", "Delicious pasta dish");
         GroceryItemDto groceryItemDTO = new GroceryItemDto();
         groceryItemDTO.setGroceryItemId(1L);
