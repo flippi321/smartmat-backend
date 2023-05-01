@@ -44,13 +44,13 @@ public class RecipeService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public ResponseEntity<RecipeDTO> addRecipe(RecipeDTO recipe) {
+    public ResponseEntity<Object> addRecipe(RecipeDTO recipe) {
         try {
             Recipe savedRecipe = recipeRepository.save(modelMapper.map(recipe, Recipe.class));
 
             return new ResponseEntity<>(modelMapper.map(savedRecipe,RecipeDTO.class), HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -105,7 +105,7 @@ public class RecipeService {
 
     }
 
-    public ResponseEntity<RecipeDTO> deleteRecipe(Long recipeId) {
+    public ResponseEntity<Object> deleteRecipe(Long recipeId) {
         try {
             Optional<Recipe> recipeOptional = recipeRepository.findById(recipeId);
             if (recipeOptional.isPresent()) {
@@ -118,7 +118,7 @@ public class RecipeService {
             }
         } catch (NotFoundException ex) {
             log.warn("[x] Exception caught: {}", ex.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -144,6 +144,8 @@ public class RecipeService {
 
                 map.put(gif.getGroceryItem().getGroceryItemId(), currentGroceryItemFridgeDTO);
             }
+        } else {
+            throw new NotFoundException("Fridge not found");
         }
 
         return map;

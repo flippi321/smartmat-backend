@@ -30,7 +30,7 @@ public class RecipeController {
 
 
     @PostMapping
-    public ResponseEntity<RecipeDTO> addRecipe(@RequestBody RecipeDTO recipeDTO) {
+    public ResponseEntity<Object> addRecipe(@RequestBody RecipeDTO recipeDTO) {
         log.debug("Adding a new Recipe named: {} ", recipeDTO.getName());
         return recipeService.addRecipe(recipeDTO);
     }
@@ -60,9 +60,9 @@ public class RecipeController {
 
 
     @DeleteMapping("/{recipeId}")
-    public ResponseEntity<Void> deleteRecipe(@PathVariable Long recipeId) {
-        recipeService.deleteRecipe(recipeId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<Object> deleteRecipe(@PathVariable Long recipeId) {
+        log.debug("Deleting Recipe with id:" + recipeId);
+        return recipeService.deleteRecipe(recipeId);
     }
 
     @GetMapping("/recommender/{fridgeId}")
@@ -74,9 +74,16 @@ public class RecipeController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @GetMapping("/weekRecommender/{fridgeId}")
-    public ResponseEntity<List<List<GroceryItemRecipeDto>>> getRecommendedWeekMenuList(@PathVariable Long fridgeId) {
-        List<List<GroceryItemRecipeDto>> response = recipeService.retrieveRecommendedWeekMenu(fridgeId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<Object> getRecommendedWeekMenuList(@PathVariable Long fridgeId) {
+        try{
+            List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeService.retrieveRecommendedWeekMenu(fridgeId);
+            List<RecipeResponseDTO> response = recipeService.convertToRecipeResponseDTOList(listOfGroceryItemRecipeLists);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        catch (NotFoundException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 
 }
