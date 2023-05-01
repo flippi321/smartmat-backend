@@ -1,4 +1,4 @@
-package edu.ntnu.idatt2106_09.backend.service;
+package edu.ntnu.idatt2106_09.backend.service.recipe;
 
 import edu.ntnu.idatt2106_09.backend.config.RecipeRecommenderConstants;
 import edu.ntnu.idatt2106_09.backend.dto.*;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class RecipeService {
+public class RecipeServiceImplementation implements RecipeService {
 
     @Autowired
     private RecipeRepository recipeRepository;
@@ -50,6 +50,7 @@ public class RecipeService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Override
     public ResponseEntity<RecipeDTO> addRecipe(RecipeDTO recipe) {
         try {
             Recipe savedRecipe = recipeRepository.save(modelMapper.map(recipe, Recipe.class));
@@ -60,10 +61,12 @@ public class RecipeService {
     }
 
 
+    @Override
     public Optional<Recipe> getRecipeById(Long recipeId){
         return recipeRepository.findById(recipeId);
     }
 
+    @Override
     public ResponseEntity<Object> getRecipeAndAllIngredients(Long recipeId) {
         try {
             Recipe recipe = recipeRepository.findById(recipeId)
@@ -97,7 +100,7 @@ public class RecipeService {
 
     }
 
-
+    @Override
     public ResponseEntity<Set<RecipeDTO>>  getAllRecipe() {
 
             Set<Recipe> recipes = recipeRepository.getAllRecipes();
@@ -110,6 +113,7 @@ public class RecipeService {
 
     }
 
+    @Override
     public ResponseEntity<RecipeDTO> deleteRecipe(Long recipeId) {
         try {
             Optional<Recipe> recipeOptional = recipeRepository.findById(recipeId);
@@ -128,7 +132,8 @@ public class RecipeService {
     }
 
     // Need to Change hashmap key from Long to add new values to hashmap. Cant have multiple of the sane product
-    private HashMap<Long, GroceryItemFridgeAlgoDto> retrieveFridgeItemsHashMap(long fridgeId) {
+    @Override
+    public HashMap<Long, GroceryItemFridgeAlgoDto> retrieveFridgeItemsHashMap(long fridgeId) {
         HashMap<Long, GroceryItemFridgeAlgoDto> map = new HashMap<>();
 
         Optional<Fridge> optionalFridge = fridgeRepository.findById(fridgeId);
@@ -155,8 +160,8 @@ public class RecipeService {
     }
 
 
-
-    private List<List<GroceryItemRecipeDto>> getAllRecipeList() {
+    @Override
+    public List<List<GroceryItemRecipeDto>> getAllRecipeList() {
 
         Set<Recipe> allRecipes = recipeRepository.getAllRecipes();
         Set<GroceryItemRecipe> allGroceryItemRecipe;
@@ -199,8 +204,9 @@ public class RecipeService {
      * to the total number of grocery items required for the recipe.
      * @return a double value between 0 and 1 representing the level of matching between the fridge contents and the recipe
      */
-    private double compareFridgeAndRecipeList
-            (HashMap<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe) {
+    @Override
+    public double compareFridgeAndRecipeList
+            (Map<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe) {
         GroceryItemRecipeDto recipeItem;
         double fridgeItemAmount;
         double currentPercentage = 0.0;
@@ -234,9 +240,9 @@ public class RecipeService {
      * @return A list of lists of GroceryItemRecipeDTO objects representing the filtered recipes that meet or exceed the threshold.
      */
 
-
-    private List<List<GroceryItemRecipeDto>> getRecipesOverThreshold(
-                    HashMap<Long, GroceryItemFridgeAlgoDto> fridge,
+    @Override
+    public List<List<GroceryItemRecipeDto>> getRecipesOverThreshold(
+                    Map<Long, GroceryItemFridgeAlgoDto> fridge,
                     List<List<GroceryItemRecipeDto>> recipeList) {
 
         List<List<GroceryItemRecipeDto>> recipesAboveTheThreshold = new ArrayList<>();
@@ -257,7 +263,8 @@ public class RecipeService {
      * @param recipesOverThreshold A list of lists of GroceryItemRecipeDTO objects representing the filtered recipes that meet or exceed the threshold.
      * @return A double array containing the weight of each recipe in the recipesOverThreshold list.
      */
-    private double[] getWeightListOfRecipeList(HashMap<Long, GroceryItemFridgeAlgoDto> fridgeMap, List<List<GroceryItemRecipeDto>> recipesOverThreshold) {
+    @Override
+    public double[] getWeightListOfRecipeList(Map<Long, GroceryItemFridgeAlgoDto> fridgeMap, List<List<GroceryItemRecipeDto>> recipesOverThreshold) {
         int numRecipes = recipesOverThreshold.size();
         double[] weights = new double[numRecipes];
 
@@ -280,6 +287,7 @@ public class RecipeService {
      * @param low The starting index of the subarray to be sorted.
      * @param high The ending index of the subarray to be sorted.
      */
+    @Override
     public void quickSort(double[] weight, List<List<GroceryItemRecipeDto>> recipes, int low, int high) {
         if (low < high) {
             int pivotIndex = partition(weight, recipes, low, high);
@@ -288,7 +296,7 @@ public class RecipeService {
         }
     }
 
-    private int partition(double[] weight, List<List<GroceryItemRecipeDto>> recipes, int low, int high) {
+    public int partition(double[] weight, List<List<GroceryItemRecipeDto>> recipes, int low, int high) {
         double pivot = weight[high];
         int i = low - 1;
 
@@ -322,6 +330,7 @@ public class RecipeService {
     }
 
 
+    @Override
     public List<List<GroceryItemRecipeDto>> getRecommendedRecipes(Long fridgeId) {
         HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
         List<List<GroceryItemRecipeDto>> recipeList = getAllRecipeList();
@@ -336,6 +345,7 @@ public class RecipeService {
     }
 
 
+    @Override
     public List<RecipeResponseDTO> convertToRecipeResponseDTO(List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists) {
         List<RecipeResponseDTO> response = new ArrayList<>();
 
@@ -361,7 +371,8 @@ public class RecipeService {
         return response;
     }
 
-    public void updateFridgeAfterRecipe(HashMap<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe) {
+    @Override
+    public void updateFridgeAfterRecipe(Map<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe) {
         GroceryItemRecipeDto recipeItem;
         int fridgeItemAmount;
         int updatedAmount;
@@ -385,6 +396,7 @@ public class RecipeService {
 
 
 
+    @Override
     public void retrieveRecommendedWeekMenu(Long fridgeId) {
         HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
         List<List<GroceryItemRecipeDto>> recipeList = getAllRecipeList();
