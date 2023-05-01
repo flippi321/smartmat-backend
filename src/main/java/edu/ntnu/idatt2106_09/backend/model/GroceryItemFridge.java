@@ -23,7 +23,7 @@ public class GroceryItemFridge {
         this.id = new GroceryItemFridgeId(fridge.getFridgeId(), groceryItem.getGroceryItemId());
         this.amount = amount;
         this.purchaseDate = LocalDate.now();
-        this.expirationDate = LocalDate.now().plusDays(groceryItem.getShelfLife());
+        this.expirationDate = LocalDate.now().plusDays(groceryItem.getActualShelfLife());
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
