@@ -36,11 +36,10 @@ public class RecipeController {
     @PostMapping
     @Operation(summary = "Add a new recipe", description = "Add a new recipe to the database")
     public ResponseEntity<RecipeDTO> addRecipe(@RequestBody RecipeDTO recipeDTO) {
-
-        Recipe recipe = modelMapper.map(recipeDTO, Recipe.class);
-        recipeService.addRecipe(recipe);
-        return new ResponseEntity<>(recipeDTO, HttpStatus.CREATED);
+        log.debug("Adding a new Recipe named: {} ", recipeDTO.getName());
+        return recipeService.addRecipe(recipeDTO);
     }
+
 
     @GetMapping("/simplified/{recipeId}")
     @Operation(summary = "Get a simplified recipe by ID", description = "Get a simplified recipe with the specified ID")
@@ -63,11 +62,8 @@ public class RecipeController {
     @GetMapping
     @Operation(summary = "Get all recipes", description = "Get all recipes stored in the database")
     public ResponseEntity<Set<RecipeDTO>> getAllRecipes() {
-        Set<Recipe> recipes = recipeService.getAllRecipe();
-        Set<RecipeDTO> recipeDTOs = recipes.stream()
-                .map(recipe -> modelMapper.map(recipe, RecipeDTO.class))
-                .collect(Collectors.toSet());
-        return new ResponseEntity<>(recipeDTOs, HttpStatus.OK);
+        log.debug("Retrieving all recipes");
+        return recipeService.getAllRecipe();
     }
 
 

@@ -35,9 +35,7 @@ public class GroceryItemController {
     @Operation(summary = "Transfer grocery items to fridge", description = "Transfer grocery items from shopping list to fridge")
     public void transferGroceryItemsToFridge(@PathVariable("shoppinglistId") Long shoppinglistId, @PathVariable("fridgeId") Long fridgeId, @RequestBody Long[] groceryItemIds) {
         log.debug("[X] Call to remove groceries from shoppinglist and add them to fridge");
-        for (Long groceryItemId : groceryItemIds) {
-            groceryItemService.transferGroceryItemToFridge(shoppinglistId, fridgeId, groceryItemId);
-        }
+        groceryItemService.transferGroceryItemsToFridge(shoppinglistId, fridgeId, groceryItemIds);
     }
 
 

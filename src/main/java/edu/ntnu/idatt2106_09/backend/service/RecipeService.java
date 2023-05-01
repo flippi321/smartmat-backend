@@ -14,13 +14,18 @@ import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRecipeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.RecipeRepository;
 import edu.ntnu.idatt2106_09.backend.service.fridge.FridgeServiceImplementation;
 import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemServiceImplementation;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class RecipeService {
 
     @Autowired
@@ -45,52 +50,81 @@ public class RecipeService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public Recipe addRecipe(Recipe recipe) {
-        return recipeRepository.save(recipe);
+    public ResponseEntity<RecipeDTO> addRecipe(RecipeDTO recipe) {
+        try {
+            Recipe savedRecipe = recipeRepository.save(modelMapper.map(recipe, Recipe.class));
+            return new ResponseEntity<>(recipe, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
 
     public Optional<Recipe> getRecipeById(Long recipeId){
         return recipeRepository.findById(recipeId);
     }
 
-    public RecipeResponseDTO getRecipeAndAllIngredients(Long recipeId) {
-        Recipe recipe = recipeRepository.findById(recipeId).
-                orElseThrow(() -> new NotFoundException("recipe with id " + recipeId + " not found"));
+    public ResponseEntity<Object> getRecipeAndAllIngredients(Long recipeId) {
+        try {
+            Recipe recipe = recipeRepository.findById(recipeId)
+                    .orElseThrow(() -> new NotFoundException("recipe with id " + recipeId + " not found"));
 
+            RecipeResponseDTO recipeResponseDTO = new RecipeResponseDTO();
 
+            recipeResponseDTO.setId(recipe.getRecipe_id());
+            recipeResponseDTO.setName(recipe.getName());
+            recipeResponseDTO.setDescription(recipe.getDescription());
 
-        RecipeResponseDTO recipeResponseDTO = new RecipeResponseDTO();
+            Set<GroceryItemRecipe> ingredients = groceryItemRecipeRepository.findGroceryItemRecipeByRecipeId(recipeId);
 
-        recipeResponseDTO.setId(recipe.getRecipe_id());
-        recipeResponseDTO.setName(recipe.getName());
-        recipeResponseDTO.setDescription(recipe.getDescription());
+            List<IngredientDTO> ingredientDTOList = new ArrayList<>();
+            IngredientDTO currentIngredient;
+            for (GroceryItemRecipe gir : ingredients) {
+                currentIngredient = new IngredientDTO();
+                currentIngredient.setAmount(gir.getAmount());
+                currentIngredient.setName(gir.getGroceryItem().getName());
+                currentIngredient.setId(gir.getGroceryItem().getGroceryItemId());
+                currentIngredient.setUnit("unit");
+                ingredientDTOList.add(currentIngredient);
+            }
+            recipeResponseDTO.setIngredients(ingredientDTOList);
 
-
-        Set<GroceryItemRecipe> ingredients = groceryItemRecipeRepository.findGroceryItemRecipeByRecipeId(recipeId);
-
-        List<IngredientDTO> ingredientDTOList = new ArrayList<>();
-        IngredientDTO currentIngredient;
-        for(GroceryItemRecipe gir : ingredients) {
-            currentIngredient = new IngredientDTO();
-            currentIngredient.setAmount(gir.getAmount());
-            currentIngredient.setName(gir.getGroceryItem().getName());
-            currentIngredient.setId(gir.getGroceryItem().getGroceryItemId());
-            currentIngredient.setUnit("unit");
-            ingredientDTOList.add(currentIngredient);
+            return new ResponseEntity<>(recipeResponseDTO, HttpStatus.OK);
+        } catch (NotFoundException ex) {
+            log.warn("[x] Exception caught: {}", ex.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        recipeResponseDTO.setIngredients(ingredientDTOList);
+    }
 
-        return recipeResponseDTO;
+
+    public ResponseEntity<Set<RecipeDTO>>  getAllRecipe() {
+
+            Set<Recipe> recipes = recipeRepository.getAllRecipes();
+
+            Set<RecipeDTO> recipeDTOs = recipes.stream()
+                    .map(recipe -> modelMapper.map(recipe, RecipeDTO.class))
+                    .collect(Collectors.toSet());
+
+            return new ResponseEntity<>(recipeDTOs, HttpStatus.OK);
 
     }
 
-    public Set<Recipe> getAllRecipe() {
-        return recipeRepository.getAllRecipes();
-    }
-
-    public void deleteRecipe(Long recipeId) {
-     recipeRepository.deleteById(recipeId);
+    public ResponseEntity<RecipeDTO> deleteRecipe(Long recipeId) {
+        try {
+            Optional<Recipe> recipeOptional = recipeRepository.findById(recipeId);
+            if (recipeOptional.isPresent()) {
+                Recipe recipe = recipeOptional.get();
+                RecipeDTO recipeDTO = modelMapper.map(recipe, RecipeDTO.class);
+                recipeRepository.deleteById(recipeId);
+                return new ResponseEntity<>(recipeDTO, HttpStatus.OK);
+            } else {
+                throw new NotFoundException("recipe with id " + recipeId + " not found");
+            }
+        } catch (NotFoundException ex) {
+            log.warn("[x] Exception caught: {}", ex.getMessage());
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
     }
 
     // Need to Change hashmap key from Long to add new values to hashmap. Cant have multiple of the sane product
