@@ -161,6 +161,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                     groceryItemDto.setName(grocery.getGroceryItem().getName());
                     groceryItemDto.setExpectedShelfLife(grocery.getGroceryItem().getExpectedShelfLife());
                     groceryItemDto.setActualShelfLife(grocery.getGroceryItem().getActualShelfLife());
+                    groceryItemDto.setImageLink(grocery.getGroceryItem().getImageLink());
                     groceryItemDto.setCategory(grocery.getGroceryItem().getCategory());
                     groceryItemDto.setAmount(grocery.getAmount());
                     groceryItemDtos.add(groceryItemDto);
@@ -333,6 +334,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                     groceryItemDto.setName(grocery.getGroceryItem().getName());
                     groceryItemDto.setExpectedShelfLife(grocery.getGroceryItem().getExpectedShelfLife());
                     groceryItemDto.setActualShelfLife(grocery.getGroceryItem().getActualShelfLife());
+                    groceryItemDto.setImageLink(grocery.getGroceryItem().getImageLink());
                     groceryItemDto.setCategory(grocery.getGroceryItem().getCategory());
                     groceryItemDto.setAmount(grocery.getAmount());
                     groceryItemDto.setDays_since_purchase(ChronoUnit.DAYS.between(LocalDate.now(), grocery.getPurchaseDate()));
