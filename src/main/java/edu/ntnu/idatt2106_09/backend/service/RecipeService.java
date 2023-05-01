@@ -46,8 +46,9 @@ public class RecipeService {
 
     public ResponseEntity<RecipeDTO> addRecipe(RecipeDTO recipe) {
         try {
-            recipeRepository.save(modelMapper.map(recipe, Recipe.class));
-            return new ResponseEntity<>(recipe, HttpStatus.CREATED);
+            Recipe savedRecipe = recipeRepository.save(modelMapper.map(recipe, Recipe.class));
+
+            return new ResponseEntity<>(modelMapper.map(savedRecipe,RecipeDTO.class), HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -78,7 +79,7 @@ public class RecipeService {
                 currentIngredient.setAmount(gir.getAmount());
                 currentIngredient.setName(gir.getGroceryItem().getName());
                 currentIngredient.setId(gir.getGroceryItem().getGroceryItemId());
-                currentIngredient.setUnit("unit");
+                currentIngredient.setUnit(gir.getGroceryItem().getCategory().getUnit());
                 ingredientDTOList.add(currentIngredient);
             }
             recipeResponseDTO.setIngredients(ingredientDTOList);
@@ -330,7 +331,7 @@ public class RecipeService {
     }
 
 
-    public List<RecipeResponseDTO> convertToRecipeResponseDTO(List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists) {
+    public List<RecipeResponseDTO> convertToRecipeResponseDTOList(List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists) {
         List<RecipeResponseDTO> response = new ArrayList<>();
 
         for (List<GroceryItemRecipeDto> groceryItemRecipeList : listOfGroceryItemRecipeLists) {
@@ -346,7 +347,7 @@ public class RecipeService {
                 ingredientDTO.setId(groceryItemRecipeDTO.getGroceryItem().getGroceryItemId());
                 ingredientDTO.setName(groceryItemRecipeDTO.getGroceryItem().getName());
                 ingredientDTO.setAmount(groceryItemRecipeDTO.getAmount());
-                ingredientDTO.setUnit("unit");
+                ingredientDTO.setUnit(groceryItemRecipeDTO.getGroceryItem().getCategory().getUnit());
                 ingredients.add(ingredientDTO);
             }
             recipeResponseDTO.setIngredients(ingredients);
@@ -355,7 +356,7 @@ public class RecipeService {
         return response;
     }
 
-    public void updateFridgeAfterRecipe(HashMap<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe) {
+    public void updateFridgeAfterRecipe(Map<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe) {
         GroceryItemRecipeDto recipeItem;
         int fridgeItemAmount;
         int updatedAmount;
