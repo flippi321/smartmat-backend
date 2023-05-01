@@ -24,7 +24,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,14 +56,14 @@ public class RecipeServiceImplementation implements RecipeService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public RecipeService(RecipeRepository recipeRepository){
+    public RecipeServiceImplementation(RecipeRepository recipeRepository){
         this.recipeRepository = recipeRepository;
     }
-    public RecipeService(RecipeRepository recipeRepository, GroceryItemRecipeRepository groceryItemRecipeRepository){
+    public RecipeServiceImplementation(RecipeRepository recipeRepository, GroceryItemRecipeRepository groceryItemRecipeRepository){
         this.recipeRepository = recipeRepository;
         this.groceryItemRecipeRepository = groceryItemRecipeRepository;
     }
-    public RecipeService(GroceryItemFridgeRepository groceryItemFridgeRepository, FridgeRepository fridgeRepository,
+    public RecipeServiceImplementation(GroceryItemFridgeRepository groceryItemFridgeRepository, FridgeRepository fridgeRepository,
                          FridgeServiceImplementation fridgeService, GroceryItemServiceImplementation groceryItemService){
         this.groceryItemFridgeRepository = groceryItemFridgeRepository;
         this.fridgeRepository = fridgeRepository;
@@ -68,7 +71,7 @@ public class RecipeServiceImplementation implements RecipeService {
         this.groceryItemService = groceryItemService;
 
     }
-    public RecipeService(GroceryItemFridgeRepository groceryItemFridgeRepository, FridgeRepository fridgeRepository,
+    public RecipeServiceImplementation(GroceryItemFridgeRepository groceryItemFridgeRepository, FridgeRepository fridgeRepository,
                          FridgeServiceImplementation fridgeService, GroceryItemServiceImplementation groceryItemService,
                          ModelMapper modelMapper){
         this.groceryItemFridgeRepository = groceryItemFridgeRepository;
@@ -80,26 +83,27 @@ public class RecipeServiceImplementation implements RecipeService {
     }
 
 
-    public RecipeService(RecipeRepository recipeRepository, GroceryItemServiceImplementation groceryItemService){
+    public RecipeServiceImplementation(RecipeRepository recipeRepository, GroceryItemServiceImplementation groceryItemService){
         this.recipeRepository = recipeRepository;
         this.groceryItemService = groceryItemService;
     }
 
 
-    public RecipeService(RecipeRepository recipeRepository, GroceryItemServiceImplementation groceryItemService,
+    public RecipeServiceImplementation(RecipeRepository recipeRepository, GroceryItemServiceImplementation groceryItemService,
                          ModelMapper modelMapper){
         this.recipeRepository = recipeRepository;
         this.groceryItemService = groceryItemService;
         this.modelMapper = modelMapper;
 
     }
-    public RecipeService(RecipeRepository recipeRepository, ModelMapper modelMapper){
+    public RecipeServiceImplementation(RecipeRepository recipeRepository, ModelMapper modelMapper){
         this.recipeRepository = recipeRepository;
         this.modelMapper = modelMapper;
     }
-    public RecipeService(){
+    public RecipeServiceImplementation(){
 
     }
+
     @Override
     public ResponseEntity<RecipeDTO> addRecipe(RecipeDTO recipe) {
         try {
@@ -184,7 +188,6 @@ public class RecipeServiceImplementation implements RecipeService {
     }
 
     // Need to Change hashmap key from Long to add new values to hashmap. Cant have multiple of the sane product
-    public HashMap<Long, GroceryItemFridgeAlgoDto> retrieveFridgeItemsHashMap(long fridgeId) {
     @Override
     public HashMap<Long, GroceryItemFridgeAlgoDto> retrieveFridgeItemsHashMap(long fridgeId) {
         HashMap<Long, GroceryItemFridgeAlgoDto> map = new HashMap<>();
@@ -214,7 +217,6 @@ public class RecipeServiceImplementation implements RecipeService {
 
 
 
-    public List<List<GroceryItemRecipeDto>> getAllRecipeList() {
     @Override
     public List<List<GroceryItemRecipeDto>> getAllRecipeList() {
 
@@ -322,9 +324,14 @@ public class RecipeServiceImplementation implements RecipeService {
     public double[] getWeightListOfRecipeList(Map<Long, GroceryItemFridgeAlgoDto> fridgeMap, List<List<GroceryItemRecipeDto>> recipesOverThreshold) {
         int numRecipes = recipesOverThreshold.size();
         double[] weights = new double[numRecipes];
+        LocalDate dateToday = LocalDate.now();
 
         for (int i = 0; i < numRecipes; i++) {
             List<GroceryItemRecipeDto> recipe = recipesOverThreshold.get(i);
+            for(int j = 0; j<recipe.size(); j++) {
+                GroceryItemFridgeAlgoDto currentFridgeItem = fridgeMap.get(recipe.get(i).getGroceryItem().getGroceryItemId());
+                if(currentFridgeItem != null) weights[i]+=getExpirationDateWeight(dateToday,currentFridgeItem.getExpirationDate());
+            }
             double weight = compareFridgeAndRecipeList(fridgeMap, recipe);
             weights[i] = weight;
         }
@@ -351,6 +358,7 @@ public class RecipeServiceImplementation implements RecipeService {
         }
     }
 
+    @Override
     public int partition(double[] weight, List<List<GroceryItemRecipeDto>> recipes, int low, int high) {
         double pivot = weight[high];
         int i = low - 1;
@@ -468,5 +476,24 @@ public class RecipeServiceImplementation implements RecipeService {
             recipeList.remove(recommendedRecipeList.get(0));
         }
     }
+
+
+    @Override
+    public double getExpirationDateWeight(LocalDate dateToday, LocalDate expirationDate) {
+        long diff = ChronoUnit.DAYS.between(dateToday, expirationDate);
+
+        double weight;
+
+        if (diff >= 0) {
+            // Item has not expired yet
+            weight = 1 / (1 + (RecipeRecommenderConstants.EXPIRATION_WEIGHT_CONSTANT * diff));
+        } else {
+            // Item has expired
+            weight = 1 + (-RecipeRecommenderConstants.EXPIRED_WEIGHT_CONSTANT * diff);
+        }
+
+        return weight;
+    }
+
 
 }

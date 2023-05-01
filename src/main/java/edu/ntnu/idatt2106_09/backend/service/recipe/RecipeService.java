@@ -8,6 +8,7 @@ import edu.ntnu.idatt2106_09.backend.model.Recipe;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -48,4 +49,6 @@ public interface RecipeService {
     public void updateFridgeAfterRecipe(Map<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe);
 
     public void retrieveRecommendedWeekMenu(Long fridgeId);
+
+    public double getExpirationDateWeight(LocalDate dateToday, LocalDate expirationDate);
 }
