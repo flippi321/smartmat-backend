@@ -1,4 +1,4 @@
-package edu.ntnu.idatt2106_09.backend.config;
+package edu.ntnu.idatt2106_09.backend.configuration;
 
 import lombok.NoArgsConstructor;
 
