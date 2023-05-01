@@ -1,5 +1,6 @@
 package edu.ntnu.idatt2106_09.backend.user;
 
+import edu.ntnu.idatt2106_09.backend.token.Token;
 import jakarta.persistence.*;
 
 import java.util.Collection;
@@ -30,6 +31,9 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(mappedBy = "user")
+    private List<Token> tokens;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
