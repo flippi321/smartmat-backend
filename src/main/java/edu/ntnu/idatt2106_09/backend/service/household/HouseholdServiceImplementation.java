@@ -26,6 +26,13 @@ public class HouseholdServiceImplementation implements HouseholdService {
     @Autowired
     private ModelMapper modelMapper;
 
+    public HouseholdServiceImplementation(HouseholdRepository householdRepository) {
+        this.householdRepository = householdRepository;
+    }
+    public HouseholdServiceImplementation(){
+
+    }
+
 
     @Override
     public Optional<Household> getHouseholdById(Long householdId) {

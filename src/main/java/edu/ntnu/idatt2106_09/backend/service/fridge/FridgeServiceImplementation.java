@@ -4,23 +4,15 @@ import edu.ntnu.idatt2106_09.backend.dto.FridgeDto;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.BadRequestException;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.Fridge;
-import edu.ntnu.idatt2106_09.backend.model.GroceryItem;
 import edu.ntnu.idatt2106_09.backend.model.Household;
 import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.HouseholdRepository;
 import edu.ntnu.idatt2106_09.backend.service.household.HouseholdService;
+import edu.ntnu.idatt2106_09.backend.service.household.HouseholdServiceImplementation;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -30,13 +22,19 @@ public class FridgeServiceImplementation implements FridgeService {
     private FridgeRepository fridgeRepository;
 
     @Autowired
-    private HouseholdService householdService;
+    private HouseholdServiceImplementation householdService;
 
     @Autowired
     private HouseholdRepository householdRepository;
 
     private final ModelMapper modelMapper = new ModelMapper();
 
+    public FridgeServiceImplementation(FridgeRepository fridgeRepository,
+                                       HouseholdServiceImplementation householdService, HouseholdRepository householdRepository) {
+        this.fridgeRepository = fridgeRepository;
+        this.householdService = householdService;
+        this.householdRepository = householdRepository;
+    }
     private FridgeDto castFridgetoToDto(Fridge fridge) {
         return modelMapper.map(fridge, FridgeDto.class);
     }
@@ -44,7 +42,6 @@ public class FridgeServiceImplementation implements FridgeService {
     private Fridge castDtoToFridge(FridgeDto fridgeDto) {
         return modelMapper.map(fridgeDto, Fridge.class);
     }
-
     @Override
     public FridgeDto addFridge(FridgeDto fridgeDto) {
         // Check if the fridgeDto name is valid
@@ -52,6 +49,7 @@ public class FridgeServiceImplementation implements FridgeService {
             log.warn("[X] Fridge name cannot be empty");
             throw new BadRequestException("Fridge name cannot be empty");
         }
+        //householdService = new HouseholdServiceImplementation();
 
         // Check if the household ID exists in the database
         Long householdId = fridgeDto.getHousehold().getHouseholdId();
@@ -85,6 +83,7 @@ public class FridgeServiceImplementation implements FridgeService {
 
         return savedFridgeDto;
     }
+
 
     @Override
     public FridgeDto updateFridge(FridgeDto fridgeDto) {
@@ -122,7 +121,6 @@ public class FridgeServiceImplementation implements FridgeService {
 
         return updatedFridgeDto;
     }
-
     @Override
     public FridgeDto getFridgeById(Long fridgeId) {
         log.debug("Fetching Fridge by id: {}", fridgeId);
