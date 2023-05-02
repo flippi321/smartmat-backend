@@ -1,7 +1,7 @@
 package edu.ntnu.idatt2106_09.backend.authentication;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.ntnu.idatt2106_09.backend.configuration.JwtService;
+import edu.ntnu.idatt2106_09.backend.config.JwtService;
 import edu.ntnu.idatt2106_09.backend.repository.UserRepository;
 import edu.ntnu.idatt2106_09.backend.token.Token;
 import edu.ntnu.idatt2106_09.backend.token.TokenRepository;

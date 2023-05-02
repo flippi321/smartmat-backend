@@ -1,6 +1,6 @@
 package edu.ntnu.idatt2106_09.backend.service;
 
-import edu.ntnu.idatt2106_09.backend.configuration.RecipeRecommenderConstants;
+import edu.ntnu.idatt2106_09.backend.config.RecipeRecommenderConstants;
 import edu.ntnu.idatt2106_09.backend.dto.*;
 
 import edu.ntnu.idatt2106_09.backend.dto.recipe.IngredientDTO;

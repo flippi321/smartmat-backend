@@ -1,4 +1,4 @@
-package edu.ntnu.idatt2106_09.backend.configuration;
+package edu.ntnu.idatt2106_09.backend.config;
 
 import edu.ntnu.idatt2106_09.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
