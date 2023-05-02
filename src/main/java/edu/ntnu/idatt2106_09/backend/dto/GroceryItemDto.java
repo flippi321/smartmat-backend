@@ -18,6 +18,7 @@ public class GroceryItemDto implements Serializable {
     private int expectedShelfLife;
     private int actualShelfLife;
     private String imageLink;
+    private int amount;
     private Category category;
 
 }

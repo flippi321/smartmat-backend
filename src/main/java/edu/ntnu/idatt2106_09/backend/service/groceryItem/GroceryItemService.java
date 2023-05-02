@@ -20,7 +20,7 @@ public interface GroceryItemService {
     public void transferGroceryItemsToFridge(Long shoppinglistId, Long fridgeId, Long[] groceryItemIds);
 
     //BELOW ARE CRUD METHODS FOR GROCERY ITEM IN RELATION TO A SHOPPINGLIST
-    public ResponseEntity<ShoppinglistDto> addGroceryItemToShoppinglist(Long shoppinglistId, Long groceryItemId, int amount);
+    public ResponseEntity<Set<GroceryItemDto>> addGroceryItemsToShoppinglist(Long shoppinglistId, Set<GroceryItemDto> groceryItems);
 
     public ResponseEntity<Set<GroceryItemShoppinglistDto>> getAllGroceryItemsInShoppinglist(Long shoppinglistId);
 
@@ -35,7 +35,7 @@ public interface GroceryItemService {
 
 
     //BELOW ARE CRUD METHODS FOR GROCERY ITEM IN RELATION TO A FRIDGE
-    public ResponseEntity<FridgeDto> addGroceryItemToFridge(Long fridgeId, Long groceryItemId, int amount);
+    public ResponseEntity<Set<GroceryItemDto>> addGroceryItemsToFridge(Long fridgeId, Set<GroceryItemDto> groceryItems);
 
     public ResponseEntity<Set<GroceryItemFridgeDto>> getAllGroceryItemsInFridge(Long fridgeId);
 

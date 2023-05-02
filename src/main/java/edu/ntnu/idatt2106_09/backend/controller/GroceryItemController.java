@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 
@@ -46,11 +47,11 @@ public class GroceryItemController {
     //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A SHOPPINGLIST
 
     // POST (Add a new grocery item to a shoppinglist)
-    @PostMapping("/shoppinglist/{shoppinglistId}/{groceryItemId}/{amount}")
+    @PostMapping("/shoppinglist/add/{shoppinglistId}")
     @Operation(summary = "Add a grocery item to a shopping list", description = "Add a grocery item to a shopping list with the specified amount")
-    public ResponseEntity<ShoppinglistDto> addGroceryItemToShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistID, @PathVariable("groceryItemId") Long groceryItemId, @PathVariable("amount") int amount){
+    public ResponseEntity<Set<GroceryItemDto>> addGroceryItemToShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @RequestBody Set<GroceryItemDto> groceryItems){
         log.debug("[X] Call to add crocery to shoppinglist");
-        return groceryItemService.addGroceryItemToShoppinglist(shoppinglistID, groceryItemId, amount);
+        return groceryItemService.addGroceryItemsToShoppinglist(shoppinglistId, groceryItems);
     }
 
     // GET (Get all grocery items in a given fridge)
@@ -97,10 +98,10 @@ public class GroceryItemController {
     //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A FRIDGE
 
     // POST (Add a new grocery item to a fridge)
-    @PostMapping("/fridge/{fridgeId}/{groceryItemId}/{amount}")
-    public ResponseEntity<FridgeDto> addGroceryItemToFridge(@PathVariable("fridgeId") Long fridgeId, @PathVariable("groceryItemId") Long groceryItemId, @PathVariable("amount") int amount) {
+    @PostMapping("/fridge/add/{fridgeId}")
+    public ResponseEntity<Set<GroceryItemDto>> addGroceryItemsToFridge(@PathVariable("fridgeId") Long fridgeId, @RequestBody Set<GroceryItemDto> groceryItems) {
         log.debug("[X] Call to add crocery to fridge");
-        return groceryItemService.addGroceryItemToFridge(fridgeId, groceryItemId, amount);
+        return groceryItemService.addGroceryItemsToFridge(fridgeId, groceryItems);
     }
 
     // GET (Get all grocery items in a given fridge)

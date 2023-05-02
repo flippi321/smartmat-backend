@@ -123,28 +123,42 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
 
     //BELOW ARE CRUD METHODS FOR GROCERY ITEM IN RELATION TO A SHOPPINGLIST
     @Override
-    public ResponseEntity<ShoppinglistDto> addGroceryItemToShoppinglist(Long shoppinglistId, Long groceryItemId, int amount) {
-        log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
-        try {
-            GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
-                    .orElseThrow(() -> new NotFoundException("groceryItem with id " + groceryItemId + " not found"));
-            log.info("[X] Grocery Item with id {} found", groceryItemId);
-            Optional<Shoppinglist> shoppinglistOptional = shoppinglistRepository.findById(shoppinglistId);
-            if (shoppinglistOptional.isPresent()) {
-                Shoppinglist shoppinglist = shoppinglistOptional.get();
-                shoppinglist.addGroceryItem(groceryItem, amount);
-                shoppinglistRepository.save(shoppinglist);
-                ShoppinglistDto shoppinglistDto = castShoppinglistToDto(shoppinglist);
-                return new ResponseEntity<>(shoppinglistDto, HttpStatus.OK);
-            } else {
-                throw new NotFoundException("shoppingList with id " + shoppinglistId + " not found");
+    public ResponseEntity<Set<GroceryItemDto>> addGroceryItemsToShoppinglist(Long shoppinglistId, Set<GroceryItemDto> groceryItems) {
+        Set<GroceryItemDto> groceryItemDtos = new HashSet<>();
+        for (GroceryItemDto groceryItemDto : groceryItems) {
+            Long groceryItemId = groceryItemDto.getGroceryItemId();
+            int amount = groceryItemDto.getAmount();
+            Integer actualShelfLife = groceryItemDto.getActualShelfLife();
+            log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
+            try {
+                GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
+                        .orElseThrow(() -> new NotFoundException("groceryItem with id " + groceryItemId + " not found"));
+                log.info("[X] Grocery Item with id {} found", groceryItemId);
+                Optional<Shoppinglist> shoppinglistOptional = shoppinglistRepository.findById(shoppinglistId);
+                if (shoppinglistOptional.isPresent()) {
+                    Shoppinglist shoppinglist = shoppinglistOptional.get();
+                    log.info("[X] Shoppinglist with id {} found", shoppinglistId);
+                    shoppinglist.addGroceryItem(groceryItem, amount);
+                    if (actualShelfLife == null || actualShelfLife == 0) {
+                        groceryItem.setActualShelfLife(groceryItem.getExpectedShelfLife());
+                    } else {
+                        groceryItem.setActualShelfLife(actualShelfLife);
+                    }
+                    shoppinglistRepository.save(shoppinglist);
+                    GroceryItemDto addedGroceryItemDto = castGroceryItemToDto(groceryItem);
+                    addedGroceryItemDto.setAmount(amount);
+                    groceryItemDtos.add(addedGroceryItemDto);
+                    log.info("[X] Grocery Item with id {} added to Shoppinglist with id {}", groceryItemId, shoppinglistId);
+                } else {
+                    throw new NotFoundException("shoppingList with id " + shoppinglistId + " not found");
+                }
+            } catch (NotFoundException ex) {
+                log.warn("[X] Exception caught: {}", ex.getMessage());
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-        } catch (NotFoundException ex) {
-            log.warn("[X] Exception caught: {}", ex.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(groceryItemDtos, HttpStatus.OK);
     }
-
     @Override
     public ResponseEntity<Set<GroceryItemShoppinglistDto>> getAllGroceryItemsInShoppinglist(Long shoppinglistId) {
         log.debug("Fetching Shoppinglist with id: {}", shoppinglistId);
@@ -294,29 +308,43 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
 
     //BELOW ARE CRUD METHODS FOR GROCERY ITEM IN RELATION TO A FRIDGE
     @Override
-    public ResponseEntity<FridgeDto> addGroceryItemToFridge(Long fridgeId, Long groceryItemId, int amount) {
-        log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
-        try {
-            GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
-                    .orElseThrow(() -> new NotFoundException("groceryItem with id " + groceryItemId + " not found"));
-            log.info("[X] Grocery Item with id {} found", groceryItemId);
-            Optional<Fridge> fridgeOptional = fridgeRepository.findById(fridgeId);
-            if (fridgeOptional.isPresent()) {
-                Fridge fridge = fridgeOptional.get();
-                log.info("[X] Fridge with id {} found", fridgeId);
-                fridge.addGroceryItem(groceryItem, amount);
-                fridgeRepository.save(fridge);
-                FridgeDto fridgeDto = castFridgeToDto(fridge);
-                log.info("[X] Grocery Item with id {} added to Fridge with id {}", groceryItemId, fridgeId);
-                return new ResponseEntity<>(fridgeDto, HttpStatus.OK);
-            } else {
-                throw new NotFoundException("fridge with id " + fridgeId + " not found");
+    public ResponseEntity<Set<GroceryItemDto>> addGroceryItemsToFridge(Long fridgeId, Set<GroceryItemDto> groceryItems) {
+        Set<GroceryItemDto> groceryItemDtos = new HashSet<>();
+        for (GroceryItemDto groceryItemDto : groceryItems) {
+            Long groceryItemId = groceryItemDto.getGroceryItemId();
+            int amount = groceryItemDto.getAmount();
+            Integer actualShelfLife = groceryItemDto.getActualShelfLife();
+            log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
+            try {
+                GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
+                        .orElseThrow(() -> new NotFoundException("groceryItem with id " + groceryItemId + " not found"));
+                log.info("[X] Grocery Item with id {} found", groceryItemId);
+                Optional<Fridge> fridgeOptional = fridgeRepository.findById(fridgeId);
+                if (fridgeOptional.isPresent()) {
+                    Fridge fridge = fridgeOptional.get();
+                    log.info("[X] Fridge with id {} found", fridgeId);
+                    if (actualShelfLife == null || actualShelfLife == 0) {
+                        groceryItem.setActualShelfLife(groceryItem.getExpectedShelfLife());
+                    } else {
+                        groceryItem.setActualShelfLife(actualShelfLife);
+                    }
+                    fridge.addGroceryItem(groceryItem, amount);
+                    fridgeRepository.save(fridge);
+                    GroceryItemDto addedGroceryItemDto = castGroceryItemToDto(groceryItem);
+                    addedGroceryItemDto.setAmount(amount);
+                    groceryItemDtos.add(addedGroceryItemDto);
+                    log.info("[X] Grocery Item with id {} added to Fridge with id {}", groceryItemId, fridgeId);
+                } else {
+                    throw new NotFoundException("fridge with id " + fridgeId + " not found");
+                }
+            } catch (NotFoundException ex) {
+                log.warn("[X] Exception caught: {}", ex.getMessage());
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-        } catch (NotFoundException ex) {
-            log.warn("[X] Exception caught: {}", ex.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(groceryItemDtos, HttpStatus.OK);
     }
+
 
    @Override
     public ResponseEntity<Set<GroceryItemFridgeDto>> getAllGroceryItemsInFridge(Long fridgeId) {
