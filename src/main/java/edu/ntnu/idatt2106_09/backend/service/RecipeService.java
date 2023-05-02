@@ -12,8 +12,6 @@ import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.GroceryItemFridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRecipeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.RecipeRepository;
-import edu.ntnu.idatt2106_09.backend.service.fridge.FridgeServiceImplementation;
-import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemServiceImplementation;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -380,6 +378,30 @@ public class RecipeService {
         }
     }
 
+    private List<GroceryItemRecipeDto> getRecipeGroceryList(Recipe recipe) {
+        Set<GroceryItemRecipe> allGroceryItemRecipe = recipe.getGroceries();
+        List<GroceryItemRecipeDto> groceryItemRecipeDTOList = new ArrayList<>();
+        GroceryItemRecipeDto currentGIRDTO;
+        RecipeDTO currentRecipeDTO;
+
+        currentRecipeDTO = RecipeDTO.builder()
+                .recipe_id(recipe.getRecipe_id())
+                .name(recipe.getName())
+                .description(recipe.getDescription())
+                .build();
+
+        for(GroceryItemRecipe groceryItemRecipe : allGroceryItemRecipe) {
+            currentGIRDTO = new GroceryItemRecipeDto();
+            currentGIRDTO.setAmount(groceryItemRecipe.getAmount());
+            currentGIRDTO.setRecipe(currentRecipeDTO);
+            currentGIRDTO.setGroceryItem(modelMapper.map(groceryItemRecipe.getGroceryItem(), GroceryItemDto.class));
+            groceryItemRecipeDTOList.add(currentGIRDTO);
+        }
+
+        return groceryItemRecipeDTOList;
+    }
+
+
 
 
     public List<List<GroceryItemRecipeDto>> retrieveRecommendedWeekMenu(Long fridgeId) {
@@ -402,4 +424,35 @@ public class RecipeService {
         return weekMenu;
     }
 
+    public List<GroceryItemRecipeDto> getMissingIngredient(long fridgeId, long recipeId){
+
+        HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
+        Optional<Recipe> recipe = recipeRepository.findById(recipeId);
+        if(recipe.isEmpty()) throw new NotFoundException("No Recipe with id " + recipeId);
+        List<GroceryItemRecipeDto> groceryItemRecipe = getRecipeGroceryList(recipe.get());
+        List<GroceryItemRecipeDto> missingRequiredGroceries = new ArrayList<>();
+        GroceryItemRecipeDto currentGroceryItemDto;
+        GroceryItemRecipeDto missingGroceryItemAmount;
+        GroceryItemFridgeAlgoDto currentFridgeItem;
+        for(int i = 0; i<groceryItemRecipe.size(); i++) {
+            currentGroceryItemDto = groceryItemRecipe.get(i);
+            missingGroceryItemAmount = new GroceryItemRecipeDto();
+            missingGroceryItemAmount.setGroceryItem(currentGroceryItemDto.getGroceryItem());
+            missingGroceryItemAmount.setRecipe(currentGroceryItemDto.getRecipe());
+
+            //Check fridge for item
+            currentFridgeItem = fridge.get(currentGroceryItemDto.getGroceryItem().getGroceryItemId());
+            // If the value is null it means there items
+            if(currentFridgeItem==null) {
+                missingGroceryItemAmount.setAmount(currentGroceryItemDto.getAmount());
+                missingRequiredGroceries.add(missingGroceryItemAmount);
+            }
+            else if(0>(currentFridgeItem.getAmount()-currentGroceryItemDto.getAmount())) {
+                missingGroceryItemAmount.setAmount(currentGroceryItemDto.getAmount() - currentFridgeItem.getAmount());
+                missingRequiredGroceries.add(missingGroceryItemAmount);
+            }
+        }
+        return missingRequiredGroceries;
+    }
 }
+
