@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,13 @@ import org.springframework.stereotype.Service;
 public class JwtService {
 
     // For security reasons we need at the minimum a sign-in key with a size of minimum 256 bits.
-    private static final String SECRET_KEY = "48404D6351665468576D5A7134743777217A25432A462D4A614E645267556B58";
+    //private static final String SECRET_KEY = "48404D6351665468576D5A7134743777217A25432A462D4A614E645267556B58";
+    @Value("${application.security.jwt.secret-key}")
+    private String secretKey;
+    @Value("${application.security.jwt.expiration}")
+    private long accessTokenExpiration;
+    @Value("${application.security.jwt.refresh-token.expiration}")
+    private long refreshTokenExpiration;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -44,8 +51,8 @@ public class JwtService {
                 .getBody();
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateAccessToken(UserDetails userDetails) {
+        return generateAccessToken(new HashMap<>(), userDetails);
     }
 
     /**
@@ -53,17 +60,21 @@ public class JwtService {
      * @param extraClaims If you want to pass extra claims, for example: authorities, any information you want to store
      *                    within the token.
      */
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return buildToken(extraClaims, userDetails);
+    public String generateAccessToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        return buildToken(extraClaims, userDetails, accessTokenExpiration);
     }
 
-    private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    public String generateRefreshToken(UserDetails userDetails) {
+        return buildToken(new HashMap<>(), userDetails, refreshTokenExpiration);
+    }
+
+    private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long tokenExpiration) {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+                .setExpiration(new Date(System.currentTimeMillis() + tokenExpiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact(); // Generates and returns the token.
     }
@@ -86,7 +97,7 @@ public class JwtService {
     }
 
     private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY); // Base64 decoding the secret key.
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey); // Base64 decoding the secret key.
         return Keys.hmacShaKeyFor(keyBytes); // Using a hashing-algorithm to hash the secret key.
     }
 }
