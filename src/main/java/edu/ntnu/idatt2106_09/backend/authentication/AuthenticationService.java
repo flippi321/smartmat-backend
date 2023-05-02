@@ -114,6 +114,7 @@ public class AuthenticationService {
 
         if (userEmail != null) {
             var user = this.userRepository.findByEmail(userEmail).orElseThrow();
+
             // Should the refresh token also be revoked?
             if (jwtService.isTokenValid(refreshToken, user)) {
                 var generatedAccessToken = jwtService.generateAccessToken(user);
@@ -123,6 +124,7 @@ public class AuthenticationService {
                         .accessToken(generatedAccessToken)
                         .refreshToken(refreshToken)
                         .build();
+                response.setContentType("application/json");
                 new ObjectMapper().writeValue(response.getOutputStream(), authenticationResponse);
             }
         }
