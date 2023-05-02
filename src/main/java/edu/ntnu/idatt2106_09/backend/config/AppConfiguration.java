@@ -15,22 +15,22 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Holds all the application configurations, such as beans etc.
+ *
  * At start-up Spring will pick up this class and try to implement and inject all the beans that we'll declare within
  * this application configuration.
- *
  */
 @Configuration
 @RequiredArgsConstructor
 public class AppConfiguration {
 
-    private final UserRepository repository;
+    private final UserRepository userRepository;
 
     /**
      * Fetches and return the username from the database using the UserRepository.
      */
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> repository.findByEmail(username)
+        return username -> userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("The requested user was not found"));
     }
 
@@ -55,8 +55,8 @@ public class AppConfiguration {
      * Manages the authentication process.
      */
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 
     @Bean
