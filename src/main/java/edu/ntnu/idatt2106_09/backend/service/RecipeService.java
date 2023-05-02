@@ -6,6 +6,7 @@ import edu.ntnu.idatt2106_09.backend.dto.*;
 import edu.ntnu.idatt2106_09.backend.dto.recipe.IngredientDTO;
 import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeDTO;
 import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeResponseDTO;
+import edu.ntnu.idatt2106_09.backend.exceptionHandling.BadRequestException;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.*;
 import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
@@ -407,7 +408,6 @@ public class RecipeService {
     public List<List<GroceryItemRecipeDto>> retrieveRecommendedWeekMenu(Long fridgeId) {
         HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
         List<List<GroceryItemRecipeDto>> recipeList = getAllRecipeList();
-
         List<List<GroceryItemRecipeDto>> weekMenu = new ArrayList<>();
 
         for (int i = 0; i < 7; i++) {
@@ -424,16 +424,22 @@ public class RecipeService {
         return weekMenu;
     }
 
-    public List<GroceryItemRecipeDto> getMissingIngredient(long fridgeId, long recipeId){
+    /**
+     * Will compare fridge and recipe and returns a List of GroceryItemRecipeDto which will represent the missing
+     * items to create the specific recipe.
+     * @param fridge
+     * @param recipe
+     * @return
+     */
+    public List<GroceryItemRecipeDto> getMissingIngredient(HashMap<Long, GroceryItemFridgeAlgoDto> fridge,
+                                                           Recipe recipe) {
 
-        HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
-        Optional<Recipe> recipe = recipeRepository.findById(recipeId);
-        if(recipe.isEmpty()) throw new NotFoundException("No Recipe with id " + recipeId);
-        List<GroceryItemRecipeDto> groceryItemRecipe = getRecipeGroceryList(recipe.get());
+        List<GroceryItemRecipeDto> groceryItemRecipe = getRecipeGroceryList(recipe);
         List<GroceryItemRecipeDto> missingRequiredGroceries = new ArrayList<>();
         GroceryItemRecipeDto currentGroceryItemDto;
         GroceryItemRecipeDto missingGroceryItemAmount;
         GroceryItemFridgeAlgoDto currentFridgeItem;
+
         for(int i = 0; i<groceryItemRecipe.size(); i++) {
             currentGroceryItemDto = groceryItemRecipe.get(i);
             missingGroceryItemAmount = new GroceryItemRecipeDto();
@@ -453,6 +459,87 @@ public class RecipeService {
             }
         }
         return missingRequiredGroceries;
+    }
+
+    /**
+     * Return a random long between min and max also excludes idList numbers.
+     * @param min
+     * @param max
+     * @param idList
+     * @return
+     */
+    public Long getRandomNumberAndExcludeSome(Long min, Long max, List<Long> idList){
+        if(idList.size()<(max-min)) throw new BadRequestException("getRandomRecipeAndIgnoreSomeId given too large idList");
+        Random random = new Random();
+        Long randomNumber;
+
+        do{
+            randomNumber = random.nextLong(max-min) + min;
+        } while (idList.contains(randomNumber));
+
+        return randomNumber;
+    }
+
+
+    /**
+     * Return a list containing two RecipeResponseDto. The first Dto represents the missing ingredients while
+     * the second Dto represents the original Recipe.
+     * @param fridgeId
+     * @param recipeId
+     * @return
+     */
+    public List<RecipeResponseDTO> getMissingIngredientsAndOriginalRecipe(Long fridgeId, Long recipeId){
+        List<RecipeResponseDTO> response = new ArrayList<>();
+
+        HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
+        Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(() ->  new NotFoundException("No Recipe with id " + recipeId));
+
+        // Create the Missing Ingredient Response
+        RecipeResponseDTO missingIngredientsResponse = new RecipeResponseDTO();
+        List<GroceryItemRecipeDto> ingredients = getMissingIngredient(fridge,recipe);
+        List<IngredientDTO> ingredientList = new ArrayList<>();
+        IngredientDTO currentIngredient;
+
+        for(int i = 0; i<ingredients.size(); i++) {
+            currentIngredient = new IngredientDTO();
+            currentIngredient.setName(ingredients.get(i).getGroceryItem().getName());
+            currentIngredient.setUnit(ingredients.get(i).getGroceryItem().getCategory().getUnit());
+            currentIngredient.setAmount(ingredients.get(i).getAmount());
+            currentIngredient.setId(ingredients.get(i).getGroceryItem().getGroceryItemId());
+            ingredientList.add(currentIngredient);
+        }
+        missingIngredientsResponse.setIngredients(ingredientList);
+        missingIngredientsResponse.setName(recipe.getName());
+        missingIngredientsResponse.setDescription(recipe.getDescription());
+        missingIngredientsResponse.setId(recipeId);
+
+        response.add(missingIngredientsResponse);
+
+
+        //The original recipe
+
+        RecipeResponseDTO originalRecipe = new RecipeResponseDTO();
+
+
+        originalRecipe.setId(recipe.getRecipe_id());
+        originalRecipe.setName(recipe.getName());
+        originalRecipe.setDescription(recipe.getDescription());
+
+        ingredientList = new ArrayList<>();
+
+        for (GroceryItemRecipeDto gir : ingredients) {
+            currentIngredient = new IngredientDTO();
+            currentIngredient.setAmount(gir.getAmount());
+            currentIngredient.setName(gir.getGroceryItem().getName());
+            currentIngredient.setId(gir.getGroceryItem().getGroceryItemId());
+            currentIngredient.setUnit(gir.getGroceryItem().getCategory().getUnit());
+            ingredientList.add(currentIngredient);
+        }
+        originalRecipe.setIngredients(ingredientList);
+        response.add(originalRecipe);
+
+
+        return response;
     }
 }
 

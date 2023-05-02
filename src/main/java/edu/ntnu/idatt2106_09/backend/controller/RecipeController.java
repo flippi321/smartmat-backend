@@ -86,4 +86,16 @@ public class RecipeController {
         }
     }
 
+    @GetMapping("/missingIngredients/{fridgeId}/{recipeId}")
+    public ResponseEntity<Object> getMissingIngredients(@PathVariable Long fridgeId, @PathVariable Long recipeId) {
+        try{
+            List<RecipeResponseDTO> responseDto = recipeService.getMissingIngredientsAndOriginalRecipe(fridgeId,recipeId);
+            return new ResponseEntity<>(responseDto,HttpStatus.OK);
+        }
+        catch (NotFoundException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+
 }
