@@ -448,6 +448,7 @@ public class RecipeService {
 
             //Check fridge for item
             currentFridgeItem = fridge.get(currentGroceryItemDto.getGroceryItem().getGroceryItemId());
+            System.out.println(currentFridgeItem==null);
             // If the value is null it means there items
             if(currentFridgeItem==null) {
                 missingGroceryItemAmount.setAmount(currentGroceryItemDto.getAmount());
@@ -509,25 +510,25 @@ public class RecipeService {
             ingredientList.add(currentIngredient);
         }
         missingIngredientsResponse.setIngredients(ingredientList);
-        missingIngredientsResponse.setName(recipe.getName());
-        missingIngredientsResponse.setDescription(recipe.getDescription());
+        missingIngredientsResponse.setName("Missing Ingredients of: " + recipe.getName());
+        missingIngredientsResponse.setDescription("Missing items");
         missingIngredientsResponse.setId(recipeId);
 
         response.add(missingIngredientsResponse);
 
 
         //The original recipe
-
         RecipeResponseDTO originalRecipe = new RecipeResponseDTO();
 
 
         originalRecipe.setId(recipe.getRecipe_id());
         originalRecipe.setName(recipe.getName());
         originalRecipe.setDescription(recipe.getDescription());
+        Set<GroceryItemRecipe> originalIngredients = groceryItemRecipeRepository.findGroceryItemRecipeByRecipeId(recipeId);
 
         ingredientList = new ArrayList<>();
 
-        for (GroceryItemRecipeDto gir : ingredients) {
+        for (GroceryItemRecipe gir : originalIngredients) {
             currentIngredient = new IngredientDTO();
             currentIngredient.setAmount(gir.getAmount());
             currentIngredient.setName(gir.getGroceryItem().getName());
