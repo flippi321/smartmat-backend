@@ -187,6 +187,33 @@ public class RecipeService {
         return groceryItemRecipeDTOList;
     }
 
+    private List<GroceryItemRecipeDto> getRecipeList(Long id) {
+
+        Recipe recipe = recipeRepository.findById(id).orElseThrow(() -> new NotFoundException("No recipe found with id " + id));
+        Set<GroceryItemRecipe> allGroceryItemRecipe;
+        List<GroceryItemRecipeDto> groceryItemRecipeDTOList = new ArrayList<>();
+        RecipeDTO recipeDTO;
+        GroceryItemRecipeDto currentGIRDTO;
+        allGroceryItemRecipe = recipe.getGroceries();
+
+        recipeDTO = RecipeDTO.builder()
+                    .recipe_id(recipe.getRecipe_id())
+                    .name(recipe.getName())
+                    .description(recipe.getDescription())
+                    .build();
+
+        for(GroceryItemRecipe groceryItemRecipe : allGroceryItemRecipe) {
+            currentGIRDTO = new GroceryItemRecipeDto();
+            currentGIRDTO.setAmount(groceryItemRecipe.getAmount());
+            currentGIRDTO.setRecipe(recipeDTO);
+            currentGIRDTO.setGroceryItem(modelMapper.map(groceryItemRecipe.getGroceryItem(), GroceryItemDto.class));
+            groceryItemRecipeDTOList.add(currentGIRDTO);
+        }
+
+
+
+        return groceryItemRecipeDTOList;
+    }
 
     /**
      * Compares the contents of a HashMap representing the fridge to a list of grocery items required to make a recipe,
@@ -409,17 +436,36 @@ public class RecipeService {
         HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
         List<List<GroceryItemRecipeDto>> recipeList = getAllRecipeList();
         List<List<GroceryItemRecipeDto>> weekMenu = new ArrayList<>();
+        List<Long> recipeIdUsed = new ArrayList<>();
+        int originalRecipeListSize = recipeList.size();
+
+        int amountOfRecipesCreated = 0;
 
         for (int i = 0; i < 7; i++) {
             List<List<GroceryItemRecipeDto>> recommendedRecipeList = getRecipesOverThreshold(fridge, recipeList);
             double[] weightList = getWeightListOfRecipeList(fridge, recommendedRecipeList);
             quickSort(weightList, recommendedRecipeList, 0, weightList.length - 1);
-            if(recommendedRecipeList.size()<=i ) return weekMenu;
-            weekMenu.add(recommendedRecipeList.get(0));
-            updateFridgeAfterRecipe(fridge, weekMenu.get(i));
-            recipeList.remove(recommendedRecipeList.get(0));
+            if(recommendedRecipeList.size()<=i) break;
+             else {
+                weekMenu.add(recommendedRecipeList.get(0));
+                recipeIdUsed.add(recommendedRecipeList.get(0).get(0).getRecipe().getRecipe_id());
+                updateFridgeAfterRecipe(fridge, weekMenu.get(i));
+                recipeList.remove(recommendedRecipeList.get(0));
+                amountOfRecipesCreated++;
+            }
         }
 
+        // Add filler recipes if there is none that can be created from the ingredients from the fridge
+        Long currentRecipeId;
+        List<GroceryItemRecipeDto> foundRecipe;
+
+
+        for(int i = 0; i<(7-amountOfRecipesCreated); i++){
+            currentRecipeId = getRandomNumberAndExcludeSome(1L, originalRecipeListSize + 0L, recipeIdUsed);
+            foundRecipe = getRecipeList(currentRecipeId);
+            weekMenu.add(foundRecipe);
+            recipeIdUsed.add(currentRecipeId);
+        }
 
         return weekMenu;
     }
@@ -470,7 +516,7 @@ public class RecipeService {
      * @return
      */
     public Long getRandomNumberAndExcludeSome(Long min, Long max, List<Long> idList){
-        if(idList.size()<(max-min)) throw new BadRequestException("getRandomRecipeAndIgnoreSomeId given too large idList");
+        if(idList.size()>(max-min)) throw new BadRequestException("getRandomRecipeAndIgnoreSomeId given too large idList");
         Random random = new Random();
         Long randomNumber;
 
