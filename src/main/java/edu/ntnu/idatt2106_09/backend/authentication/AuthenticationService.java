@@ -100,7 +100,7 @@ public class AuthenticationService {
         tokenRepository.saveAll(validUserTokens);
     }
 
-    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void handleTokenRefreshRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
         final String userEmail;
@@ -115,7 +115,7 @@ public class AuthenticationService {
         if (userEmail != null) {
             var user = this.userRepository.findByEmail(userEmail).orElseThrow();
 
-            // Should the refresh token also be revoked?
+            // TODO Should the refresh token also be revoked?
             if (jwtService.isTokenValid(refreshToken, user)) {
                 var generatedAccessToken = jwtService.generateAccessToken(user);
                 revokeAllTokensForUser(user);
