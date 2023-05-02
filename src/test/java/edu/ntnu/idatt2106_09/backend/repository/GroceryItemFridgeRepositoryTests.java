@@ -1,4 +1,4 @@
-package edu.ntnu.idatt2106_09.backend;
+package edu.ntnu.idatt2106_09.backend.repository;
 /*
 import edu.ntnu.idatt2106_09.backend.model.Fridge;
 import edu.ntnu.idatt2106_09.backend.model.GroceryItemFridge;
