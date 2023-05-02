@@ -1,5 +1,6 @@
 package edu.ntnu.idatt2106_09.backend.authentication;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.ntnu.idatt2106_09.backend.configuration.JwtService;
 import edu.ntnu.idatt2106_09.backend.repository.UserRepository;
 import edu.ntnu.idatt2106_09.backend.token.Token;
@@ -7,12 +8,17 @@ import edu.ntnu.idatt2106_09.backend.token.TokenRepository;
 import edu.ntnu.idatt2106_09.backend.token.TokenType;
 import edu.ntnu.idatt2106_09.backend.user.Role;
 import edu.ntnu.idatt2106_09.backend.user.User;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -47,11 +53,16 @@ public class AuthenticationService {
                 .role(Role.USER)
                 .build();
         var savedUser = userRepository.save(user); // Saving the user to the repository.
-        var generatedToken = jwtService.generateToken(user); // Creating a token using the 'user' object.
-        createUserToken(savedUser, generatedToken);
+        var generatedAccessToken = jwtService.generateAccessToken(user); // Creating an access token.
+        var generatedRefreshToken = jwtService.generateRefreshToken(user); // Creating a refresh token.
+        createUserToken(savedUser, generatedAccessToken);
 
         return AuthenticationResponse.builder()
-                .token(generatedToken)
+                // Returning an access token after the registration to make it easy for the user, not making it
+                // necessary to reconnect to have an access token to use. This makes it easy to for example directly
+                // redirect a user when they register.
+                .accessToken(generatedAccessToken)
+                .refreshToken(generatedRefreshToken)
                 .build();
     }
 
@@ -64,12 +75,14 @@ public class AuthenticationService {
         // At this point the user is authenticated.
 
         var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        var generatedToken = jwtService.generateToken(user);
+        var generatedAccessToken = jwtService.generateAccessToken(user); // Creating an access token.
+        var generatedRefreshToken = jwtService.generateRefreshToken(user); // Creating a refresh token.
         revokeAllTokensForUser(user);
-        createUserToken(user, generatedToken);
+        createUserToken(user, generatedAccessToken);
 
         return AuthenticationResponse.builder()
-                .token(generatedToken)
+                .accessToken(generatedAccessToken)
+                .refreshToken(generatedRefreshToken)
                 .build();
     }
 
@@ -85,5 +98,33 @@ public class AuthenticationService {
         });
 
         tokenRepository.saveAll(validUserTokens);
+    }
+
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String refreshToken;
+        final String userEmail;
+
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return;
+        }
+
+        refreshToken = authorizationHeader.substring(7);
+        userEmail = jwtService.extractUsername(refreshToken);
+
+        if (userEmail != null) {
+            var user = this.userRepository.findByEmail(userEmail).orElseThrow();
+            // Should the refresh token also be revoked?
+            if (jwtService.isTokenValid(refreshToken, user)) {
+                var generatedAccessToken = jwtService.generateAccessToken(user);
+                revokeAllTokensForUser(user);
+                createUserToken(user, generatedAccessToken);
+                var authenticationResponse = AuthenticationResponse.builder()
+                        .accessToken(generatedAccessToken)
+                        .refreshToken(refreshToken)
+                        .build();
+                new ObjectMapper().writeValue(response.getOutputStream(), authenticationResponse);
+            }
+        }
     }
 }
