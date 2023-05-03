@@ -2,6 +2,7 @@ package edu.ntnu.idatt2106_09.backend.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,6 +55,9 @@ class GroceryItemServiceTest {
         for (Long groceryItemId : groceryItemIds) {
             GroceryItem groceryItem = new GroceryItem();
             groceryItem.setGroceryItemId(groceryItemId);
+            Category category = new Category();
+            category.setName("Matvare");
+            groceryItem.setCategory(category);
             when(groceryItemRepository.findById(groceryItemId)).thenReturn(Optional.of(groceryItem));
             shoppinglist.addGroceryItem(groceryItem, 1);
         }
@@ -67,7 +71,6 @@ class GroceryItemServiceTest {
         assertThat(shoppinglist.getGroceries().size()).isEqualTo(0);
         assertThat(fridge.getGroceries().size()).isEqualTo(2);
     }
-
 
 
     //TESTS FOR GROCERY ITEMS IN RELATION TO SHOPPINGLIST

@@ -35,7 +35,7 @@ public class GroceryItemController {
 
     //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A SHOPPINGLIST AND A FRIDGE
 
-    // POST (Add a new grocery item to a shoppinglist)
+    // POST (transfer grocery item from fridge to shoppinglist)
     @PostMapping("/transfer/{shoppinglistId}/{fridgeId}")
     @Operation(summary = "Transfer grocery items to fridge", description = "Transfer grocery items from shopping list to fridge")
     public void transferGroceryItemsToFridge(@PathVariable("shoppinglistId") Long shoppinglistId, @PathVariable("fridgeId") Long fridgeId, @RequestBody Long[] groceryItemIds) {
@@ -46,7 +46,7 @@ public class GroceryItemController {
 
     //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A SHOPPINGLIST
 
-    // POST (Add a new grocery item to a shoppinglist)
+    // POST (Add new grocery items to a shoppinglist)
     @PostMapping("/shoppinglist/add/{shoppinglistId}")
     @Operation(summary = "Add a grocery item to a shopping list", description = "Add a grocery item to a shopping list with the specified amount")
     public ResponseEntity<Set<GroceryItemDto>> addGroceryItemToShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @RequestBody Set<GroceryItemDto> groceryItems){
@@ -54,7 +54,7 @@ public class GroceryItemController {
         return groceryItemService.addGroceryItemsToShoppinglist(shoppinglistId, groceryItems);
     }
 
-    // GET (Get all grocery items in a given fridge)
+    // GET (Get all grocery items in a given shoppinglist)
     @GetMapping("/shoppinglist/{shoppinglistId}")
     @Operation(summary = "Get all grocery items in a shopping list", description = "Get all grocery items in a shopping list")
     public ResponseEntity<Set<GroceryItemShoppinglistDto>> getAllGroceryItemsInShoppinglist( @PathVariable("shoppinglistId") Long shoppinglistId){
@@ -62,6 +62,7 @@ public class GroceryItemController {
         return groceryItemService.getAllGroceryItemsInShoppinglist(shoppinglistId);
     }
 
+    // GET (Get  grocery items whit given ids in a given shoppinglist)
     @GetMapping("/shoppinglist/{shoppinglistId}/{groceryItemId}")
     @Operation(summary = "Get a grocery item by ID in a shopping list", description = "Get a grocery item by ID in a shopping list")
     public ResponseEntity<GroceryItemShoppinglistDto> getGroceryItemsByIdInShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @PathVariable("groceryItemId") Long groceryItemId){
@@ -69,6 +70,7 @@ public class GroceryItemController {
         return groceryItemService.getGroceryItemsByIdInShoppinglist(shoppinglistId, groceryItemId);
     }
 
+    // DELETE (delete all grocery items in a shoppinglist)
     @DeleteMapping("/shoppinglist/deleteAll/{shoppinglistId}")
     @Operation(summary = "Delete all grocery items in a shopping list", description = "Delete all grocery items in a shopping list")
     public ResponseEntity<Void> deleteAllGroceryItemsInShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId){
@@ -76,6 +78,7 @@ public class GroceryItemController {
         return groceryItemService.deleteAllGroceryItemsInShoppinglist(shoppinglistId);
     }
 
+    // DELETE (delete a grocery item in a shoppinglist)
     @DeleteMapping("/shoppinglist/deleteItem/{shoppinglistId}/{groceryItemID}")
     @Operation(summary = "Remove a grocery item from a shopping list", description = "Remove a grocery item from a shopping list")
     public ResponseEntity<ShoppinglistDto> removeGroceryItemFromShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @PathVariable("groceryItemID") Long groceryItemID){
@@ -83,6 +86,7 @@ public class GroceryItemController {
         return groceryItemService.removeGroceryItemFromShoppinglist(shoppinglistId, groceryItemID);
     }
 
+    // DELETE (delete grocery items with given ids in a shoppinglist)
     @DeleteMapping("/shoppinglist/deleteItems/{shoppinglistId}")
     public ResponseEntity<ShoppinglistDto> removeGroceryItemsFromShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @RequestBody Long[] groceryItemIds){
         log.debug("[X] Call to delete a given grocery from shoppinglist");
@@ -97,7 +101,7 @@ public class GroceryItemController {
 
     //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A FRIDGE
 
-    // POST (Add a new grocery item to a fridge)
+    // POST (Add new grocery items to a fridge)
     @PostMapping("/fridge/add/{fridgeId}")
     public ResponseEntity<Set<GroceryItemDto>> addGroceryItemsToFridge(@PathVariable("fridgeId") Long fridgeId, @RequestBody Set<GroceryItemDto> groceryItems) {
         log.debug("[X] Call to add crocery to fridge");
@@ -111,24 +115,28 @@ public class GroceryItemController {
         return groceryItemService.getAllGroceryItemsInFridge(fridgeId);
     }
 
+    // GET (Get grocery items with given ids in a given fridge)
     @GetMapping("/fridge/{fridgeId}/{groceryItemId}")
     public ResponseEntity<GroceryItemFridgeDto> getGroceryItemsByIdInFridge(@PathVariable Long fridgeId, @PathVariable Long groceryItemId) {
         log.debug("[X] Call to return aa grocery items by id in a given fridge");
         return groceryItemService.getGroceryItemsByIdInFridge(fridgeId, groceryItemId);
     }
 
+    // DELETE (delete all grocery items in a fridge)
     @DeleteMapping("/fridge/deleteAll/{fridgeId}")
     public ResponseEntity<Void> deleteAllGroceryItemsInFridge(@PathVariable Long fridgeId) {
         log.debug("[X] Call to delete all groceries in fridge = {}", fridgeId);
         return groceryItemService.deleteAllGroceryItemsInFridge(fridgeId);
     }
 
+    // DELETE (delete a grocery item in a fridge)
     @DeleteMapping("/fridge/deleteItem/{fridgeId}/{groceryItemID}")
     public ResponseEntity<FridgeDto> removeGroceryItemFromFridge(@PathVariable Long fridgeId, @PathVariable("groceryItemID") Long groceryItemID) {
         log.debug("[X] Call to delete a given grocery from fridge");
         return groceryItemService.removeGroceryItemFromFridge(fridgeId, groceryItemID);
     }
 
+    // DELETE (delete grocery items with given ids in a fridge)
     @DeleteMapping("/fridge/deleteItems/{fridgeId}")
     public ResponseEntity<FridgeDto> removeGroceryItemsFromFridge(@PathVariable("fridgeId") Long fridgeId, @RequestBody Long[] groceryItemIds){
         log.debug("[X] Call to delete a given grocery from shoppinglist");
@@ -159,14 +167,6 @@ public class GroceryItemController {
     }
 
     // PUT (Update a grocery item)
-    /* json object updatedGroceryItemDto
-    {
-    "name": "Iskrem",
-    "shelf_life": 0,
-    "category": {
-        "category": 2
-    }
-    }*/
     @PutMapping("/update/{groceryItemId}")
     public ResponseEntity<GroceryItemDto> updateGroceryItem(@PathVariable Long groceryItemId, @RequestBody GroceryItemDto updatedGroceryItemDto) {
         log.debug("[X] Call to update a grocery item with id = {}", groceryItemId);

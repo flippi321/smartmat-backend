@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -20,7 +21,7 @@ public class GroceryItemFridge {
     public GroceryItemFridge(Fridge fridge, GroceryItem groceryItem, int amount) {
         this.fridge = fridge;
         this.groceryItem = groceryItem;
-        this.id = new GroceryItemFridgeId(fridge.getFridgeId(), groceryItem.getGroceryItemId());
+        this.id = new GroceryItemFridgeId(fridge.getFridgeId(), groceryItem.getGroceryItemId(), LocalDateTime.now());
         this.amount = amount;
         this.purchaseDate = LocalDate.now();
         this.expirationDate = LocalDate.now().plusDays(groceryItem.getActualShelfLife());
@@ -57,4 +58,5 @@ public class GroceryItemFridge {
 class GroceryItemFridgeId implements Serializable {
     private Long fridgeId;
     private Long groceryItemId;
+    private LocalDateTime timestamp;
 }

@@ -9,6 +9,7 @@ import edu.ntnu.idatt2106_09.backend.model.Household;
 import edu.ntnu.idatt2106_09.backend.model.Shoppinglist;
 import edu.ntnu.idatt2106_09.backend.repository.*;
 import edu.ntnu.idatt2106_09.backend.repository.ShoppinglistRepository;
+import edu.ntnu.idatt2106_09.backend.service.household.HouseholdServiceImplementation;
 import edu.ntnu.idatt2106_09.backend.service.shoppinglist.ShoppinglistService;
 import edu.ntnu.idatt2106_09.backend.service.household.HouseholdService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,13 @@ public class ShoppinglistServiceImplementation implements ShoppinglistService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    public ShoppinglistServiceImplementation(ShoppinglistRepository shoppinglistRepository,
+                                       HouseholdServiceImplementation householdService, HouseholdRepository householdRepository) {
+        this.shoppinglistRepository = shoppinglistRepository;
+        this.householdService = householdService;
+        this.householdRepository = householdRepository;
+    }
 
     private ShoppinglistDto castShoppinglistToDto(Shoppinglist shoppinglist) {
         modelMapper = new ModelMapper();

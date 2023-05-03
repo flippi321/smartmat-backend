@@ -82,28 +82,34 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                 if (shoppinglistOptional.isPresent()) {
                     Shoppinglist shoppinglist = shoppinglistOptional.get();
                     log.info("[X] Shoppinglist with id {} found", shoppinglistId);
-                    Set<GroceryItemShoppinglist> groceries = shoppinglist.getGroceries();
-                    boolean groceryItemFoundInShoppingList = false;
-                    for (GroceryItemShoppinglist grocery : groceries) {
-                        if (grocery.getGroceryItemId().equals(groceryItemId)) {
-                            groceryItemFoundInShoppingList = true;
-                            Optional<Fridge> fridgeOptional = fridgeRepository.findById(fridgeId);
-                            if (fridgeOptional.isPresent()) {
-                                Fridge fridge = fridgeOptional.get();
-                                log.info("[X] Fridge with id {} found", fridgeId);
-                                fridge.addGroceryItem(groceryItem, grocery.getAmount());
-                                fridgeRepository.save(fridge);
-                                shoppinglist.removeGroceryItem(groceryItem);
-                                shoppinglistRepository.save(shoppinglist);
-                                log.info("[X] Grocery Item with id {} transferred from Shoppinglist with id {} to Fridge with id {}", groceryItemId, shoppinglistId, fridgeId);
-                            } else {
-                                throw new NotFoundException("fridge with id " + fridgeId + " not found");
+                    if (groceryItem.getCategory().getName().equals("Ikke Matvare")) {
+                        shoppinglist.removeGroceryItem(groceryItem);
+                        shoppinglistRepository.save(shoppinglist);
+                        continue;
+                    }else{
+                        Set<GroceryItemShoppinglist> groceries = shoppinglist.getGroceries();
+                        boolean groceryItemFoundInShoppingList = false;
+                        for (GroceryItemShoppinglist grocery : groceries) {
+                            if (grocery.getGroceryItemId().equals(groceryItemId)) {
+                                groceryItemFoundInShoppingList = true;
+                                Optional<Fridge> fridgeOptional = fridgeRepository.findById(fridgeId);
+                                if (fridgeOptional.isPresent()) {
+                                    Fridge fridge = fridgeOptional.get();
+                                    log.info("[X] Fridge with id {} found", fridgeId);
+                                    fridge.addGroceryItem(groceryItem, grocery.getAmount());
+                                    fridgeRepository.save(fridge);
+                                    shoppinglist.removeGroceryItem(groceryItem);
+                                    shoppinglistRepository.save(shoppinglist);
+                                    log.info("[X] Grocery Item with id {} transferred from Shoppinglist with id {} to Fridge with id {}", groceryItemId, shoppinglistId, fridgeId);
+                                } else {
+                                    throw new NotFoundException("fridge with id " + fridgeId + " not found");
+                                }
                             }
                         }
-                    }
-                    if (!groceryItemFoundInShoppingList) {
-                        log.warn("[X] Grocery Item with id {} not found in ShoppingList with id {}", groceryItemId, shoppinglistId);
-                    }
+                        if (!groceryItemFoundInShoppingList) {
+                            log.warn("[X] Grocery Item with id {} not found in ShoppingList with id {}", groceryItemId, shoppinglistId);
+                        }
+                }
                 } else {
                     throw new NotFoundException("shoppingList with id " + shoppinglistId + " not found");
                 }
@@ -113,8 +119,6 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                 log.error("[X] DataAccessException caught: {}", ex.getMessage());
             } catch (HibernateException ex) {
                 log.error("[X] HibernateException caught: {}", ex.getMessage());
-            } catch (Exception ex) {
-                log.error("[X] Exception caught: {}", ex.getMessage());
             }
         }
     }
@@ -159,6 +163,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         }
         return new ResponseEntity<>(groceryItemDtos, HttpStatus.OK);
     }
+
     @Override
     public ResponseEntity<Set<GroceryItemShoppinglistDto>> getAllGroceryItemsInShoppinglist(Long shoppinglistId) {
         log.debug("Fetching Shoppinglist with id: {}", shoppinglistId);

@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -20,7 +21,7 @@ public class GroceryItemShoppinglist {
     public GroceryItemShoppinglist(Shoppinglist shoppinglist, GroceryItem groceryItem, int amount) {
         this.shoppinglist = shoppinglist;
         this.groceryItem = groceryItem;
-        this.id = new GroceryItemShoppinglistId(shoppinglist.getShoppinglistId(), groceryItem.getGroceryItemId());
+        this.id = new GroceryItemShoppinglistId(shoppinglist.getShoppinglistId(), groceryItem.getGroceryItemId(), LocalDateTime.now());
         this.amount = amount;
     }
 
@@ -49,4 +50,5 @@ public class GroceryItemShoppinglist {
 class GroceryItemShoppinglistId implements Serializable {
     private Long shoppinglistId;
     private Long groceryItemId;
+    private LocalDateTime timestamp;
 }
