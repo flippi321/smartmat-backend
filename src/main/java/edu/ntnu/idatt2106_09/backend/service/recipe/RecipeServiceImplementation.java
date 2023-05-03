@@ -44,6 +44,12 @@ public class RecipeServiceImplementation implements RecipeService {
     @Autowired
     private GroceryItemFridgeRepository groceryItemFridgeRepository;
 
+    @Autowired
+    private FridgeServiceImplementation fridgeService;
+
+    @Autowired
+    private GroceryItemServiceImplementation groceryItemService;
+
 
     @Autowired
     private FridgeRepository fridgeRepository;
@@ -97,6 +103,11 @@ public class RecipeServiceImplementation implements RecipeService {
     }
     public RecipeServiceImplementation(){
 
+    }
+
+    public RecipeServiceImplementation(RecipeRepository recipeRepository, FridgeRepository fridgeRepository) {
+        this.recipeRepository = recipeRepository;
+        this.fridgeRepository = fridgeRepository;
     }
 
     @Override

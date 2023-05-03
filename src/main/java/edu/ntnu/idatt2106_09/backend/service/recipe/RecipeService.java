@@ -14,7 +14,7 @@ import java.util.*;
 @Service
 public interface RecipeService {
 
-    public ResponseEntity<RecipeDTO> addRecipe(RecipeDTO recipe);
+    public ResponseEntity<Object> addRecipe(RecipeDTO recipe);
 
     public Optional<Recipe> getRecipeById(Long recipeId);
 
@@ -22,7 +22,7 @@ public interface RecipeService {
 
     public ResponseEntity<Set<RecipeDTO>> getAllRecipe();
 
-    public ResponseEntity<RecipeDTO> deleteRecipe(Long recipeId);
+    public ResponseEntity<Object> deleteRecipe(Long recipeId);
 
     public Map<Long, GroceryItemFridgeAlgoDto> retrieveFridgeItemsHashMap(long fridgeId);
 
@@ -48,7 +48,7 @@ public interface RecipeService {
 
     public void updateFridgeAfterRecipe(Map<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe);
 
-    public void retrieveRecommendedWeekMenu(Long fridgeId);
+    public List<List<GroceryItemRecipeDto>> retrieveRecommendedWeekMenu(Long fridgeId);
 
     public double getExpirationDateWeight(LocalDate dateToday, LocalDate expirationDate);
 }

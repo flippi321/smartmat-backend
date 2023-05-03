@@ -5,7 +5,7 @@ import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeDTO;
 import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeResponseDTO;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.Recipe;
-import edu.ntnu.idatt2106_09.backend.service.RecipeService;
+import edu.ntnu.idatt2106_09.backend.service.recipe.RecipeServiceImplementation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -88,8 +88,8 @@ public class RecipeController {
     @GetMapping("/weekRecommender/{fridgeId}")
     public ResponseEntity<Object> getRecommendedWeekMenuList(@PathVariable Long fridgeId) {
         try{
-            List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeService.retrieveRecommendedWeekMenu(fridgeId);
-            List<RecipeResponseDTO> response = recipeService.convertToRecipeResponseDTOList(listOfGroceryItemRecipeLists);
+            List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeServiceImplementation.retrieveRecommendedWeekMenu(fridgeId);
+            List<RecipeResponseDTO> response = recipeServiceImplementation.convertToRecipeResponseDTO(listOfGroceryItemRecipeLists);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
@@ -101,7 +101,7 @@ public class RecipeController {
     @GetMapping("/missingIngredients/{fridgeId}/{recipeId}")
     public ResponseEntity<Object> getMissingIngredients(@PathVariable Long fridgeId, @PathVariable Long recipeId) {
         try{
-            List<RecipeResponseDTO> responseDto = recipeService.getMissingIngredientsAndOriginalRecipe(fridgeId,recipeId);
+            List<RecipeResponseDTO> responseDto = recipeServiceImplementation.getMissingIngredientsAndOriginalRecipe(fridgeId,recipeId);
             return new ResponseEntity<>(responseDto,HttpStatus.OK);
         }
         catch (NotFoundException e){

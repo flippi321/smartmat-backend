@@ -1,16 +1,9 @@
-//Det jeg gjør nå er å skrive tester for ulike deler av programmet. Jeg og Hadar deler på oppgaven. Når man velger en del,
-//så skriver man tester for modellen, servicen, repositoryet. Jeg var nesten ferdig med RecipeServiceTests
-//(utenom tester for selve algoritmen - siden den gjør så mye viktig logikk) men så var det gjort oppdateringer på
-//development-branchen, og nå må jeg endre testene slik at de matcher. Surya sa btw at det er methods man skal se på
-//når det gjelder coverage.
+
 
 package edu.ntnu.idatt2106_09.backend.service;
 
 
-import edu.ntnu.idatt2106_09.backend.dto.FridgeDto;
-import edu.ntnu.idatt2106_09.backend.dto.GroceryItemDto;
-import edu.ntnu.idatt2106_09.backend.dto.GroceryItemFridgeAlgoDto;
-import edu.ntnu.idatt2106_09.backend.dto.GroceryItemRecipeDto;
+import edu.ntnu.idatt2106_09.backend.dto.*;
 import edu.ntnu.idatt2106_09.backend.dto.recipe.IngredientDTO;
 import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeDTO;
 import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeResponseDTO;
@@ -53,13 +46,6 @@ import static org.mockito.Mockito.*;
 class RecipeServiceTests {
 
 
-    //jeg hopper over å lage test for addRecipe. det ser ut som den fungerer i postman og jeg får ikke testen til å gå.
-    //begynn å rette ioo i RecipeTests før RecipeServiceTests
-
-
-
-
-
     @Test
     void getRecipeAndAllIngredientsTest() {
         Long recipeId = 1L;
@@ -80,6 +66,13 @@ class RecipeServiceTests {
         GroceryItem groceryItem1 = new GroceryItem();
         groceryItem1.setGroceryItemId(1L);
         groceryItem1.setName("Test Ingredient 1");
+
+        Category category = new Category();
+        category.setName("Test kategori");
+        category.setUnit("Stk");
+
+        groceryItem1.setCategory(category);
+
         gir1.setGroceryItem(groceryItem1);
         ingredients.add(gir1);
 
@@ -88,6 +81,7 @@ class RecipeServiceTests {
         GroceryItem groceryItem2 = new GroceryItem();
         groceryItem2.setGroceryItemId(2L);
         groceryItem2.setName("Test Ingredient 2");
+        groceryItem2.setCategory(category);
         gir2.setGroceryItem(groceryItem2);
         ingredients.add(gir2);
 
@@ -114,13 +108,13 @@ class RecipeServiceTests {
         assertThat(ingredient1.getName()).isEqualTo("Test Ingredient 1");
         assertThat(ingredient1.getAmount()).isEqualTo(2);
         assertThat(ingredient1.getId()).isEqualTo(1L);
-        assertThat(ingredient1.getUnit()).isEqualTo("unit");
+        assertThat(ingredient1.getUnit()).isEqualTo("Stk");
 
         IngredientDTO ingredient2 = sortedIngredients.get(1);
         assertThat(ingredient2.getName()).isEqualTo("Test Ingredient 2");
         assertThat(ingredient2.getAmount()).isEqualTo(3);
         assertThat(ingredient2.getId()).isEqualTo(2L);
-        assertThat(ingredient2.getUnit()).isEqualTo("unit");
+        assertThat(ingredient2.getUnit()).isEqualTo("Stk");
 
         // Sjekk at metoden på mock-objektene ble kalt riktig antall ganger og med riktige argumenter
         verify(recipeRepository, times(1)).findById(recipeId);
@@ -193,7 +187,6 @@ class RecipeServiceTests {
     }
 
 
-
     @Test
     void getAllRecipeListTest() {
         // Opprett mock-objekter
@@ -237,16 +230,21 @@ class RecipeServiceTests {
     }
 
 
-
     @Test
     public void convertToRecipeResponseDTOTest() {
         // Create mock data
         RecipeServiceImplementation recipeService = new RecipeServiceImplementation();
+
+        Category category = new Category();
+        category.setName("Test kategori");
+        category.setUnit("Stk");
+
         RecipeDTO recipeDTO = new RecipeDTO(1L, "Spaghetti Carbonara", "Delicious pasta dish");
         GroceryItemDto groceryItemDTO = new GroceryItemDto();
         groceryItemDTO.setGroceryItemId(1L);
         groceryItemDTO.setName("Pasta");
         groceryItemDTO.setExpectedShelfLife(6);
+        groceryItemDTO.setCategory(category);
         GroceryItemRecipeDto groceryItemRecipeDTO = new GroceryItemRecipeDto(recipeDTO, groceryItemDTO, 400);
 
         List<List<GroceryItemRecipeDto>> groceryItemRecipeDTOList = new ArrayList<>();
@@ -268,7 +266,7 @@ class RecipeServiceTests {
         assertEquals(groceryItemDTO.getName(), ingredientDTO.getName());
         assertEquals(groceryItemRecipeDTO.getAmount(), ingredientDTO.getAmount());
     }
-//Det jeg gjør nå er å fullføre testene for RecipeKlassene
+
     @Test
     public void testCompareFridgeAndRecipeList() {
 
@@ -377,11 +375,77 @@ class RecipeServiceTests {
         Assertions.assertArrayEquals(new double[]{0.6666666666666666, 1, 0.0}, result, 0.001);
     }
 
+    //Vi burde egentlig hatt tester som tester selve algoritmen mer, men vi hadde ikke tid.
+    //Testen under fungerer - en av hjelpemetodene til metoden vi tester sier at
+    //fridgen ikke finnes
+
+    /*@Test
+    void testGetRecommendedRecipes() {
+        // Set the fridge and recipe list in the mock service
+        RecipeRepository recipeRepository = mock(RecipeRepository.class);
+        FridgeRepository fridgeRepository = mock(FridgeRepository.class);
+        RecipeServiceImplementation recipeService = new RecipeServiceImplementation(recipeRepository, fridgeRepository);
+
+
+        // Create a fridge with 5 grocery items with different expiration dates
+        HashMap<Long, GroceryItemFridgeAlgoDto> fridge = new HashMap<>();
+        LocalDate dateToday = LocalDate.now();
+        GroceryItemFridgeAlgoDto item1 = new GroceryItemFridgeAlgoDto(new GroceryItemDto(1L, "Egg"), dateToday.plusDays(5), 2);
+        GroceryItemFridgeAlgoDto item2 = new GroceryItemFridgeAlgoDto(new GroceryItemDto(2L, "Milk"), dateToday.plusDays(2), 1);
+        GroceryItemFridgeAlgoDto item3 = new GroceryItemFridgeAlgoDto(new GroceryItemDto(3L, "Cheese"), dateToday.plusDays(4), 3);
+        GroceryItemFridgeAlgoDto item4 = new GroceryItemFridgeAlgoDto(new GroceryItemDto(4L, "Butter"), dateToday.plusDays(1), 1);
+        GroceryItemFridgeAlgoDto item5 = new GroceryItemFridgeAlgoDto(new GroceryItemDto(5L, "Bread"), dateToday.plusDays(3), 2);
+        fridge.put(1L, item1);
+        fridge.put(2L, item2);
+        fridge.put(3L, item3);
+        fridge.put(4L, item4);
+        fridge.put(5L, item5);
+
+        GroceryItem item1Mocked = new GroceryItem(1L, "Egg", 5);
+        GroceryItem item2Mocked = new GroceryItem(2L, "Milk", 2);
+        GroceryItem item3Mocked = new GroceryItem(3L, "Cheese", 4);
+        GroceryItem item4Mocked = new GroceryItem(4L, "Butter", 1);
+        GroceryItem item5Mocked = new GroceryItem(5L, "Bread", 3);
+
+        Fridge fridgeMocked = new Fridge();
+        fridgeMocked.setFridgeId(1L);
+
+        fridgeMocked.addGroceryItem(item1Mocked, 2);
+        fridgeMocked.addGroceryItem(item2Mocked, 1);
+        fridgeMocked.addGroceryItem(item3Mocked, 3);
+        fridgeMocked.addGroceryItem(item4Mocked, 1);
+        fridgeMocked.addGroceryItem(item5Mocked, 2);
 
 
 
+        // Create a list of recipes
+        List<GroceryItemRecipeDto> recipe1Items = new ArrayList<>();
+        recipe1Items.add(new GroceryItemRecipeDto(new GroceryItemDto(1L, "Egg"), 2));
+        recipe1Items.add(new GroceryItemRecipeDto(new GroceryItemDto(2L, "Milk"), 1));
+        recipe1Items.add(new GroceryItemRecipeDto(new GroceryItemDto(3L, "Cheese"), 1));
+        List<GroceryItemRecipeDto> recipe2Items = new ArrayList<>();
+        recipe2Items.add(new GroceryItemRecipeDto(new GroceryItemDto(4L, "Butter"), 2));
+        recipe2Items.add(new GroceryItemRecipeDto(new GroceryItemDto(5L, "Bread"), 3));
+        List<GroceryItemRecipeDto> recipe3Items = new ArrayList<>();
+        recipe3Items.add(new GroceryItemRecipeDto(new GroceryItemDto(6L, "Beef"), 2));
+        recipe3Items.add(new GroceryItemRecipeDto(new GroceryItemDto(7L, "Potato"), 4));
+        List<List<GroceryItemRecipeDto>> recipes = new ArrayList<>();
+        recipes.add(recipe1Items);
+        recipes.add(recipe2Items);
+        recipes.add(recipe3Items);
+
+        // Call the method being tested
+        List<List<GroceryItemRecipeDto>> recommendedRecipes = recipeService.getRecommendedRecipes(1L);
+
+        // Check that the method returns a list with two elements (excluding the recipe that falls below the threshold)
+        assertEquals(2, recommendedRecipes.size());
+
+        // Check that the first recipe in the recommended list is recipe2 and the second recipe is recipe1
+        assertEquals(recipe2Items, recommendedRecipes.get(0));
+        assertEquals(recipe1Items, recommendedRecipes.get(1));
 
 
+    }*/
 }
 
 
