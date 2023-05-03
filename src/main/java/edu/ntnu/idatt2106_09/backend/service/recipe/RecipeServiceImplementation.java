@@ -329,7 +329,7 @@ public class RecipeServiceImplementation implements RecipeService {
         for (int i = 0; i < numRecipes; i++) {
             List<GroceryItemRecipeDto> recipe = recipesOverThreshold.get(i);
             for(int j = 0; j<recipe.size(); j++) {
-                GroceryItemFridgeAlgoDto currentFridgeItem = fridgeMap.get(recipe.get(i).getGroceryItem().getGroceryItemId());
+                GroceryItemFridgeAlgoDto currentFridgeItem = fridgeMap.get(recipe.get(j).getGroceryItem().getGroceryItemId());
                 if(currentFridgeItem != null) weights[i]+=getExpirationDateWeight(dateToday,currentFridgeItem.getExpirationDate());
             }
             double weight = compareFridgeAndRecipeList(fridgeMap, recipe);
