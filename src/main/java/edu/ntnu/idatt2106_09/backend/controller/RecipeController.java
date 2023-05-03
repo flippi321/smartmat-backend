@@ -5,7 +5,7 @@ import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeDTO;
 import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeResponseDTO;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.Recipe;
-import edu.ntnu.idatt2106_09.backend.service.recipe.RecipeServiceImplementation;
+import edu.ntnu.idatt2106_09.backend.service.RecipeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -24,18 +24,20 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/recipes")
+
 public class RecipeController {
 
     @Autowired
     private RecipeServiceImplementation recipeServiceImplementation;
 
-    private ModelMapper modelMapper = new ModelMapper();
+    @Autowired
+    private ModelMapper modelMapper;
 
 
 
     @PostMapping
     @Operation(summary = "Add a new recipe", description = "Add a new recipe to the database")
-    public ResponseEntity<RecipeDTO> addRecipe(@RequestBody RecipeDTO recipeDTO) {
+    public ResponseEntity<Object> addRecipe(@RequestBody RecipeDTO recipeDTO) {
         log.debug("Adding a new Recipe named: {} ", recipeDTO.getName());
         return recipeServiceImplementation.addRecipe(recipeDTO);
     }
@@ -83,5 +85,29 @@ public class RecipeController {
         List<RecipeResponseDTO> response = recipeServiceImplementation.convertToRecipeResponseDTO(listOfGroceryItemRecipeLists);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    @GetMapping("/weekRecommender/{fridgeId}")
+    public ResponseEntity<Object> getRecommendedWeekMenuList(@PathVariable Long fridgeId) {
+        try{
+            List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeService.retrieveRecommendedWeekMenu(fridgeId);
+            List<RecipeResponseDTO> response = recipeService.convertToRecipeResponseDTOList(listOfGroceryItemRecipeLists);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        catch (NotFoundException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/missingIngredients/{fridgeId}/{recipeId}")
+    public ResponseEntity<Object> getMissingIngredients(@PathVariable Long fridgeId, @PathVariable Long recipeId) {
+        try{
+            List<RecipeResponseDTO> responseDto = recipeService.getMissingIngredientsAndOriginalRecipe(fridgeId,recipeId);
+            return new ResponseEntity<>(responseDto,HttpStatus.OK);
+        }
+        catch (NotFoundException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
 
 }
