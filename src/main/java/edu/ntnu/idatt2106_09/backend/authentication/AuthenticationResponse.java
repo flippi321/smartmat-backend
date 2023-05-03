@@ -15,4 +15,13 @@ public class AuthenticationResponse {
     private String accessToken;
     @JsonProperty("refresh_token")
     private String refreshToken;
+    @JsonProperty("email")
+    private String email;
+    @JsonProperty("firstname")
+    private String firstname;
+    @JsonProperty("lastname")
+    private String lastname;
+    @JsonProperty("id")
+    private Integer id;
+
 }

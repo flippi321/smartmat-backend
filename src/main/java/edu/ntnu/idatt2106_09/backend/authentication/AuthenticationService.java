@@ -76,6 +76,10 @@ public class AuthenticationService {
                 // redirect a user when they register.
                 .accessToken(generatedAccessToken)
                 .refreshToken(generatedRefreshToken)
+                .id(savedUser.getId())
+                .firstname(savedUser.getFirstname())
+                .lastname(savedUser.getLastname())
+                .email(savedUser.getEmail())
                 .build();
     }
 
@@ -96,6 +100,10 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(generatedAccessToken)
                 .refreshToken(generatedRefreshToken)
+                .id(user.getId())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .email(user.getEmail())
                 .build();
     }
 
@@ -119,6 +127,10 @@ public class AuthenticationService {
                 var authenticationResponse = AuthenticationResponse.builder()
                         .accessToken(generatedAccessToken)
                         .refreshToken(refreshToken)
+                        .id(user.getId())
+                        .firstname(user.getFirstname())
+                        .lastname(user.getLastname())
+                        .email(user.getEmail())
                         .build();
                 response.setContentType("application/json");
                 new ObjectMapper().writeValue(response.getOutputStream(), authenticationResponse);
