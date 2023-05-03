@@ -24,7 +24,9 @@ import edu.ntnu.idatt2106_09.backend.service.fridge.FridgeService;
 import edu.ntnu.idatt2106_09.backend.service.fridge.FridgeServiceImplementation;
 import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemService;
 import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemServiceImplementation;
+import edu.ntnu.idatt2106_09.backend.service.recipe.RecipeService;
 import edu.ntnu.idatt2106_09.backend.service.recipe.RecipeServiceImplementation;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -244,7 +246,7 @@ class RecipeServiceTests {
         GroceryItemDto groceryItemDTO = new GroceryItemDto();
         groceryItemDTO.setGroceryItemId(1L);
         groceryItemDTO.setName("Pasta");
-        groceryItemDTO.setExpected_shelf_life(6);
+        groceryItemDTO.setExpectedShelfLife(6);
         GroceryItemRecipeDto groceryItemRecipeDTO = new GroceryItemRecipeDto(recipeDTO, groceryItemDTO, 400);
 
         List<List<GroceryItemRecipeDto>> groceryItemRecipeDTOList = new ArrayList<>();
@@ -266,9 +268,117 @@ class RecipeServiceTests {
         assertEquals(groceryItemDTO.getName(), ingredientDTO.getName());
         assertEquals(groceryItemRecipeDTO.getAmount(), ingredientDTO.getAmount());
     }
+//Det jeg gjør nå er å fullføre testene for RecipeKlassene
+    @Test
+    public void testCompareFridgeAndRecipeList() {
 
-    //Arnold hadde glemt å legge til utløpsdato i algoritmen, og de metodene som har med oppskriftsgenerering er er veldig
-    //avhengig av hverandre, så jeg begynner
+        // Setup
+        Map<Long, GroceryItemFridgeAlgoDto> fridge = new HashMap<>();
+        GroceryItemFridgeAlgoDto item1 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(1L, "Milk"), 1, LocalDate.now(), LocalDate.now().plusDays(7));
+        GroceryItemFridgeAlgoDto item2 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(2L, "Eggs"), 3, LocalDate.now(), LocalDate.now().plusDays(14));
+        fridge.put(1L, item1);
+        fridge.put(2L, item2);
+
+        GroceryItemDto groceryItemDto1 = new GroceryItemDto();
+        groceryItemDto1.setGroceryItemId(1L);
+        groceryItemDto1.setName("Milk");
+
+        GroceryItemDto groceryItemDto2 = new GroceryItemDto();
+        groceryItemDto2.setGroceryItemId(2L);
+        groceryItemDto2.setName("Eggs");
+
+        GroceryItemDto groceryItemDto3 = new GroceryItemDto();
+        groceryItemDto3.setGroceryItemId(3L);
+        groceryItemDto3.setName("Flour");
+
+        GroceryItemDto groceryItemDto4 = new GroceryItemDto();
+        groceryItemDto3.setGroceryItemId(4L);
+        groceryItemDto3.setName("Sugar");
+
+
+        List<GroceryItemRecipeDto> recipe = List.of(
+                new GroceryItemRecipeDto(groceryItemDto1, 1),
+                new GroceryItemRecipeDto(groceryItemDto2, 4),
+                new GroceryItemRecipeDto(groceryItemDto3, 1),
+                new GroceryItemRecipeDto(groceryItemDto3, 1)
+        );
+
+        RecipeServiceImplementation recipeService = new RecipeServiceImplementation();
+
+        // Test
+        double result = recipeService.compareFridgeAndRecipeList(fridge, recipe);
+
+        // Verify
+        Assertions.assertEquals(0.4375, result);
+    }
+
+    @Test
+    public void testGetExpirationDateWeight() {
+        // Setup
+        LocalDate today = LocalDate.of(2023, 5, 3);
+        LocalDate futureDate = LocalDate.of(2023, 5, 10);
+        LocalDate pastDate = LocalDate.of(2023, 4, 30);
+
+        RecipeServiceImplementation recipeService = new RecipeServiceImplementation();
+
+        // Test future date
+        double result1 = recipeService.getExpirationDateWeight(today, futureDate);
+        Assertions.assertTrue(result1 < 1.0 && result1 > 0.0);
+
+        // Test past date
+        double result2 = recipeService.getExpirationDateWeight(today, pastDate);
+        Assertions.assertTrue(result2 > 1.0);
+    }
+
+    @Test
+    public void testGetWeightListOfRecipeList() {
+        // Setup
+        Map<Long, GroceryItemFridgeAlgoDto> fridge = new HashMap<>();
+        GroceryItemFridgeAlgoDto item1 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(1L, "Milk"), 1, LocalDate.now(), LocalDate.now().plusDays(7));
+        GroceryItemFridgeAlgoDto item2 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(2L, "Eggs"), 3, LocalDate.now(), LocalDate.now().plusDays(14));
+        fridge.put(1L, item1);
+        fridge.put(2L, item2);
+
+        GroceryItemDto groceryItemDto1 = new GroceryItemDto();
+        groceryItemDto1.setGroceryItemId(1L);
+        groceryItemDto1.setName("Milk");
+
+        GroceryItemDto groceryItemDto2 = new GroceryItemDto();
+        groceryItemDto2.setGroceryItemId(2L);
+        groceryItemDto2.setName("Eggs");
+
+        GroceryItemDto groceryItemDto3 = new GroceryItemDto();
+        groceryItemDto3.setGroceryItemId(3L);
+        groceryItemDto3.setName("Flour");
+
+        List<GroceryItemRecipeDto> recipe1 = List.of(
+                new GroceryItemRecipeDto(groceryItemDto1, 1),
+                new GroceryItemRecipeDto(groceryItemDto2, 2),
+                new GroceryItemRecipeDto(groceryItemDto3, 1)
+        );
+
+        List<GroceryItemRecipeDto> recipe2 = List.of(
+                new GroceryItemRecipeDto(groceryItemDto1, 1),
+                new GroceryItemRecipeDto(groceryItemDto2, 1)
+        );
+
+        List<GroceryItemRecipeDto> recipe3 = List.of(
+                new GroceryItemRecipeDto(groceryItemDto3, 1)
+        );
+
+        List<List<GroceryItemRecipeDto>> recipesOverThreshold = List.of(recipe1, recipe2, recipe3);
+
+        RecipeServiceImplementation recipeService = new RecipeServiceImplementation();
+
+        // Test
+        double[] result = recipeService.getWeightListOfRecipeList(fridge, recipesOverThreshold);
+
+        // Verify
+        Assertions.assertArrayEquals(new double[]{0.6666666666666666, 1, 0.0}, result, 0.001);
+    }
+
+
+
 
 
 

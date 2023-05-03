@@ -6,7 +6,6 @@ import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeResponseDTO;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.Recipe;
 import edu.ntnu.idatt2106_09.backend.service.recipe.RecipeServiceImplementation;
-import edu.ntnu.idatt2106_09.backend.service.RecipeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;

@@ -20,4 +20,8 @@ public class GroceryItemDto implements Serializable {
     private String imageLink;
     private Category category;
 
+    public GroceryItemDto(long groceryItemId, String name) {
+        this.groceryItemId = groceryItemId;
+        this.name = name;
+    }
 }
