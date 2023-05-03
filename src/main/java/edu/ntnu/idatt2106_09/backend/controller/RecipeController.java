@@ -6,6 +6,7 @@ import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeResponseDTO;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.Recipe;
 import edu.ntnu.idatt2106_09.backend.service.RecipeService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ public class RecipeController {
 
 
     @PostMapping
+    @Operation(summary = "Add a new recipe", description = "Add a new recipe to the database")
     public ResponseEntity<Object> addRecipe(@RequestBody RecipeDTO recipeDTO) {
         log.debug("Adding a new Recipe named: {} ", recipeDTO.getName());
         return recipeService.addRecipe(recipeDTO);
@@ -60,6 +62,7 @@ public class RecipeController {
 
 
     @DeleteMapping("/{recipeId}")
+    @Operation(summary = "Delete a recipe by ID", description = "Delete a recipe with the specified ID from the database")
     public ResponseEntity<Object> deleteRecipe(@PathVariable Long recipeId) {
         log.debug("Deleting Recipe with id:" + recipeId);
         return recipeService.deleteRecipe(recipeId);
