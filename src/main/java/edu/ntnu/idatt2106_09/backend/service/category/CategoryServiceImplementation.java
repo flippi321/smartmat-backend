@@ -1,6 +1,8 @@
 package edu.ntnu.idatt2106_09.backend.service.category;
 
 import edu.ntnu.idatt2106_09.backend.dto.CategoryDto;
+import edu.ntnu.idatt2106_09.backend.dto.FridgeDto;
+import edu.ntnu.idatt2106_09.backend.dto.GroceryItemDto;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.Category;
 import edu.ntnu.idatt2106_09.backend.repository.CategoryRepository;
@@ -25,7 +27,8 @@ public class CategoryServiceImplementation implements CategoryService {
     @Autowired
     private ModelMapper modelMapper;
 
-    private CategoryDto castObject(Category category){
+    private CategoryDto castCategoryToDto(Category category){
+        modelMapper = new ModelMapper();
         return modelMapper.map(category, CategoryDto.class);
     }
 
@@ -35,7 +38,7 @@ public class CategoryServiceImplementation implements CategoryService {
         Set<Category> allCategories = categoryRepository.getAllCategories();
         Set<CategoryDto> categoriesToBeReturned = new HashSet<>();
         for (Category category : allCategories) {
-            CategoryDto categoryDto = castObject(category);
+            CategoryDto categoryDto = castCategoryToDto(category);
             categoriesToBeReturned.add(categoryDto);
         }
         if (categoriesToBeReturned.size() == 0) {
@@ -52,7 +55,7 @@ public class CategoryServiceImplementation implements CategoryService {
                 .orElseThrow(() -> new NotFoundException("Category with id " + categoryId + " not found"));
 
         log.info("[x] Category with id {} found", categoryId);
-        CategoryDto categoryDto = castObject(category);
+        CategoryDto categoryDto = castCategoryToDto(category);
         return new ResponseEntity<>(categoryDto, HttpStatus.OK);
     }
 
@@ -93,4 +96,5 @@ public class CategoryServiceImplementation implements CategoryService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
 }
