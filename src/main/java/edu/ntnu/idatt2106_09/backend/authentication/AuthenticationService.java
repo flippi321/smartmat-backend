@@ -10,6 +10,7 @@ import edu.ntnu.idatt2106_09.backend.user.Role;
 import edu.ntnu.idatt2106_09.backend.user.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -71,9 +73,6 @@ public class AuthenticationService {
         saveUserTokenToRepository(savedUser, generatedAccessToken);
 
         return AuthenticationResponse.builder()
-                // Returning an access token after the registration to make it easy for the user - not making it
-                // necessary to reconnect to have an access token to use. This makes it easy to for example directly
-                // redirect a user when they register.
                 .accessToken(generatedAccessToken)
                 .refreshToken(generatedRefreshToken)
                 .id(savedUser.getId())
