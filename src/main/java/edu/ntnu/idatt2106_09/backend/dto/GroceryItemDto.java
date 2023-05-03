@@ -21,4 +21,8 @@ public class GroceryItemDto implements Serializable {
     private int amount;
     private Category category;
 
+    public GroceryItemDto(long groceryItemId, String name) {
+        this.groceryItemId = groceryItemId;
+        this.name = name;
+    }
 }

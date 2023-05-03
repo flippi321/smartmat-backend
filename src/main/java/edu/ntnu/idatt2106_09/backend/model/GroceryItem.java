@@ -37,6 +37,17 @@ public class GroceryItem {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    public GroceryItem(long groceryItemId, String name) {
+        this.groceryItemId = groceryItemId;
+        this.name = name;
+    }
+
+    public GroceryItem(long groceryItemId, String name, int actualShelfLife) {
+        this.groceryItemId = groceryItemId;
+        this.name = name;
+        this.actualShelfLife = actualShelfLife;
+    }
+
 
     /**
     @OneToMany(

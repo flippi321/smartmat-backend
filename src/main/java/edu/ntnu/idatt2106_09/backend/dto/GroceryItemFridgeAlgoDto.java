@@ -21,4 +21,16 @@ public class GroceryItemFridgeAlgoDto {
     private int amount;
     private LocalDate purchaseDate;
     private LocalDate expirationDate;
+
+    public GroceryItemFridgeAlgoDto(GroceryItemDto groceryItemDto, LocalDate expirationDate) {
+        this.groceryItem = groceryItemDto;
+        this.expirationDate = expirationDate;
+    }
+    public GroceryItemFridgeAlgoDto(GroceryItemDto groceryItemDto, LocalDate expirationDate, int amount) {
+        this.groceryItem = groceryItemDto;
+        this.expirationDate = expirationDate;
+        this.amount = amount;
+    }
+
+
 }

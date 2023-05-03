@@ -1,4 +1,4 @@
-package edu.ntnu.idatt2106_09.backend.service;
+package edu.ntnu.idatt2106_09.backend.service.recipe;
 
 import edu.ntnu.idatt2106_09.backend.config.RecipeRecommenderConstants;
 import edu.ntnu.idatt2106_09.backend.dto.*;
@@ -13,19 +13,27 @@ import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.GroceryItemFridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRecipeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.RecipeRepository;
+import edu.ntnu.idatt2106_09.backend.service.fridge.FridgeService;
+import edu.ntnu.idatt2106_09.backend.service.fridge.FridgeServiceImplementation;
+import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemService;
+import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemServiceImplementation;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.Banner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class RecipeService {
+public class RecipeServiceImplementation implements RecipeService {
 
     @Autowired
     private RecipeRepository recipeRepository;
@@ -36,6 +44,12 @@ public class RecipeService {
     @Autowired
     private GroceryItemFridgeRepository groceryItemFridgeRepository;
 
+    @Autowired
+    private FridgeServiceImplementation fridgeService;
+
+    @Autowired
+    private GroceryItemServiceImplementation groceryItemService;
+
 
     @Autowired
     private FridgeRepository fridgeRepository;
@@ -43,6 +57,60 @@ public class RecipeService {
     @Autowired
     private ModelMapper modelMapper;
 
+    public RecipeServiceImplementation(RecipeRepository recipeRepository){
+        this.recipeRepository = recipeRepository;
+    }
+    public RecipeServiceImplementation(RecipeRepository recipeRepository, GroceryItemRecipeRepository groceryItemRecipeRepository){
+        this.recipeRepository = recipeRepository;
+        this.groceryItemRecipeRepository = groceryItemRecipeRepository;
+    }
+    public RecipeServiceImplementation(GroceryItemFridgeRepository groceryItemFridgeRepository, FridgeRepository fridgeRepository,
+                         FridgeServiceImplementation fridgeService, GroceryItemServiceImplementation groceryItemService){
+        this.groceryItemFridgeRepository = groceryItemFridgeRepository;
+        this.fridgeRepository = fridgeRepository;
+        this.fridgeService = fridgeService;
+        this.groceryItemService = groceryItemService;
+
+    }
+    public RecipeServiceImplementation(GroceryItemFridgeRepository groceryItemFridgeRepository, FridgeRepository fridgeRepository,
+                         FridgeServiceImplementation fridgeService, GroceryItemServiceImplementation groceryItemService,
+                         ModelMapper modelMapper){
+        this.groceryItemFridgeRepository = groceryItemFridgeRepository;
+        this.fridgeRepository = fridgeRepository;
+        this.fridgeService = fridgeService;
+        this.groceryItemService = groceryItemService;
+        this.modelMapper = modelMapper;
+
+    }
+
+
+    public RecipeServiceImplementation(RecipeRepository recipeRepository, GroceryItemServiceImplementation groceryItemService){
+        this.recipeRepository = recipeRepository;
+        this.groceryItemService = groceryItemService;
+    }
+
+
+    public RecipeServiceImplementation(RecipeRepository recipeRepository, GroceryItemServiceImplementation groceryItemService,
+                         ModelMapper modelMapper){
+        this.recipeRepository = recipeRepository;
+        this.groceryItemService = groceryItemService;
+        this.modelMapper = modelMapper;
+
+    }
+    public RecipeServiceImplementation(RecipeRepository recipeRepository, ModelMapper modelMapper){
+        this.recipeRepository = recipeRepository;
+        this.modelMapper = modelMapper;
+    }
+    public RecipeServiceImplementation(){
+
+    }
+
+    public RecipeServiceImplementation(RecipeRepository recipeRepository, FridgeRepository fridgeRepository) {
+        this.recipeRepository = recipeRepository;
+        this.fridgeRepository = fridgeRepository;
+    }
+
+    @Override
     public ResponseEntity<Object> addRecipe(RecipeDTO recipe) {
         try {
             Recipe savedRecipe = recipeRepository.save(modelMapper.map(recipe, Recipe.class));
@@ -53,11 +121,12 @@ public class RecipeService {
         }
     }
 
-
+    @Override
     public Optional<Recipe> getRecipeById(Long recipeId){
         return recipeRepository.findById(recipeId);
     }
 
+    @Override
     public ResponseEntity<Object> getRecipeAndAllIngredients(Long recipeId) {
         try {
             Recipe recipe = recipeRepository.findById(recipeId)
@@ -92,6 +161,8 @@ public class RecipeService {
     }
 
 
+
+    @Override
     public ResponseEntity<Set<RecipeDTO>>  getAllRecipe() {
 
             Set<Recipe> recipes = recipeRepository.getAllRecipes();
@@ -104,6 +175,7 @@ public class RecipeService {
 
     }
 
+    @Override
     public ResponseEntity<Object> deleteRecipe(Long recipeId) {
         try {
             Optional<Recipe> recipeOptional = recipeRepository.findById(recipeId);
@@ -122,7 +194,8 @@ public class RecipeService {
     }
 
     // Need to Change hashmap key from Long to add new values to hashmap. Cant have multiple of the sane product
-    private HashMap<Long, GroceryItemFridgeAlgoDto> retrieveFridgeItemsHashMap(long fridgeId) {
+    @Override
+    public HashMap<Long, GroceryItemFridgeAlgoDto> retrieveFridgeItemsHashMap(long fridgeId) {
         HashMap<Long, GroceryItemFridgeAlgoDto> map = new HashMap<>();
 
         Optional<Fridge> optionalFridge = fridgeRepository.findById(fridgeId);
@@ -152,7 +225,8 @@ public class RecipeService {
 
 
 
-    private List<List<GroceryItemRecipeDto>> getAllRecipeList() {
+    @Override
+    public List<List<GroceryItemRecipeDto>> getAllRecipeList() {
 
         Set<Recipe> allRecipes = recipeRepository.getAllRecipes();
         Set<GroceryItemRecipe> allGroceryItemRecipe;
@@ -222,8 +296,9 @@ public class RecipeService {
      * to the total number of grocery items required for the recipe.
      * @return a double value between 0 and 1 representing the level of matching between the fridge contents and the recipe
      */
-    private double compareFridgeAndRecipeList
-            (HashMap<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe) {
+    @Override
+    public double compareFridgeAndRecipeList
+            (Map<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe) {
         GroceryItemRecipeDto recipeItem;
         double fridgeItemAmount;
         double currentPercentage = 0.0;
@@ -257,9 +332,9 @@ public class RecipeService {
      * @return A list of lists of GroceryItemRecipeDTO objects representing the filtered recipes that meet or exceed the threshold.
      */
 
-
-    private List<List<GroceryItemRecipeDto>> getRecipesOverThreshold(
-                    HashMap<Long, GroceryItemFridgeAlgoDto> fridge,
+    @Override
+    public List<List<GroceryItemRecipeDto>> getRecipesOverThreshold(
+                    Map<Long, GroceryItemFridgeAlgoDto> fridge,
                     List<List<GroceryItemRecipeDto>> recipeList) {
 
         List<List<GroceryItemRecipeDto>> recipesAboveTheThreshold = new ArrayList<>();
@@ -280,12 +355,18 @@ public class RecipeService {
      * @param recipesOverThreshold A list of lists of GroceryItemRecipeDTO objects representing the filtered recipes that meet or exceed the threshold.
      * @return A double array containing the weight of each recipe in the recipesOverThreshold list.
      */
-    private double[] getWeightListOfRecipeList(HashMap<Long, GroceryItemFridgeAlgoDto> fridgeMap, List<List<GroceryItemRecipeDto>> recipesOverThreshold) {
+    @Override
+    public double[] getWeightListOfRecipeList(Map<Long, GroceryItemFridgeAlgoDto> fridgeMap, List<List<GroceryItemRecipeDto>> recipesOverThreshold) {
         int numRecipes = recipesOverThreshold.size();
         double[] weights = new double[numRecipes];
+        LocalDate dateToday = LocalDate.now();
 
         for (int i = 0; i < numRecipes; i++) {
             List<GroceryItemRecipeDto> recipe = recipesOverThreshold.get(i);
+            for(int j = 0; j<recipe.size(); j++) {
+                GroceryItemFridgeAlgoDto currentFridgeItem = fridgeMap.get(recipe.get(j).getGroceryItem().getGroceryItemId());
+                if(currentFridgeItem != null) weights[i]+=getExpirationDateWeight(dateToday,currentFridgeItem.getExpirationDate());
+            }
             double weight = compareFridgeAndRecipeList(fridgeMap, recipe);
             weights[i] = weight;
         }
@@ -303,6 +384,7 @@ public class RecipeService {
      * @param low The starting index of the subarray to be sorted.
      * @param high The ending index of the subarray to be sorted.
      */
+    @Override
     public void quickSort(double[] weight, List<List<GroceryItemRecipeDto>> recipes, int low, int high) {
         if (low < high) {
             int pivotIndex = partition(weight, recipes, low, high);
@@ -311,7 +393,8 @@ public class RecipeService {
         }
     }
 
-    private int partition(double[] weight, List<List<GroceryItemRecipeDto>> recipes, int low, int high) {
+    @Override
+    public int partition(double[] weight, List<List<GroceryItemRecipeDto>> recipes, int low, int high) {
         double pivot = weight[high];
         int i = low - 1;
 
@@ -345,6 +428,7 @@ public class RecipeService {
     }
 
 
+    @Override
     public List<List<GroceryItemRecipeDto>> getRecommendedRecipes(Long fridgeId) {
         HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
         List<List<GroceryItemRecipeDto>> recipeList = getAllRecipeList();
@@ -359,7 +443,8 @@ public class RecipeService {
     }
 
 
-    public List<RecipeResponseDTO> convertToRecipeResponseDTOList(List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists) {
+    @Override
+    public List<RecipeResponseDTO> convertToRecipeResponseDTO(List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists) {
         List<RecipeResponseDTO> response = new ArrayList<>();
 
         for (List<GroceryItemRecipeDto> groceryItemRecipeList : listOfGroceryItemRecipeLists) {
@@ -384,6 +469,7 @@ public class RecipeService {
         return response;
     }
 
+    @Override
     public void updateFridgeAfterRecipe(Map<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe) {
         GroceryItemRecipeDto recipeItem;
         int fridgeItemAmount;
@@ -425,14 +511,11 @@ public class RecipeService {
             currentGIRDTO.setGroceryItem(modelMapper.map(groceryItemRecipe.getGroceryItem(), GroceryItemDto.class));
             groceryItemRecipeDTOList.add(currentGIRDTO);
         }
-
         return groceryItemRecipeDTOList;
     }
 
-
-
-
-    public List<List<GroceryItemRecipeDto>> retrieveRecommendedWeekMenu(Long fridgeId) {
+    @Override
+    public List<List<GroceryItemRecipeDto>>  retrieveRecommendedWeekMenu(Long fridgeId) {
         HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
         List<List<GroceryItemRecipeDto>> recipeList = getAllRecipeList();
         List<List<GroceryItemRecipeDto>> weekMenu = new ArrayList<>();
@@ -585,8 +668,26 @@ public class RecipeService {
         originalRecipe.setIngredients(ingredientList);
         response.add(originalRecipe);
 
-
         return response;
     }
-}
 
+
+    @Override
+    public double getExpirationDateWeight(LocalDate dateToday, LocalDate expirationDate) {
+        long diff = ChronoUnit.DAYS.between(dateToday, expirationDate);
+
+        double weight;
+
+        if (diff >= 0) {
+            // Item has not expired yet
+            weight = 1 / (1 + (RecipeRecommenderConstants.EXPIRATION_WEIGHT_CONSTANT * diff));
+        } else {
+            // Item has expired
+            weight = 1 + (-RecipeRecommenderConstants.EXPIRED_WEIGHT_CONSTANT * diff);
+        }
+
+        return weight;
+    }
+
+
+}
