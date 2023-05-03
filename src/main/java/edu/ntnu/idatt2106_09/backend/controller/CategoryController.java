@@ -55,6 +55,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/delete/{groceryItemId}")
+    @Operation(summary = "Delete category", description = "Delete an existing category by using categoryId")
     public ResponseEntity<CategoryDto> deleteCategory(@PathVariable Long categoryId) {
         log.debug("[X] Call to delete a category item with id = {}", categoryId);
         return categoryService.deleteCategory(categoryId);
