@@ -2,6 +2,8 @@ package edu.ntnu.idatt2106_09.backend.authentication;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.ntnu.idatt2106_09.backend.config.JwtService;
+import edu.ntnu.idatt2106_09.backend.exceptionHandling.BadRequestException;
+import edu.ntnu.idatt2106_09.backend.exceptionHandling.InternalServerErrorException;
 import edu.ntnu.idatt2106_09.backend.repository.UserRepository;
 import edu.ntnu.idatt2106_09.backend.token.Token;
 import edu.ntnu.idatt2106_09.backend.token.TokenRepository;
@@ -15,11 +17,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -56,54 +62,113 @@ public class AuthenticationService {
         tokenRepository.saveAll(validUserTokens);
     }
 
-    /**
-     * This will allow us to create a user, save it to the database and return the generated token out of it.
-     */
     public AuthenticationResponse register(RegistrationRequest request) {
-        var user = User.builder()
-                .firstname(request.getFirstname())
-                .lastname(request.getLastname())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
-                .build();
-        var savedUser = userRepository.save(user);
-        var generatedAccessToken = jwtService.generateAccessToken(user);
-        var generatedRefreshToken = jwtService.generateRefreshToken(user);
-        saveUserTokenToRepository(savedUser, generatedAccessToken);
+        log.debug("[X] Attempting to register a new user with email: {}", request.getEmail());
+        try {
+            validateRegistrationRequest(request);
 
-        return AuthenticationResponse.builder()
-                .accessToken(generatedAccessToken)
-                .refreshToken(generatedRefreshToken)
-                .id(savedUser.getId())
-                .firstname(savedUser.getFirstname())
-                .lastname(savedUser.getLastname())
-                .email(savedUser.getEmail())
-                .build();
+            var user = User.builder()
+                    .firstname(request.getFirstname())
+                    .lastname(request.getLastname())
+                    .email(request.getEmail())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .role(Role.USER)
+                    .build();
+            var savedUser = userRepository.save(user);
+            log.info("[X] User registered successfully: {}", savedUser);
+
+            var generatedAccessToken = jwtService.generateAccessToken(user);
+            var generatedRefreshToken = jwtService.generateRefreshToken(user);
+            saveUserTokenToRepository(savedUser, generatedAccessToken);
+
+            return AuthenticationResponse.builder()
+                    .accessToken(generatedAccessToken)
+                    .refreshToken(generatedRefreshToken)
+                    .id(savedUser.getId())
+                    .firstname(savedUser.getFirstname())
+                    .lastname(savedUser.getLastname())
+                    .email(savedUser.getEmail())
+                    .build();
+        } catch (BadRequestException e) {
+            log.warn("[X] User registration failed: {} - {}", request.getEmail(), e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("[X] Unexpected error during user registration: {} - {}", request.getEmail(), e.getMessage(), e);
+            throw new InternalServerErrorException("An unexpected error occurred during registration.");
+        }
+    }
+
+    private void validateRegistrationRequest(RegistrationRequest request) {
+        userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
+            throw new BadRequestException("The provided email is already registered.");
+        });
+
+        Map<String, String> fields = Map.of(
+                "First name", request.getFirstname(),
+                "Last name", request.getLastname(),
+                "Email", request.getEmail(),
+                "Password", request.getPassword()
+        );
+
+        Optional<String> emptyField = fields.entrySet().stream()
+                .filter(entry -> entry.getValue() == null || entry.getValue().isEmpty())
+                .map(Map.Entry::getKey)
+                .findFirst();
+
+        emptyField.ifPresent(field -> {
+            throw new BadRequestException(field + " cannot be empty or null.");
+        });
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        // TODO throw exception if the username (email) or password is wrong.
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        log.debug("[X] Attempting to authenticate a new user with email: {}", request.getEmail());
+        try {
+            validateAuthenticationRequest(request);
+
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
+
+            var user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new UsernameNotFoundException("The user was not found"));
+            log.info("[X] User registered successfully: {}", user);
+
+            var generatedAccessToken = jwtService.generateAccessToken(user);
+            var generatedRefreshToken = jwtService.generateRefreshToken(user);
+            revokeAllTokensForUser(user);
+            saveUserTokenToRepository(user, generatedAccessToken);
+
+            return AuthenticationResponse.builder()
+                    .accessToken(generatedAccessToken)
+                    .refreshToken(generatedRefreshToken)
+                    .id(user.getId())
+                    .firstname(user.getFirstname())
+                    .lastname(user.getLastname())
+                    .email(user.getEmail())
+                    .build();
+        } catch (BadCredentialsException e) {
+            log.warn("[X] Failed to authenticate user with email: {} - Invalid credentials", request.getEmail());
+            throw e;
+        } catch (Exception e) {
+            log.error("[X] Unexpected error during authentication for user with email: {}", request.getEmail(), e);
+            throw new InternalServerErrorException("An unexpected error occurred during authentication.");
+        }
+    }
+
+    private void validateAuthenticationRequest(AuthenticationRequest request) {
+        Map<String, String> fields = Map.of(
+                "Email", request.getEmail(),
+                "Password", request.getPassword()
         );
 
-        // At this point the user is authenticated.
+        Optional<String> emptyField = fields.entrySet().stream()
+                .filter(entry -> entry.getValue() == null || entry.getValue().isEmpty())
+                .map(Map.Entry::getKey)
+                .findFirst();
 
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        var generatedAccessToken = jwtService.generateAccessToken(user);
-        var generatedRefreshToken = jwtService.generateRefreshToken(user);
-        revokeAllTokensForUser(user);
-        saveUserTokenToRepository(user, generatedAccessToken);
-
-        return AuthenticationResponse.builder()
-                .accessToken(generatedAccessToken)
-                .refreshToken(generatedRefreshToken)
-                .id(user.getId())
-                .firstname(user.getFirstname())
-                .lastname(user.getLastname())
-                .email(user.getEmail())
-                .build();
+        emptyField.ifPresent(field -> {
+            throw new BadCredentialsException(field + " cannot be empty or null.");
+        });
     }
 
     public void handleTokenRefreshRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
