@@ -42,13 +42,13 @@ public interface RecipeService {
 
     public int partition(double[] weight, List<List<GroceryItemRecipeDto>> recipes, int low, int high);
 
-    public List<List<GroceryItemRecipeDto>> getRecommendedRecipes(Long fridgeId);
+    public List<List<GroceryItemRecipeDto>> getRecommendedRecipes(Long fridgeId, int portions);
 
     public List<RecipeResponseDTO> convertToRecipeResponseDTO(List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists);
 
     public void updateFridgeAfterRecipe(Map<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe);
 
-    public List<List<GroceryItemRecipeDto>> retrieveRecommendedWeekMenu(Long fridgeId);
+    public List<List<GroceryItemRecipeDto>> retrieveRecommendedWeekMenu(Long fridgeId, int portions);
 
     public double getExpirationDateWeight(LocalDate dateToday, LocalDate expirationDate);
 }
