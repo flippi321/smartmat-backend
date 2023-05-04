@@ -9,6 +9,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.*;
 
+import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationResponse;
+import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationService;
+import edu.ntnu.idatt2106_09.backend.authentication.RegistrationRequest;
 import edu.ntnu.idatt2106_09.backend.dto.*;
 import edu.ntnu.idatt2106_09.backend.model.*;
 import edu.ntnu.idatt2106_09.backend.model.user.User;
@@ -22,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 
@@ -42,6 +46,12 @@ public class HouseholdServiceTests {
 
     @InjectMocks
     private HouseholdServiceImplementation householdService;
+
+    @InjectMocks
+    private AuthenticationService authenticationService;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
 
     @Test
@@ -92,6 +102,46 @@ public class HouseholdServiceTests {
         assertThat(response.getBody().getShoppinglist().getName()).isEqualTo(shoppinglist.getName());
     }
 
+    /*
+    @Test
+    public void addUserToHouseholdTest() {
+        Long householdId = 1L;
+        Household household = new Household();
+        household.setHouseholdId(householdId);
+        household.setName("Test Household");
+
+        UserDto userDto = new UserDto();
+        userDto.setFirstname("Test");
+        userDto.setLastname("User");
+        userDto.setEmail("test.user@example.com");
+        userDto.setPassword("password");
+
+        RegistrationRequest request = new RegistrationRequest(userDto.getFirstname(), userDto.getLastname(), userDto.getEmail(), userDto.getPassword());
+        AuthenticationResponse response = new AuthenticationResponse();
+        response.setAccessToken("access_token");
+        response.setRefreshToken("refresh_token");
+        response.setEmail("email");
+        response.setFirstname("firstname");
+        response.setLastname("lastname");
+        response.setId(1);
+
+        User user = new User();
+        user.setId(response.getId());
+        user.setFirstname(userDto.getFirstname());
+        user.setLastname(userDto.getLastname());
+        user.setEmail(userDto.getEmail());
+
+        when(householdRepository.findById(householdId)).thenReturn(Optional.of(household));
+        when(authenticationService.register(request)).thenReturn(response);
+        when(userRepository.findById(response.getId())).thenReturn(Optional.of(user));
+
+        ResponseEntity<UserDto> result = householdService.addUserToHousehold(householdId, userDto);
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(result.getBody().getFirstname()).isEqualTo(user.getFirstname());
+    }
+
+     */
+
     @Test
     public void createHouseholdTest() {
         HouseholdDto householdDto = new HouseholdDto();
@@ -119,6 +169,69 @@ public class HouseholdServiceTests {
         assertThat(response.getBody().getFridge().getName()).isEqualTo(fridgeDto.getName());
         assertThat(response.getBody().getShoppinglist().getName()).isEqualTo(shoppinglistDto.getName());
 
+    }
+
+    @Test
+    public void updateHouseholdTest() {
+        Long householdId = 1L;
+        Household household = new Household();
+        household.setHouseholdId(householdId);
+        household.setName("Test Household");
+        Fridge fridge = new Fridge();
+        fridge.setName("Test Fridge");
+        Shoppinglist shoppinglist = new Shoppinglist();
+        shoppinglist.setName("Test Shoppinglist");
+        household.setFridge(fridge);
+        household.setShoppinglist(shoppinglist);
+
+        HouseholdDto householdDto = new HouseholdDto();
+        householdDto.setName("Updated Household");
+        FridgeDtoWithoutHousehold fridgeDto = new FridgeDtoWithoutHousehold();
+        fridgeDto.setName("Updated Fridge");
+        ShoppinglistDto shoppinglistDto = new ShoppinglistDto();
+        shoppinglistDto.setName("Updated Shoppinglist");
+        householdDto.setFridge(fridgeDto);
+        householdDto.setShoppinglist(shoppinglistDto);
+
+        when(householdRepository.findById(householdId)).thenReturn(Optional.of(household));
+
+        ResponseEntity<HouseholdDto> response = householdService.updateHousehold(householdId, householdDto);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody().getName()).isEqualTo(householdDto.getName());
+        assertThat(response.getBody().getFridge().getName()).isEqualTo(fridgeDto.getName());
+        assertThat(response.getBody().getShoppinglist().getName()).isEqualTo(shoppinglistDto.getName());
+    }
+
+    @Test
+    public void getAllUsersInHouseholdTest() {
+        Long householdId = 1L;
+        Household household = new Household();
+        household.setHouseholdId(householdId);
+        household.setName("Test Household");
+
+        User user1 = new User();
+        user1.setId(1);
+        user1.setFirstname("Test");
+        user1.setLastname("User1");
+        user1.setEmail("test.user1@example.com");
+        user1.setHousehold(household);
+
+        User user2 = new User();
+        user2.setId(2);
+        user2.setFirstname("Test");
+        user2.setLastname("User2");
+        user2.setEmail("test.user2@example.com");
+        user2.setHousehold(household);
+
+        Set<User> users = new HashSet<>();
+        users.add(user1);
+        users.add(user2);
+
+        when(householdRepository.findById(householdId)).thenReturn(Optional.of(household));
+        when(userRepository.findAllByHousehold(household)).thenReturn(users);
+
+        Set<UserDto> result = householdService.getAllUsersInHousehold(householdId);
+        assertThat(result).hasSize(users.size());
     }
 
 }

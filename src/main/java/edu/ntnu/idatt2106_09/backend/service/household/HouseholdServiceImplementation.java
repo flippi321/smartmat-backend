@@ -147,26 +147,20 @@ public class HouseholdServiceImplementation implements HouseholdService {
                     .orElseThrow(() -> new NotFoundException("Household with id " + householdId + " not found"));
             log.info("[x] Household with id {} found", householdId);
 
-            // Create a RegistrationRequest object from the UserDto
             RegistrationRequest request = new RegistrationRequest(userDto.getFirstname(), userDto.getLastname(), userDto.getEmail(), userDto.getPassword());
-
-            // Call the register method from the authenticationService to create and save the new user
             AuthenticationResponse response = authenticationService.register(request);
-
-            // Find the newly created user in the userRepository using the id from the AuthenticationResponse
             User user = userRepository.findById(response.getId())
                     .orElseThrow(() -> new NotFoundException("User with id " + response.getId() + " not found"));
 
-            // Set the household for the user and save it
             user.setHousehold(household);
             userRepository.save(user);
 
             UserDto newUserDto = castUserToDto(user);
             return ResponseEntity.ok(newUserDto);
         } catch (NotFoundException ex) {
-            // handle exception
+            log.warn("[x] Exception caught: {}", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
     @Override
@@ -185,12 +179,10 @@ public class HouseholdServiceImplementation implements HouseholdService {
             household.setShoppinglist(shoppinglist);
             Household newHousehold = householdRepository.save(household);
 
-            // Set the household for the fridge and shopping list after the household has been saved
             fridge.setHousehold(newHousehold);
             fridgeRepository.save(fridge);
             shoppinglist.setHousehold(newHousehold);
             shoppinglistRepository.save(shoppinglist);
-            // Set the household_id for the user with the given userId to the household_id of the newly created household
             Optional<User> optionalUser = userRepository.findById(userId);
             User currentUser = null;
             if (optionalUser.isPresent()) {
@@ -202,7 +194,6 @@ public class HouseholdServiceImplementation implements HouseholdService {
             log.info("[x] Household with id {} created", newHousehold.getHouseholdId());
             newHouseholdDto = castHouseholdToDto(household);
 
-            // Set the userDto field of the newHouseholdDto to a UserDto created from the currentUser
             if (currentUser != null) {
                 UserDto userDto = castUserToDto(currentUser);
                 newHouseholdDto.setUserDto(userDto);
