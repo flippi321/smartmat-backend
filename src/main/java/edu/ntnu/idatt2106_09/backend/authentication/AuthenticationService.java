@@ -63,6 +63,32 @@ public class AuthenticationService {
         tokenRepository.saveAll(validUserTokens);
     }
 
+    /**
+    private void setAccessTokenAndRefreshTokenCookies(HttpServletResponse response, AuthenticationResponse authenticationResponse) {
+        // Create cookies for the access token and refresh token
+        Cookie accessTokenCookie = new Cookie("access_token", authenticationResponse.getAccessToken());
+        Cookie refreshTokenCookie = new Cookie("refresh_token", authenticationResponse.getRefreshToken());
+
+        // Set the expiration time for both cookies
+        accessTokenCookie.setMaxAge((int) (jwtService.getAccessTokenExpiration() / 1000));
+        refreshTokenCookie.setMaxAge((int) (jwtService.getRefreshTokenExpiration() / 1000));
+
+        // Set HttpOnly, Secure, and SameSite attributes for both cookies
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setSecure(true); // Set this to true only for HTTPS connections
+        accessTokenCookie.setPath("/");
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true); // Set this to true only for HTTPS connections
+        refreshTokenCookie.setPath("/");
+
+        // Add the cookies to the HttpServletResponse
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
+    }
+     */
+
+
+    /**
     public AuthenticationResponse register(RegistrationRequest request) {
         log.debug("[X] Attempting to register a new user with email: {}", request.getEmail());
         try {
@@ -98,6 +124,61 @@ public class AuthenticationService {
             throw new InternalServerErrorException("An unexpected error occurred during registration.");
         }
     }
+     */
+
+    public AuthenticationResponse register(RegistrationRequest request, HttpServletResponse response) {
+        log.debug("[X] Attempting to register a new user with email: {}", request.getEmail());
+        try {
+            validateRegistrationRequest(request);
+
+            var user = User.builder()
+                    .firstname(request.getFirstname())
+                    .lastname(request.getLastname())
+                    .email(request.getEmail())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .role(Role.USER)
+                    .build();
+            var savedUser = userRepository.save(user);
+            log.info("[X] User registered successfully: {}", savedUser);
+
+            var generatedAccessToken = jwtService.generateAccessToken(user);
+            var generatedRefreshToken = jwtService.generateRefreshToken(user);
+            saveUserTokenToRepository(savedUser, generatedAccessToken);
+
+            // Create cookies for the access token and refresh token
+            Cookie accessTokenCookie = new Cookie("access_token", generatedAccessToken);
+            Cookie refreshTokenCookie = new Cookie("refresh_token", generatedRefreshToken);
+
+            // Set HttpOnly, Secure, and SameSite attributes for both cookies
+            accessTokenCookie.setHttpOnly(true);
+            accessTokenCookie.setSecure(true); // Set this to true only for HTTPS connections
+            accessTokenCookie.setPath("/");
+            accessTokenCookie.setMaxAge((int) (jwtService.getAccessTokenExpiration() / 1000));
+
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setSecure(true); // Set this to true only for HTTPS connections
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setMaxAge((int) (jwtService.getRefreshTokenExpiration() / 1000));
+
+            // Add the cookies to the HttpServletResponse
+            response.addCookie(accessTokenCookie);
+            response.addCookie(refreshTokenCookie);
+
+            return AuthenticationResponse.builder()
+                    .id(savedUser.getId())
+                    .firstname(savedUser.getFirstname())
+                    .lastname(savedUser.getLastname())
+                    .email(savedUser.getEmail())
+                    .build();
+        } catch (BadRequestException e) {
+            log.warn("[X] User registration failed: {} - {}", request.getEmail(), e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("[X] Unexpected error during user registration: {} - {}", request.getEmail(), e.getMessage(), e);
+            throw new InternalServerErrorException("An unexpected error occurred during registration.");
+        }
+    }
+
 
     private void validateRegistrationRequest(RegistrationRequest request) {
         userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
@@ -121,6 +202,7 @@ public class AuthenticationService {
         });
     }
 
+    /**
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         log.debug("[X] Attempting to authenticate a new user with email: {}", request.getEmail());
         try {
@@ -155,8 +237,8 @@ public class AuthenticationService {
             throw new InternalServerErrorException("An unexpected error occurred during authentication.");
         }
     }
+     */
 
-    /**
     public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response) {
         // ... (existing authentication code)
 
@@ -191,7 +273,6 @@ public class AuthenticationService {
                 .email(user.getEmail())
                 .build();
     }
-     */
 
 
     private void validateAuthenticationRequest(AuthenticationRequest request) {
@@ -210,6 +291,7 @@ public class AuthenticationService {
         });
     }
 
+    /**
     public void handleTokenRefreshRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
@@ -240,4 +322,5 @@ public class AuthenticationService {
             }
         }
     }
+     */
 }

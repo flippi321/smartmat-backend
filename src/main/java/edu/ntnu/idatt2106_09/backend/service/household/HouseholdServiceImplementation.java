@@ -132,6 +132,11 @@ public class HouseholdServiceImplementation implements HouseholdService {
         }
     }
 
+    @Override
+    public ResponseEntity<UserDto> addUserToHousehold(Long householdId, UserDto userDto) {
+        return null;
+    }
+
 
   /*  {
         "firstname" : "test1",
@@ -139,6 +144,7 @@ public class HouseholdServiceImplementation implements HouseholdService {
         "email" : "test1@test.com",
         "password" : "passord"
       }*/
+    /**
     @Override
     public ResponseEntity<UserDto> addUserToHousehold(Long householdId, UserDto userDto) {
         log.debug("Fetching Household with id: {}", householdId);
@@ -162,6 +168,7 @@ public class HouseholdServiceImplementation implements HouseholdService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+     */
 
     @Override
     public ResponseEntity<HouseholdDto> createHousehold(Integer userId, HouseholdDto householdDto) {
