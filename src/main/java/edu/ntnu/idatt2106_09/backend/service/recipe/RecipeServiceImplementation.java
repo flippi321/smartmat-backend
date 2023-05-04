@@ -140,8 +140,6 @@ public class RecipeServiceImplementation implements RecipeService {
             recipeResponseDTO.setSteps(recipe.getSteps());
             recipeResponseDTO.setImageLink(recipe.getImageLink());
 
-            System.out.println("IMAGE LINK HERE " + recipe.getImageLink());
-
             Set<GroceryItemRecipe> ingredients = groceryItemRecipeRepository.findGroceryItemRecipeByRecipeId(recipeId);
 
             List<IngredientDTO> ingredientDTOList = new ArrayList<>();
@@ -279,10 +277,12 @@ public class RecipeServiceImplementation implements RecipeService {
         allGroceryItemRecipe = recipe.getGroceries();
 
         recipeDTO = RecipeDTO.builder()
-                    .recipe_id(recipe.getRecipe_id())
-                    .name(recipe.getName())
-                    .description(recipe.getDescription())
-                    .build();
+                .recipe_id(recipe.getRecipe_id())
+                .name(recipe.getName())
+                .description(recipe.getDescription())
+                .imageLink(recipe.getImageLink())
+                .steps(recipe.getSteps())
+                .build();
 
         for(GroceryItemRecipe groceryItemRecipe : allGroceryItemRecipe) {
             currentGIRDTO = new GroceryItemRecipeDto();
