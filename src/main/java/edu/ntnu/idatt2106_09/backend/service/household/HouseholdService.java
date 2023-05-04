@@ -20,7 +20,7 @@ public interface HouseholdService {
     public Optional<Household> getHouseholdById(Long householdId);
     public Optional<HouseholdDtoForHouseholdService> getHouseholdByIdAsDto(Long householdId) ;
     public ResponseEntity<HouseholdDtoForHouseholdService> getHouseholdByUserId(Integer userId);
-    public ResponseEntity<UserDto> addUserToHousehold(Long householdId, UserDto userDto);
+    public ResponseEntity<UserDto> addUserToHousehold(Long invitationNr, Integer userId);
     public ResponseEntity<HouseholdDtoForHouseholdService> createHousehold(Integer userId, HouseholdDtoForHouseholdService householdDto);
     public ResponseEntity<HouseholdDtoForHouseholdService> updateHousehold(Long householdId, HouseholdDtoForHouseholdService householdDto);
     public Set<UserDto> getAllUsersInHousehold(Long householdId);

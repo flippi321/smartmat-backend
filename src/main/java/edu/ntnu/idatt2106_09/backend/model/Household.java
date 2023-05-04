@@ -20,6 +20,9 @@ public class Household {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "invitationNr", unique = true)
+    private Long invitationNr;
+
     @OneToOne(mappedBy = "household", cascade = CascadeType.ALL, orphanRemoval = true)
     private Fridge fridge;
 
