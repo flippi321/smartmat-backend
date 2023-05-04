@@ -42,9 +42,9 @@ public class GroceryItemController {
 
     // POST (Add new grocery items to a shoppinglist)
     @PostMapping("/shoppinglist/add/{shoppinglistId}")
-    @Operation(summary = "Add a grocery item to a shopping list", description = "Add a grocery item to a shopping list with the specified amount")
+    @Operation(summary = "Add a list of grocery items to a shopping list", description = "Add a list of grocery items to a shopping list with the specified amount")
     public ResponseEntity<Set<GroceryItemDto>> addGroceryItemToShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @RequestBody Set<GroceryItemDto> groceryItems){
-        log.debug("[X] Call to add crocery to shoppinglist");
+        log.debug("[X] Call to add a list of grocery items to shoppinglist");
         return groceryItemService.addGroceryItemsToShoppinglist(shoppinglistId, groceryItems);
     }
 
@@ -74,9 +74,9 @@ public class GroceryItemController {
 
     // DELETE (delete a grocery item in a shoppinglist)
     @DeleteMapping("/shoppinglist/deleteItems/{shoppinglistId}")
-    @Operation(summary = "Remove a list og grocery items from a shopping list", description = "Remove a grocery item from a shopping list")
+    @Operation(summary = "Remove a list of grocery items from a shopping list", description = "Remove a list of grocery items from a shopping list")
     public void removeGroceryItemsFromShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @RequestBody Set<GroceryItemDto> groceryItems){
-        log.debug("[X] Call to delete a given grocery from shoppinglist");
+        log.debug("[X] Call to delete a list of grocery items from shoppinglist");
         groceryItemService.removeGroceryItemsFromShoppinglist(shoppinglistId, groceryItems);
     }
 
@@ -107,6 +107,7 @@ public class GroceryItemController {
  */
     // UPDATE (update grocery item with given id in a shoppinglist)
     @PutMapping("/shoppinglist/updateItem/{shoppinglistId}")
+    @Operation(summary = "Update a given grocery item in shoppinglist", description = "Update a given grocery item in shoppinglist")
     public ResponseEntity<GroceryItemDto> updateGroceryItemsInShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @RequestBody GroceryItemDto groceryItemDto){
         log.debug("[X] Call to update a given grocery in shoppinglist");
         return groceryItemService.updateGroceryItemInShoppinglist(shoppinglistId, groceryItemDto);
