@@ -6,6 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Represents an authentication response containing the user's email, first name, last name, and ID.
+ * This class is used to store and transfer the user's basic information upon successful authentication.
+ */
 @Data
 @Builder
 @AllArgsConstructor
