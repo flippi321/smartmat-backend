@@ -18,9 +18,10 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 LOGGER.info("Setting up CORS configuration");
                 registry.addMapping("/**")
-                        .allowedOrigins("*")
+                        .allowedOrigins("http://localhost:5173") // Replace with your frontend base URL
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS")
-                        .allowedHeaders("*");
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
         };
     }
