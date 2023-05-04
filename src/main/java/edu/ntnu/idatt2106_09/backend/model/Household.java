@@ -1,5 +1,8 @@
 package edu.ntnu.idatt2106_09.backend.model;
 
+import edu.ntnu.idatt2106_09.backend.dto.FridgeDtoWithoutHousehold;
+import edu.ntnu.idatt2106_09.backend.dto.ShoppinglistDto;
+import edu.ntnu.idatt2106_09.backend.dto.UserDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

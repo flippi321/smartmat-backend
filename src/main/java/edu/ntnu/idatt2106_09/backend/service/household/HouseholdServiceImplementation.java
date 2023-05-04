@@ -98,9 +98,12 @@ public class HouseholdServiceImplementation implements HouseholdService {
                 Household household = householdOptional.get();
                 household.setShoppinglist(shoppinglist);
                 household.setFridge(fridge);
-
-                ModelMapper modelMapper = new ModelMapper();
-                HouseholdDtoForHouseholdService householdDto = modelMapper.map(household, HouseholdDtoForHouseholdService.class);
+                HouseholdDtoForHouseholdService householdDto = new HouseholdDtoForHouseholdService();
+                householdDto.setHouseholdId(household.getHouseholdId());
+                householdDto.setName(household.getName());
+                householdDto.setInvitationNr(household.getInvitationNr());
+                householdDto.setFridge(modelMapper.map(household.getFridge(), FridgeDtoWithoutHousehold.class));
+                householdDto.setShoppinglist(modelMapper.map(household.getShoppinglist(), ShoppinglistDto.class));
                 householdDtoOptional = Optional.of(householdDto);
             } else {
                 log.warn("[x] Household with id {} not found", householdId);
@@ -124,7 +127,13 @@ public class HouseholdServiceImplementation implements HouseholdService {
             Fridge fridge = fridgeRepository.findByHouseholdIdAsFridge(household.getHouseholdId());
             household.setFridge(fridge);
             household.setShoppinglist(shoppinglist);
-            HouseholdDtoForHouseholdService householdDto = castHouseholdToDto(household);
+            HouseholdDtoForHouseholdService householdDto = new HouseholdDtoForHouseholdService();
+            householdDto.setHouseholdId(household.getHouseholdId());
+            householdDto.setName(household.getName());
+            householdDto.setInvitationNr(household.getInvitationNr());
+            householdDto.setFridge(modelMapper.map(household.getFridge(), FridgeDtoWithoutHousehold.class));
+            householdDto.setShoppinglist(modelMapper.map(household.getShoppinglist(), ShoppinglistDto.class));
+            //HouseholdDtoForHouseholdService householdDto = castHouseholdToDto(household);
             UserDto userDto = castUserToDto(user); // Convert the User object to a UserDto object
             householdDto.setUserDto(userDto); // Set the userDto field of the HouseholdDto object
             return ResponseEntity.ok(householdDto);
@@ -167,7 +176,7 @@ public class HouseholdServiceImplementation implements HouseholdService {
 
     @Override
     public ResponseEntity<HouseholdDtoForHouseholdService> createHousehold(Integer userId, HouseholdDtoForHouseholdService householdDto) {
-        HouseholdDtoForHouseholdService newHouseholdDto = null;
+        HouseholdDtoForHouseholdService newHouseholdDto = new HouseholdDtoForHouseholdService();
         try {
             log.debug("Creating new Household with name: {}", householdDto.getName());
             Household household = castDtoToHousehold(householdDto);
@@ -204,7 +213,13 @@ public class HouseholdServiceImplementation implements HouseholdService {
             }
 
             log.info("[x] Household with id {} created", newHousehold.getHouseholdId());
-            newHouseholdDto = castHouseholdToDto(household);
+
+            newHouseholdDto.setHouseholdId(household.getHouseholdId());
+            newHouseholdDto.setName(household.getName());
+            newHouseholdDto.setInvitationNr(household.getInvitationNr());
+            newHouseholdDto.setFridge(modelMapper.map(household.getFridge(), FridgeDtoWithoutHousehold.class));
+            newHouseholdDto.setShoppinglist(modelMapper.map(household.getShoppinglist(), ShoppinglistDto.class));
+
 
             if (currentUser != null) {
                 UserDto userDto = castUserToDto(currentUser);
