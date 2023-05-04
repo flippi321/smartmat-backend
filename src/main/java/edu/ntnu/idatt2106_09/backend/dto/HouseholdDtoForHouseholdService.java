@@ -7,9 +7,12 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class HouseholdDto {
+public class HouseholdDtoForHouseholdService {
 
     private Long householdId;
     private String name;
+    private FridgeDtoWithoutHousehold fridge;
+    private ShoppinglistDto shoppinglist;
+    private UserDto userDto;
 
 }

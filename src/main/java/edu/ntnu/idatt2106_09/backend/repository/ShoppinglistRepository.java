@@ -9,6 +9,7 @@ package edu.ntnu.idatt2106_09.backend.repository;
         import org.springframework.data.repository.query.Param;
         import org.springframework.stereotype.Repository;
 
+        import java.util.Optional;
         import java.util.Set;
 
 @Repository
@@ -27,5 +28,6 @@ public interface ShoppinglistRepository extends JpaRepository<Shoppinglist, Long
     Optional<Shoppinglist> findByHouseholdId(@Param("householdId") Long householdId);
 
     @Query("SELECT s FROM Shoppinglist s WHERE s.household.householdId = :householdId")
-    Shoppinglist findByHouseholdId(@Param("householdId") Long householdId);
+    Shoppinglist findByHouseholdIdAsShoppinglist(@Param("householdId") Long householdId);
+
 }

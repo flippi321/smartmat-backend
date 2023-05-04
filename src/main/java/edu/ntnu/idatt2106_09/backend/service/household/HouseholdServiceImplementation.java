@@ -3,10 +3,7 @@ package edu.ntnu.idatt2106_09.backend.service.household;
 import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationResponse;
 import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationService;
 import edu.ntnu.idatt2106_09.backend.authentication.RegistrationRequest;
-import edu.ntnu.idatt2106_09.backend.dto.FridgeDto;
-import edu.ntnu.idatt2106_09.backend.dto.HouseholdDto;
-import edu.ntnu.idatt2106_09.backend.dto.ShoppinglistDto;
-import edu.ntnu.idatt2106_09.backend.dto.UserDto;
+import edu.ntnu.idatt2106_09.backend.dto.*;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.Fridge;
 import edu.ntnu.idatt2106_09.backend.model.Household;
@@ -49,12 +46,12 @@ public class HouseholdServiceImplementation implements HouseholdService {
     @Autowired
     private ModelMapper modelMapper;
 
-    private HouseholdDto castHouseholdToDto(Household household){
+    private HouseholdDtoForHouseholdService castHouseholdToDto(Household household){
         modelMapper = new ModelMapper();
-        return modelMapper.map(household, HouseholdDto.class);
+        return modelMapper.map(household, HouseholdDtoForHouseholdService.class);
     }
 
-    private Household castDtoToHousehold(HouseholdDto householdDto){
+    private Household castDtoToHousehold(HouseholdDtoForHouseholdService householdDto){
         modelMapper = new ModelMapper();
         return modelMapper.map(householdDto, Household.class);
     }
@@ -68,11 +65,9 @@ public class HouseholdServiceImplementation implements HouseholdService {
         return modelMapper.map(userdto, User.class);
     }
 
-    public HouseholdServiceImplementation(HouseholdRepository householdRepository, FridgeRepository fridgeRepository, ShoppinglistRepository shoppinglistRepository, UserRepository userRepository) {
+
+    public HouseholdServiceImplementation(HouseholdRepository householdRepository) {
         this.householdRepository = householdRepository;
-        this.fridgeRepository = fridgeRepository;
-        this.shoppinglistRepository = shoppinglistRepository;
-        this.userRepository = userRepository;
     }
 
     @Override
@@ -82,15 +77,15 @@ public class HouseholdServiceImplementation implements HouseholdService {
 
 
     @Override
-    public Optional<HouseholdDto> getHouseholdByIdAsDto(Long householdId) {
+    public Optional<HouseholdDtoForHouseholdService> getHouseholdByIdAsDto(Long householdId) {
         log.debug("Fetching Household with id: {}", householdId);
-        Optional<HouseholdDto> householdDtoOptional = Optional.empty();
+        Optional<HouseholdDtoForHouseholdService> householdDtoOptional = Optional.empty();
         try {
             Optional<Household> householdOptional = householdRepository.findById(householdId);
             if (householdOptional.isPresent()) {
                 log.info("[x] Household with id {} found", householdId);
 
-                Shoppinglist shoppinglist = shoppinglistRepository.findByHouseholdId(householdId);
+                Shoppinglist shoppinglist = shoppinglistRepository.findByHouseholdIdAsShoppinglist(householdId);
                 Fridge fridge = fridgeRepository.findByHouseholdIdAsFridge(householdId);
 
                 Household household = householdOptional.get();
@@ -98,7 +93,7 @@ public class HouseholdServiceImplementation implements HouseholdService {
                 household.setFridge(fridge);
 
                 ModelMapper modelMapper = new ModelMapper();
-                HouseholdDto householdDto = modelMapper.map(household, HouseholdDto.class);
+                HouseholdDtoForHouseholdService householdDto = modelMapper.map(household, HouseholdDtoForHouseholdService.class);
                 householdDtoOptional = Optional.of(householdDto);
             } else {
                 log.warn("[x] Household with id {} not found", householdId);
@@ -111,18 +106,18 @@ public class HouseholdServiceImplementation implements HouseholdService {
 
 
     @Override
-    public ResponseEntity<HouseholdDto> getHouseholdByUserId(Integer userId) {
+    public ResponseEntity<HouseholdDtoForHouseholdService> getHouseholdByUserId(Integer userId) {
         log.debug("Fetching User with id: {}", userId);
         try {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
             log.info("[x] User with id {} found", userId);
             Household household = user.getHousehold();
-            Shoppinglist shoppinglist = shoppinglistRepository.findByHouseholdId(household.getHouseholdId());
+            Shoppinglist shoppinglist = shoppinglistRepository.findByHouseholdIdAsShoppinglist(household.getHouseholdId());
             Fridge fridge = fridgeRepository.findByHouseholdIdAsFridge(household.getHouseholdId());
             household.setFridge(fridge);
             household.setShoppinglist(shoppinglist);
-            HouseholdDto householdDto = castHouseholdToDto(household);
+            HouseholdDtoForHouseholdService householdDto = castHouseholdToDto(household);
             UserDto userDto = castUserToDto(user); // Convert the User object to a UserDto object
             householdDto.setUserDto(userDto); // Set the userDto field of the HouseholdDto object
             return ResponseEntity.ok(householdDto);
@@ -164,8 +159,8 @@ public class HouseholdServiceImplementation implements HouseholdService {
     }
 
     @Override
-    public ResponseEntity<HouseholdDto> createHousehold(Integer userId, HouseholdDto householdDto) {
-        HouseholdDto newHouseholdDto = null;
+    public ResponseEntity<HouseholdDtoForHouseholdService> createHousehold(Integer userId, HouseholdDtoForHouseholdService householdDto) {
+        HouseholdDtoForHouseholdService newHouseholdDto = null;
         try {
             log.debug("Creating new Household with name: {}", householdDto.getName());
             Household household = castDtoToHousehold(householdDto);
@@ -206,7 +201,7 @@ public class HouseholdServiceImplementation implements HouseholdService {
 
 
         @Override
-    public ResponseEntity<HouseholdDto> updateHousehold(Long householdId, HouseholdDto householdDto) {
+    public ResponseEntity<HouseholdDtoForHouseholdService> updateHousehold(Long householdId, HouseholdDtoForHouseholdService householdDto) {
         Optional<Household> householdOptional = householdRepository.findById(householdId);
         if (householdOptional.isPresent()) {
             Household household = householdOptional.get();
@@ -220,7 +215,7 @@ public class HouseholdServiceImplementation implements HouseholdService {
                 household.getShoppinglist().setName(householdDto.getShoppinglist().getName());
             }
             householdRepository.save(household);
-            HouseholdDto updatedHouseholdDto = castHouseholdToDto(household);
+            HouseholdDtoForHouseholdService updatedHouseholdDto = castHouseholdToDto(household);
             return ResponseEntity.ok(updatedHouseholdDto);
         } else {
             return ResponseEntity.notFound().build();

@@ -1,6 +1,7 @@
 package edu.ntnu.idatt2106_09.backend.controller;
 
 import edu.ntnu.idatt2106_09.backend.dto.HouseholdDto;
+import edu.ntnu.idatt2106_09.backend.dto.HouseholdDtoForHouseholdService;
 import edu.ntnu.idatt2106_09.backend.dto.UserDto;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.Household;
@@ -25,13 +26,13 @@ public class HouseholdController {
     }
 
     @GetMapping("/{householdId}")
-    public Optional<HouseholdDto> getHouseholdById(@PathVariable("householdId") Long householdId) {
+    public Optional<HouseholdDtoForHouseholdService> getHouseholdById(@PathVariable("householdId") Long householdId) {
         log.debug("[X] Call to return a household by id");
         return householdService.getHouseholdByIdAsDto(householdId);
     }
 
     @GetMapping("/byUser/{userId}")
-    public ResponseEntity<HouseholdDto> getHouseholdByUserId(@PathVariable("userId") Integer userId) {
+    public ResponseEntity<HouseholdDtoForHouseholdService> getHouseholdByUserId(@PathVariable("userId") Integer userId) {
         log.debug("[X] Call to return a household by a users id");
         return householdService.getHouseholdByUserId(userId);
     }
@@ -68,7 +69,7 @@ public class HouseholdController {
 
     //works but throws sendError() error
     @PostMapping("/create/{userId}")
-    public ResponseEntity<HouseholdDto> createHousehold(@PathVariable("userId") Integer userId, @RequestBody HouseholdDto householdDto) {
+    public ResponseEntity<HouseholdDtoForHouseholdService> createHousehold(@PathVariable("userId") Integer userId, @RequestBody HouseholdDtoForHouseholdService householdDto) {
         log.debug("[X] Call to create a new household");
         return householdService.createHousehold(userId, householdDto);
     }
@@ -112,7 +113,7 @@ public class HouseholdController {
     }
      */
     @PutMapping("/update/{householdId}")
-    public ResponseEntity<HouseholdDto> updateHousehold(@PathVariable("householdId") Long householdId, @RequestBody HouseholdDto householdDto) {
+    public ResponseEntity<HouseholdDtoForHouseholdService> updateHousehold(@PathVariable("householdId") Long householdId, @RequestBody HouseholdDtoForHouseholdService householdDto) {
         log.debug("[X] Call to update the household info");
         return householdService.updateHousehold(householdId, householdDto);
     }
