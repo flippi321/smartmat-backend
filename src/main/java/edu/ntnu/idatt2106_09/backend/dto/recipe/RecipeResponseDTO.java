@@ -8,10 +8,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RecipeResponseDTO {
-    private Long id;
-    private String name;
-    private String description;
+public class RecipeResponseDTO extends RecipeDTO{
     private List<IngredientDTO> ingredients;
 }
 

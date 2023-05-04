@@ -22,4 +22,7 @@ public class Household {
 
     @OneToOne(mappedBy = "household", cascade = CascadeType.ALL, orphanRemoval = true)
     private Fridge fridge;
+
+    @OneToOne(mappedBy = "household", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Shoppinglist shoppinglist;
 }
