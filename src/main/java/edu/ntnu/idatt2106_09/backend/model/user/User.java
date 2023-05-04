@@ -75,4 +75,15 @@ public class User implements UserDetails {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "household_id")
     private Household household;
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", email='" + email + '\'' +
+                ", role=" + role +
+                '}';
+    }
 }
