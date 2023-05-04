@@ -1,6 +1,7 @@
 package edu.ntnu.idatt2106_09.backend.service.groceryItem;
 
 import edu.ntnu.idatt2106_09.backend.dto.*;
+import edu.ntnu.idatt2106_09.backend.dto.recipe.IngredientDTO;
 import edu.ntnu.idatt2106_09.backend.model.GroceryItem;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -56,4 +57,6 @@ public interface GroceryItemService {
     public ResponseEntity<GroceryItemDto> updateGroceryItem(Long groceryItemId, GroceryItemDto updatedGroceryItemDto);
 
     public ResponseEntity<GroceryItemDto> deleteGroceryItem(Long groceryItemId);
+
+    ResponseEntity<List<IngredientDTO>> removeGroceryItemsFromFridge(Long fridgeId, List<IngredientDTO> ingredients);
 }

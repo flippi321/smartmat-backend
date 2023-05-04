@@ -1,6 +1,7 @@
 package edu.ntnu.idatt2106_09.backend.controller;
 
 import edu.ntnu.idatt2106_09.backend.dto.*;
+import edu.ntnu.idatt2106_09.backend.dto.recipe.IngredientDTO;
 import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 
@@ -153,6 +155,14 @@ public class GroceryItemController {
     public ResponseEntity<FridgeDto> removeGroceryItemFromFridge(@PathVariable Long fridgeId, @RequestBody GroceryItemDto groceryItemDto) {
         log.debug("[X] Call to delete a given grocery from fridge");
         return groceryItemService.removeGroceryItemFromFridge(fridgeId, groceryItemDto);
+    }
+
+    @DeleteMapping("/fridge/deleteMultipleItems/{fridgeId}")
+    public ResponseEntity<List<IngredientDTO>> removeGroceryItemFromFridgeBasedOnList(@PathVariable Long fridgeId ,
+                                                                                      @RequestBody List<IngredientDTO> ingredients) {
+        log.debug("[X] Call to delete a list of grocery from fridge");
+        return groceryItemService.removeGroceryItemsFromFridge(fridgeId, ingredients);
+
     }
 
     /*
