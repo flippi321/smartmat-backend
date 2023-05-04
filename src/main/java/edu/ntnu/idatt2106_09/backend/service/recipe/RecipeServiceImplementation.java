@@ -138,6 +138,7 @@ public class RecipeServiceImplementation implements RecipeService {
             recipeResponseDTO.setName(recipe.getName());
             recipeResponseDTO.setDescription(recipe.getDescription());
             recipeResponseDTO.setSteps(recipe.getSteps());
+            recipeResponseDTO.setImageLink(recipe.getImageLink());
 
             Set<GroceryItemRecipe> ingredients = groceryItemRecipeRepository.findGroceryItemRecipeByRecipeId(recipeId);
 
@@ -578,7 +579,6 @@ public class RecipeServiceImplementation implements RecipeService {
 
             //Check fridge for item
             currentFridgeItem = fridge.get(currentGroceryItemDto.getGroceryItem().getGroceryItemId());
-            System.out.println(currentFridgeItem==null);
             // If the value is null it means there items
             if(currentFridgeItem==null) {
                 missingGroceryItemAmount.setAmount(currentGroceryItemDto.getAmount());

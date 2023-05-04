@@ -32,6 +32,9 @@ public class Recipe {
     @Column(name = "step")
     private List<String> steps = new ArrayList<>();
 
+    @Column(name = "image_link")
+    private String imageLink;
+
     @OneToMany(
             mappedBy = "recipe",
             cascade = CascadeType.ALL,
