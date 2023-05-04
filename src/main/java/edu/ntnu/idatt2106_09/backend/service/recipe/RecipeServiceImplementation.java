@@ -437,9 +437,10 @@ public class RecipeServiceImplementation implements RecipeService {
 
 
     @Override
-    public List<List<GroceryItemRecipeDto>> getRecommendedRecipes(Long fridgeId) {
+    public List<List<GroceryItemRecipeDto>> getRecommendedRecipes(Long fridgeId, int portions) {
         HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
         List<List<GroceryItemRecipeDto>> recipeList = getAllRecipeList();
+        adjustAmountForMultipleRecipesBasedOnPortion(recipeList, portions);
         List<List<GroceryItemRecipeDto>> recommendedRecipeList;
 
         recommendedRecipeList = getRecipesOverThreshold(fridge, recipeList);
@@ -525,9 +526,11 @@ public class RecipeServiceImplementation implements RecipeService {
     }
 
     @Override
-    public List<List<GroceryItemRecipeDto>>  retrieveRecommendedWeekMenu(Long fridgeId) {
+    public List<List<GroceryItemRecipeDto>>  retrieveRecommendedWeekMenu(Long fridgeId, int portions) {
         HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
         List<List<GroceryItemRecipeDto>> recipeList = getAllRecipeList();
+        adjustAmountForMultipleRecipesBasedOnPortion(recipeList, portions);
+
         List<List<GroceryItemRecipeDto>> weekMenu = new ArrayList<>();
         List<Long> recipeIdUsed = new ArrayList<>();
         int originalRecipeListSize = recipeList.size();
@@ -613,6 +616,18 @@ public class RecipeServiceImplementation implements RecipeService {
             currentAmount = groceryItemRecipeDtos.get(i).getAmount();
             currentAmount *= portion;
             groceryItemRecipeDtos.get(i).setAmount(currentAmount);
+        }
+    }
+
+    /**
+     * Adjust all recipes amount based on portion size.
+     * Will multiply GroceryItemRecipeDto amount with portion size
+     * @param groceryItemRecipeDtos A double nested listed represeting a RecipeList
+     * @param portion int representing portion
+     */
+    public void adjustAmountForMultipleRecipesBasedOnPortion(List<List<GroceryItemRecipeDto>> groceryItemRecipeDtos, int portion) {
+        for(int i = 0; i < groceryItemRecipeDtos.size(); i++) {
+            adjustAmountBasedOnPortion(groceryItemRecipeDtos.get(i), portion);
         }
     }
 

@@ -76,21 +76,20 @@ public class RecipeController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping("/recommender/{fridgeId}")
+    @GetMapping("/recommender/{fridgeId}/{portions}")
     @Operation(summary = "Get a list of recommended recipes", description = "Get a list of recommended recipes based on the contents of a fridge")
-    public ResponseEntity<List<RecipeResponseDTO>> getRecipeRecommendedList(@PathVariable Long fridgeId) {
+    public ResponseEntity<List<RecipeResponseDTO>> getRecipeRecommendedList(@PathVariable Long fridgeId, @PathVariable int portions) {
         // Retrieve the List<List<GroceryItemRecipeDTO>> based on the fridgeId (implement this in your service layer)
-        List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeServiceImplementation.getRecommendedRecipes(fridgeId);
+        List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeServiceImplementation.getRecommendedRecipes(fridgeId, portions);
         // Convert the list of GroceryItemRecipeDTO to the desired format
         List<RecipeResponseDTO> response = recipeServiceImplementation.convertToRecipeResponseDTO(listOfGroceryItemRecipeLists);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    @GetMapping("/weekRecommender/{fridgeId}")
-    public ResponseEntity<Object> getRecommendedWeekMenuList(@PathVariable Long fridgeId) {
+    @GetMapping("/weekRecommender/{fridgeId}/{portions}")
+    public ResponseEntity<Object> getRecommendedWeekMenuList(@PathVariable Long fridgeId, @PathVariable int portions) {
         try{
-            List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeServiceImplementation.retrieveRecommendedWeekMenu(fridgeId);
+            List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeServiceImplementation.retrieveRecommendedWeekMenu(fridgeId, portions);
             List<RecipeResponseDTO> response = recipeServiceImplementation.convertToRecipeResponseDTO(listOfGroceryItemRecipeLists);
-
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
         catch (NotFoundException e){
@@ -98,10 +97,10 @@ public class RecipeController {
         }
     }
 
-    @GetMapping("/missingIngredients/{fridgeId}/{recipeId}/{portion}")
-    public ResponseEntity<Object> getMissingIngredients(@PathVariable Long fridgeId, @PathVariable Long recipeId,@PathVariable int portion) {
+    @GetMapping("/missingIngredients/{fridgeId}/{recipeId}/{portions}")
+    public ResponseEntity<Object> getMissingIngredients(@PathVariable Long fridgeId, @PathVariable Long recipeId,@PathVariable int portions) {
         try{
-            List<RecipeResponseDTO> responseDto = recipeServiceImplementation.getMissingIngredientsAndOriginalRecipe(fridgeId,recipeId, portion);
+            List<RecipeResponseDTO> responseDto = recipeServiceImplementation.getMissingIngredientsAndOriginalRecipe(fridgeId,recipeId, portions);
             return new ResponseEntity<>(responseDto,HttpStatus.OK);
         }
         catch (NotFoundException e){
