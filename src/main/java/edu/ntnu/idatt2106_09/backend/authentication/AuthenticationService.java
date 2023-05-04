@@ -39,6 +39,12 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * Saves the user's access token to the token repository.
+     *
+     * @param user        The user whose access token is to be saved.
+     * @param accessToken The user's access token.
+     */
     private void saveUserTokenToRepository(User user, String accessToken) {
         var token = Token.builder()
                 .user(user)
@@ -50,6 +56,11 @@ public class AuthenticationService {
         tokenRepository.save(token);
     }
 
+    /**
+     * Revokes all valid tokens for the specified user by marking them as expired and revoked.
+     *
+     * @param user The user whose tokens should be revoked.
+     */
     private void revokeAllTokensForUser(User user) {
         var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
         if (validUserTokens.isEmpty()) {
@@ -64,6 +75,14 @@ public class AuthenticationService {
         tokenRepository.saveAll(validUserTokens);
     }
 
+    /**
+     * Sets access and refresh token cookies in the HTTP response using the provided access and refresh tokens.
+     * Configures the cookies' attributes, such as HttpOnly, Secure, SameSite, and expiration times.
+     *
+     * @param response     The HTTP response to set the cookies on.
+     * @param accessToken  The access token to set as a cookie.
+     * @param refreshToken The refresh token to set as a cookie.
+     */
     private void setAccessTokenAndRefreshTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
         // Create cookies for the access token and refresh token
         Cookie accessTokenCookie = new Cookie("access_token", accessToken);
@@ -124,6 +143,14 @@ public class AuthenticationService {
     }
      */
 
+    /**
+     * Registers a new user, saves the user's access token to the repository, and sets access and refresh token cookies
+     * in the HTTP response. Validates the registration request before processing.
+     *
+     * @param request  The registration request containing the user's information.
+     * @param response The HTTP response containing the access and refresh token cookies.
+     * @return An AuthenticationResponse containing the user's ID, first name, last name, and email.
+     */
     public AuthenticationResponse register(RegistrationRequest request, HttpServletResponse response) {
         log.debug("[X] Attempting to register a new user with email: {}", request.getEmail());
         try {
@@ -160,6 +187,12 @@ public class AuthenticationService {
         }
     }
 
+    /**
+     * Validates the registration request by checking if the provided email is already registered and ensuring that
+     * none of the required fields are empty or null.
+     *
+     * @param request The registration request containing the user's information.
+     */
     private void validateRegistrationRequest(RegistrationRequest request) {
         userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
             throw new BadRequestException("The provided email is already registered.");
@@ -219,6 +252,14 @@ public class AuthenticationService {
     }
      */
 
+    /**
+     * Authenticates a user, revokes all their previous tokens, saves the new access token to the repository, and sets
+     * access and refresh token cookies in the HTTP response. Validates the authentication request before processing.
+     *
+     * @param request  The authentication request containing the user's email and password.
+     * @param response The HTTP response containing the access and refresh token cookies.
+     * @return An AuthenticationResponse containing the user's ID, first name, last name, and email.
+     */
     public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response) {
         log.debug("[X] Attempting to authenticate a new user with email: {}", request.getEmail());
         try {
@@ -254,6 +295,12 @@ public class AuthenticationService {
         }
     }
 
+    /**
+     * Validates the authentication request by ensuring that none of the required fields (email and password) are
+     * empty or null.
+     *
+     * @param request The authentication request containing the user's email and password.
+     */
     private void validateAuthenticationRequest(AuthenticationRequest request) {
         Map<String, String> fields = Map.of(
                 "Email", request.getEmail(),
@@ -270,6 +317,14 @@ public class AuthenticationService {
         });
     }
 
+    /**
+     * Handles a token refresh request by validating the provided refresh token and generating a new access token.
+     * Updates the access token cookie in the HTTP response.
+     *
+     * @param request  The HTTP request, containing the refresh token in the Authorization header.
+     * @param response The HTTP response, containing the updated access token as a cookie.
+     * @throws IOException If an error occurs while writing the authentication response to the output stream.
+     */
     public void handleTokenRefreshRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
