@@ -137,6 +137,8 @@ public class RecipeServiceImplementation implements RecipeService {
             recipeResponseDTO.setId(recipe.getRecipe_id());
             recipeResponseDTO.setName(recipe.getName());
             recipeResponseDTO.setDescription(recipe.getDescription());
+            recipeResponseDTO.setSteps(recipe.getSteps());
+            recipeResponseDTO.setImageLink(recipe.getImageLink());
 
             Set<GroceryItemRecipe> ingredients = groceryItemRecipeRepository.findGroceryItemRecipeByRecipeId(recipeId);
 
@@ -556,9 +558,9 @@ public class RecipeServiceImplementation implements RecipeService {
     /**
      * Will compare fridge and recipe and returns a List of GroceryItemRecipeDto which will represent the missing
      * items to create the specific recipe.
-     * @param fridge
-     * @param recipe
-     * @return
+     * @param fridge A hashmap representing the fridge with grocery items
+     * @param recipe The Recipe we are comparing
+     * @return A list of Grocery items the fridge is missing
      */
     public List<GroceryItemRecipeDto> getMissingIngredient(HashMap<Long, GroceryItemFridgeAlgoDto> fridge,
                                                            Recipe recipe) {
@@ -577,7 +579,6 @@ public class RecipeServiceImplementation implements RecipeService {
 
             //Check fridge for item
             currentFridgeItem = fridge.get(currentGroceryItemDto.getGroceryItem().getGroceryItemId());
-            System.out.println(currentFridgeItem==null);
             // If the value is null it means there items
             if(currentFridgeItem==null) {
                 missingGroceryItemAmount.setAmount(currentGroceryItemDto.getAmount());
@@ -592,11 +593,13 @@ public class RecipeServiceImplementation implements RecipeService {
     }
 
     /**
-     * Return a random long between min and max also excludes idList numbers.
-     * @param min
-     * @param max
-     * @param idList
-     * @return
+     * Return a random long between min and max, excluding numbers from the specified idList.
+     *
+     * @param min     the minimum value for the random number (inclusive)
+     * @param max     the maximum value for the random number (exclusive)
+     * @param idList  a list of Long values to be excluded from the random number generation
+     * @return        a random Long between min and max, excluding numbers from idList
+     * @throws BadRequestException if the size of idList is greater than the range between min and max
      */
     public Long getRandomNumberAndExcludeSome(Long min, Long max, List<Long> idList){
         if(idList.size()>(max-min)) throw new BadRequestException("getRandomRecipeAndIgnoreSomeId given too large idList");
@@ -614,9 +617,10 @@ public class RecipeServiceImplementation implements RecipeService {
     /**
      * Return a list containing two RecipeResponseDto. The first Dto represents the missing ingredients while
      * the second Dto represents the original Recipe.
-     * @param fridgeId
-     * @param recipeId
-     * @return
+     *
+     * @param fridgeId the id of the fridge
+     * @param recipeId the id of the recipe
+     * @return a list containing two RecipeResponseDto: the first Dto contains the missing ingredients, and the second Dto contains the original Recipe
      */
     public List<RecipeResponseDTO> getMissingIngredientsAndOriginalRecipe(Long fridgeId, Long recipeId){
         List<RecipeResponseDTO> response = new ArrayList<>();
@@ -653,6 +657,7 @@ public class RecipeServiceImplementation implements RecipeService {
         originalRecipe.setId(recipe.getRecipe_id());
         originalRecipe.setName(recipe.getName());
         originalRecipe.setDescription(recipe.getDescription());
+        originalRecipe.setSteps(recipe.getSteps());
         Set<GroceryItemRecipe> originalIngredients = groceryItemRecipeRepository.findGroceryItemRecipeByRecipeId(recipeId);
 
         ingredientList = new ArrayList<>();
@@ -672,6 +677,17 @@ public class RecipeServiceImplementation implements RecipeService {
     }
 
 
+
+    /**
+     * Calculates the expiration date weight for a given item.
+     * The weight is determined based on the difference between the current date and the expiration date.
+     * If the item has not expired, a weight less than 1 is assigned, with smaller values for items closer to expiration.
+     * If the item has expired, a weight greater than 1 is assigned, with larger values for items that expired longer ago.
+     *
+     * @param dateToday      The current date.
+     * @param expirationDate The expiration date of the item.
+     * @return The expiration date weight of the item.
+     */
     @Override
     public double getExpirationDateWeight(LocalDate dateToday, LocalDate expirationDate) {
         long diff = ChronoUnit.DAYS.between(dateToday, expirationDate);
@@ -688,6 +704,8 @@ public class RecipeServiceImplementation implements RecipeService {
 
         return weight;
     }
+
+
 
 
 }

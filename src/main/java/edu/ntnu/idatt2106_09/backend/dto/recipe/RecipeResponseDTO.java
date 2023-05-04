@@ -12,6 +12,8 @@ public class RecipeResponseDTO {
     private Long id;
     private String name;
     private String description;
+    private String imageLink;
+    private List<String> steps;
     private List<IngredientDTO> ingredients;
 }
 
