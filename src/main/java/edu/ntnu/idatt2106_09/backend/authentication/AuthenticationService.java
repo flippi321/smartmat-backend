@@ -83,8 +83,8 @@ public class AuthenticationService {
             saveUserTokenToRepository(savedUser, generatedAccessToken);
 
             return AuthenticationResponse.builder()
-                    //.accessToken(generatedAccessToken)
-                    //.refreshToken(generatedRefreshToken)
+                    .accessToken(generatedAccessToken)
+                    .refreshToken(generatedRefreshToken)
                     .id(savedUser.getId())
                     .firstname(savedUser.getFirstname())
                     .lastname(savedUser.getLastname())
@@ -121,7 +121,6 @@ public class AuthenticationService {
         });
     }
 
-    /**
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         log.debug("[X] Attempting to authenticate a new user with email: {}", request.getEmail());
         try {
@@ -156,8 +155,8 @@ public class AuthenticationService {
             throw new InternalServerErrorException("An unexpected error occurred during authentication.");
         }
     }
-     */
 
+    /**
     public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response) {
         // ... (existing authentication code)
 
@@ -192,6 +191,7 @@ public class AuthenticationService {
                 .email(user.getEmail())
                 .build();
     }
+     */
 
 
     private void validateAuthenticationRequest(AuthenticationRequest request) {
@@ -228,8 +228,8 @@ public class AuthenticationService {
                 revokeAllTokensForUser(user);
                 saveUserTokenToRepository(user, generatedAccessToken);
                 var authenticationResponse = AuthenticationResponse.builder()
-                        //.accessToken(generatedAccessToken)
-                        //.refreshToken(refreshToken)
+                        .accessToken(generatedAccessToken)
+                        .refreshToken(refreshToken)
                         .id(user.getId())
                         .firstname(user.getFirstname())
                         .lastname(user.getLastname())

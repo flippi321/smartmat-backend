@@ -26,12 +26,20 @@ public class AuthenticationController {
     }
 
     @PostMapping("/authenticate")
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest authenticationRequest) {
+        log.debug("[X] Received authentication request for email: {}", authenticationRequest.getEmail());
+        AuthenticationResponse authenticationResponse = authenticationService.authenticate(authenticationRequest);
+        log.info("[X] Authentication request successful for email: {}", authenticationRequest.getEmail());
+        return ResponseEntity.ok(authenticationResponse);
+    }
+    /**
+    @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest authenticationRequest, HttpServletResponse response) {
         log.debug("[X] Received authentication request for email: {}", authenticationRequest.getEmail());
         AuthenticationResponse authenticationResponse = authenticationService.authenticate(authenticationRequest, response);
         log.info("[X] Authentication request successful for email: {}", authenticationRequest.getEmail());
         return ResponseEntity.ok(authenticationResponse);
-    }
+    }*/
 
     @PostMapping("/refresh-token")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
