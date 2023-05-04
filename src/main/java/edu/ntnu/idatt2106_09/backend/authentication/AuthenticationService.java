@@ -240,40 +240,53 @@ public class AuthenticationService {
      */
 
     public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response) {
-        // ... (existing authentication code)
+        log.debug("[X] Attempting to authenticate a new user with email: {}", request.getEmail());
+        try {
+            validateAuthenticationRequest(request);
 
-        // At this point the user is authenticated.
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
 
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        var generatedAccessToken = jwtService.generateAccessToken(user);
-        var generatedRefreshToken = jwtService.generateRefreshToken(user);
-        revokeAllTokensForUser(user);
-        saveUserTokenToRepository(user, generatedAccessToken);
+            var user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new UsernameNotFoundException("The user was not found"));
+            log.info("[X] User registered successfully: {}", user);
 
-        // Create cookies for the access token and refresh token
-        Cookie accessTokenCookie = new Cookie("access_token", generatedAccessToken);
-        Cookie refreshTokenCookie = new Cookie("refresh_token", generatedRefreshToken);
+            var generatedAccessToken = jwtService.generateAccessToken(user);
+            var generatedRefreshToken = jwtService.generateRefreshToken(user);
+            revokeAllTokensForUser(user);
+            saveUserTokenToRepository(user, generatedAccessToken);
 
-        // Set HttpOnly, Secure, and SameSite attributes for both cookies
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true); // Set this to true only for HTTPS connections
-        accessTokenCookie.setPath("/");
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true); // Set this to true only for HTTPS connections
-        refreshTokenCookie.setPath("/");
+            // Create cookies for the access token and refresh token
+            Cookie accessTokenCookie = new Cookie("access_token", generatedAccessToken);
+            Cookie refreshTokenCookie = new Cookie("refresh_token", generatedRefreshToken);
 
-        // Add the cookies to the HttpServletResponse
-        response.addCookie(accessTokenCookie);
-        response.addCookie(refreshTokenCookie);
+            // Set HttpOnly, Secure, and SameSite attributes for both cookies
+            accessTokenCookie.setHttpOnly(true);
+            accessTokenCookie.setSecure(true); // Set this to true only for HTTPS connections
+            accessTokenCookie.setPath("/");
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setSecure(true); // Set this to true only for HTTPS connections
+            refreshTokenCookie.setPath("/");
 
-        return AuthenticationResponse.builder()
-                .id(user.getId())
-                .firstname(user.getFirstname())
-                .lastname(user.getLastname())
-                .email(user.getEmail())
-                .build();
+            // Add the cookies to the HttpServletResponse
+            response.addCookie(accessTokenCookie);
+            response.addCookie(refreshTokenCookie);
+
+            return AuthenticationResponse.builder()
+                    .id(user.getId())
+                    .firstname(user.getFirstname())
+                    .lastname(user.getLastname())
+                    .email(user.getEmail())
+                    .build();
+        } catch (BadCredentialsException e) {
+            log.warn("[X] Failed to authenticate user with email: {} - Invalid credentials", request.getEmail());
+            throw e;
+        } catch (Exception e) {
+            log.error("[X] Unexpected error during authentication for user with email: {}", request.getEmail(), e);
+            throw new InternalServerErrorException("An unexpected error occurred during authentication.");
+        }
     }
-
 
     private void validateAuthenticationRequest(AuthenticationRequest request) {
         Map<String, String> fields = Map.of(
