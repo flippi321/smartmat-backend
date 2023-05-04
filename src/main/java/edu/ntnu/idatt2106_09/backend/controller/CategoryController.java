@@ -31,13 +31,13 @@ public class CategoryController {
 
     @GetMapping("/all")
     public ResponseEntity<Set<CategoryDto>> getAllCategories() {
-        log.debug("[X] Call to return all grocery items");
+        log.debug("[X] Call to return all categories");
         return categoryService.getAllCategories();
     }
 
     @GetMapping("/{groceryItemId}")
     public ResponseEntity<CategoryDto> getCategoryById(@PathVariable Long categoryId) {
-        log.debug("[X] Call to return a grocery item by id");
+        log.debug("[X] Call to return a category item by id");
         return categoryService.getCategoryById(categoryId);
     }
 

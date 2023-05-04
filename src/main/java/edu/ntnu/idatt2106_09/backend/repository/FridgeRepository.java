@@ -25,4 +25,7 @@ public interface FridgeRepository extends JpaRepository<Fridge, Long> {
 
     @Query("SELECT f FROM Fridge f WHERE f.household.householdId = :householdId")
     Optional<Fridge> findByHouseholdId(@Param("householdId") Long householdId);
+
+    @Query("SELECT f FROM Fridge f WHERE f.household.householdId = :householdId")
+    Fridge findByHouseholdIdAsFridge(@Param("householdId") Long householdId);
 }

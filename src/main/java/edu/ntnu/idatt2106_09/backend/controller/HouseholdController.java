@@ -1,7 +1,120 @@
 package edu.ntnu.idatt2106_09.backend.controller;
 
-import org.springframework.stereotype.Controller;
+import edu.ntnu.idatt2106_09.backend.dto.HouseholdDto;
+import edu.ntnu.idatt2106_09.backend.dto.UserDto;
+import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
+import edu.ntnu.idatt2106_09.backend.model.Household;
+import edu.ntnu.idatt2106_09.backend.service.household.HouseholdService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
+import java.util.Optional;
+import java.util.Set;
+
+@Slf4j
+@RestController
+@RequestMapping("/api/household")
 public class HouseholdController {
+
+    private final HouseholdService householdService;
+
+    public HouseholdController(HouseholdService householdService) {
+        this.householdService = householdService;
+    }
+
+    @GetMapping("/{householdId}")
+    public Optional<HouseholdDto> getHouseholdById(@PathVariable("householdId") Long householdId) {
+        log.debug("[X] Call to return a household by id");
+        return householdService.getHouseholdByIdAsDto(householdId);
+    }
+
+    @GetMapping("/byUser/{userId}")
+    public ResponseEntity<HouseholdDto> getHouseholdByUserId(@PathVariable("userId") Integer userId) {
+        log.debug("[X] Call to return a household by a users id");
+        return householdService.getHouseholdByUserId(userId);
+    }
+
+
+
+
+    /*
+    {
+        "firstname" : "test1",
+        "lastname" : "test1surname",
+        "email" : "test1@test.com",
+        "password" : "passord"
+      }
+        */
+    @PostMapping("/addNewUser/{householdId}")
+    public ResponseEntity<UserDto> addUserToHousehold(@PathVariable("householdId") Long householdId, @RequestBody UserDto userdto) {
+        log.debug("[X] Call add a new user to a household");
+        return householdService.addUserToHousehold(householdId, userdto);
+    }
+
+
+
+    /*
+    * {
+        "name" : "householdfor1user2",
+        "fridge" : {
+	        "name" : "fridgeforhousehold2"
+            },
+        "shoppinglist": {
+	        "name" : "shoppinglistforhousehold2"
+            }
+       }*/
+
+    //works but throws sendError() error
+    @PostMapping("/create/{userId}")
+    public ResponseEntity<HouseholdDto> createHousehold(@PathVariable("userId") Integer userId, @RequestBody HouseholdDto householdDto) {
+        log.debug("[X] Call to create a new household");
+        return householdService.createHousehold(userId, householdDto);
+    }
+
+
+
+
+    /*
+    {
+        "id": 1,
+        "email": "test3@test.com",
+        "firstname": "test3",
+        "lastname": "test3surname",
+        "password": null
+    },
+    {
+        "id": 2,
+        "email": "test43@test.com",
+        "firstname": "test4",
+        "lastname": "test4surname",
+        "password": null
+    }
+     */
+    @GetMapping("/users/{householdId}")
+    public Set<UserDto> getAllUsersInHousehold(@PathVariable("householdId") Long householdId) {
+        log.debug("[X] Call to return all users in a household");
+        return householdService.getAllUsersInHousehold(householdId);
+    }
+
+
+
+    /*
+    {
+        "name" : "householdfor1user2",
+        "fridge" : {
+	        "name" : "fridgeforhousehold2"
+        },
+        "shoppinglist": {
+	        "name" : "shoppinglistforhousehold2"
+        }
+    }
+     */
+    @PutMapping("/update/{householdId}")
+    public ResponseEntity<HouseholdDto> updateHousehold(@PathVariable("householdId") Long householdId, @RequestBody HouseholdDto householdDto) {
+        log.debug("[X] Call to update the household info");
+        return householdService.updateHousehold(householdId, householdDto);
+    }
+
 }

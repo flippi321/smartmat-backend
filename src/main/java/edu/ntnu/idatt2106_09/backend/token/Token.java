@@ -1,6 +1,6 @@
 package edu.ntnu.idatt2106_09.backend.token;
 
-import edu.ntnu.idatt2106_09.backend.user.User;
+import edu.ntnu.idatt2106_09.backend.model.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -16,4 +16,7 @@ public interface ShoppinglistRepository extends JpaRepository<Shoppinglist, Long
 
     @Query("SELECT s FROM Shoppinglist s")
     Set<Shoppinglist> getAllShoppinglists();
+
+    @Query("SELECT s FROM Shoppinglist s WHERE s.household.householdId = :householdId")
+    Shoppinglist findByHouseholdId(@Param("householdId") Long householdId);
 }

@@ -1,5 +1,7 @@
-package edu.ntnu.idatt2106_09.backend.user;
+package edu.ntnu.idatt2106_09.backend.model.user;
 
+import edu.ntnu.idatt2106_09.backend.model.Category;
+import edu.ntnu.idatt2106_09.backend.model.Household;
 import edu.ntnu.idatt2106_09.backend.token.Token;
 import jakarta.persistence.*;
 
@@ -69,4 +71,8 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "household_id")
+    private Household household;
 }

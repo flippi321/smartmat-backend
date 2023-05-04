@@ -14,6 +14,5 @@ public class ShoppinglistDto {
 
     private Long shoppinglistID;
     private String name;
-    private HouseholdDto household;
     private Set<GroceryItemDto> groceries = new HashSet<>();
 }
