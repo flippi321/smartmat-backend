@@ -151,12 +151,12 @@ public class AuthenticationService {
 
             // Set HttpOnly, Secure, and SameSite attributes for both cookies
             accessTokenCookie.setHttpOnly(true);
-            accessTokenCookie.setSecure(true); // Set this to true only for HTTPS connections
+            accessTokenCookie.setSecure(false); // Set this to true only for HTTPS connections
             accessTokenCookie.setPath("/");
             accessTokenCookie.setMaxAge((int) (jwtService.getAccessTokenExpiration() / 1000));
 
             refreshTokenCookie.setHttpOnly(true);
-            refreshTokenCookie.setSecure(true); // Set this to true only for HTTPS connections
+            refreshTokenCookie.setSecure(false); // Set this to true only for HTTPS connections
             refreshTokenCookie.setPath("/");
             refreshTokenCookie.setMaxAge((int) (jwtService.getRefreshTokenExpiration() / 1000));
 
@@ -263,10 +263,10 @@ public class AuthenticationService {
 
             // Set HttpOnly, Secure, and SameSite attributes for both cookies
             accessTokenCookie.setHttpOnly(true);
-            accessTokenCookie.setSecure(true); // Set this to true only for HTTPS connections
+            accessTokenCookie.setSecure(false); // Set this to true only for HTTPS connections
             accessTokenCookie.setPath("/");
             refreshTokenCookie.setHttpOnly(true);
-            refreshTokenCookie.setSecure(true); // Set this to true only for HTTPS connections
+            refreshTokenCookie.setSecure(false); // Set this to true only for HTTPS connections
             refreshTokenCookie.setPath("/");
 
             // Add the cookies to the HttpServletResponse
