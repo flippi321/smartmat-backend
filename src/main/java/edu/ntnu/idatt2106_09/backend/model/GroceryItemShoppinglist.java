@@ -41,6 +41,10 @@ public class GroceryItemShoppinglist {
     public Long getGroceryItemId() {
         return groceryItem.getGroceryItemId();
     }
+
+    public LocalDateTime getTimestamp() {
+        return id.getTimestamp();
+    }
 }
 
 @AllArgsConstructor
@@ -51,4 +55,8 @@ class GroceryItemShoppinglistId implements Serializable {
     private Long shoppinglistId;
     private Long groceryItemId;
     private LocalDateTime timestamp;
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 }

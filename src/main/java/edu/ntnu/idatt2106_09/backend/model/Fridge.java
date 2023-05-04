@@ -7,6 +7,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -47,13 +48,14 @@ public class Fridge {
         groceries.add(groceryItemFridge);
     }
 
-    public void removeGroceryItem(GroceryItem groceryItem) {
+    public void removeGroceryItem(GroceryItem groceryItem, LocalDateTime timestamp) {
         for (Iterator<GroceryItemFridge> iterator = groceries.iterator();
              iterator.hasNext(); ) {
             GroceryItemFridge groceryItemFridge = iterator.next();
 
             if (groceryItemFridge.getFridge().equals(this) &&
-                    groceryItemFridge.getGroceryItem().equals(groceryItem)) {
+                    groceryItemFridge.getGroceryItem().equals(groceryItem) &&
+                    groceryItemFridge.getTimestamp().equals(timestamp)) {
                 iterator.remove();
                 groceryItemFridge.setFridge(null);
                 groceryItemFridge.setGroceryItem(null);

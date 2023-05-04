@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -70,8 +71,10 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
 
     //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A SHOPPINGLIST AND A FRIDGE
     @Override
-    public void transferGroceryItemsToFridge(Long shoppinglistId, Long fridgeId, Long[] groceryItemIds) {
-        for (Long groceryItemId : groceryItemIds) {
+    public void transferGroceryItemsToFridge(Long shoppinglistId, Long fridgeId, Set<GroceryItemDto> groceryItems) {
+        for (GroceryItemDto groceryItemDto : groceryItems) {
+            Long groceryItemId = groceryItemDto.getGroceryItemId();
+            LocalDateTime timestamp = groceryItemDto.getTimestamp();
             log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
             try {
                 GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
@@ -83,7 +86,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                     Shoppinglist shoppinglist = shoppinglistOptional.get();
                     log.info("[X] Shoppinglist with id {} found", shoppinglistId);
                     if (groceryItem.getCategory().getName().equals("Ikke Matvare")) {
-                        shoppinglist.removeGroceryItem(groceryItem);
+                        shoppinglist.removeGroceryItem(groceryItem, timestamp);
                         shoppinglistRepository.save(shoppinglist);
                         continue;
                     }else{
@@ -98,7 +101,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                                     log.info("[X] Fridge with id {} found", fridgeId);
                                     fridge.addGroceryItem(groceryItem, grocery.getAmount());
                                     fridgeRepository.save(fridge);
-                                    shoppinglist.removeGroceryItem(groceryItem);
+                                    shoppinglist.removeGroceryItem(groceryItem, timestamp);
                                     shoppinglistRepository.save(shoppinglist);
                                     log.info("[X] Grocery Item with id {} transferred from Shoppinglist with id {} to Fridge with id {}", groceryItemId, shoppinglistId, fridgeId);
                                 } else {
@@ -115,10 +118,6 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                 }
             } catch (NotFoundException ex) {
                 log.warn("[X] Exception caught: {}", ex.getMessage());
-            } catch (DataAccessException ex) {
-                log.error("[X] DataAccessException caught: {}", ex.getMessage());
-            } catch (HibernateException ex) {
-                log.error("[X] HibernateException caught: {}", ex.getMessage());
             }
         }
     }
@@ -183,6 +182,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                     groceryItemDto.setImageLink(grocery.getGroceryItem().getImageLink());
                     groceryItemDto.setCategory(grocery.getGroceryItem().getCategory());
                     groceryItemDto.setAmount(grocery.getAmount());
+                    groceryItemDto.setTimestamp(grocery.getTimestamp());
                     groceryItemDtos.add(groceryItemDto);
                 }
                 return new ResponseEntity<>(groceryItemDtos, HttpStatus.OK);
@@ -215,6 +215,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                         groceryItemDto.setImageLink(grocery.getGroceryItem().getImageLink());
                         groceryItemDto.setCategory(grocery.getGroceryItem().getCategory());
                         groceryItemDto.setAmount(grocery.getAmount());
+                        groceryItemDto.setTimestamp(grocery.getTimestamp());
                         return new ResponseEntity<>(groceryItemDto, HttpStatus.OK);
                     }
                 }
@@ -251,7 +252,9 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
     }
 
     @Override
-    public ResponseEntity<ShoppinglistDto> removeGroceryItemFromShoppinglist(Long shoppinglistId, Long groceryItemId) {
+    public ResponseEntity<ShoppinglistDto> removeGroceryItemFromShoppinglist(Long shoppinglistId, GroceryItemDto groceryItemDto) {
+        Long groceryItemId = groceryItemDto.getGroceryItemId();
+        LocalDateTime timestamp = groceryItemDto.getTimestamp();
         log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
         try {
             GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
@@ -261,7 +264,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
             if (shoppinglistOptional.isPresent()) {
                 Shoppinglist shoppinglist = shoppinglistOptional.get();
                 log.info("[X] Shoppinglist with id {} found", shoppinglistId);
-                shoppinglist.removeGroceryItem(groceryItem);
+                shoppinglist.removeGroceryItem(groceryItem, timestamp);
                 shoppinglistRepository.save(shoppinglist);
                 ShoppinglistDto shoppinglistDto = castShoppinglistToDto(shoppinglist);
                 log.info("[X] Grocery Item with id {} removed from Shoppinglist with id {}", groceryItemId, shoppinglistId);
@@ -275,7 +278,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         }
     }
 
-    @Override
+    /*@Override
     public ResponseEntity<ShoppinglistDto> removeGroceryItemsFromShoppinglist(Long shoppinglistId, Long[] groceryItemIds) {
         log.debug("[X] Fetching Grocery Items with ids: {}", Arrays.toString(groceryItemIds));
         try {
@@ -306,9 +309,12 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         }
     }
 
+     */
+
     @Override
     public ResponseEntity<GroceryItemDto> updateGroceryItemInShoppinglist(Long shoppinglistId, GroceryItemDto groceryItemDto) {
         Long groceryItemId = groceryItemDto.getGroceryItemId();
+        LocalDateTime timestamp = groceryItemDto.getTimestamp();
         int amount = groceryItemDto.getAmount();
         Integer actualShelfLife = groceryItemDto.getActualShelfLife();
         log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
@@ -320,7 +326,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
             if (shoppinglistOptional.isPresent()) {
                 Shoppinglist shoppinglist = shoppinglistOptional.get();
                 log.info("[X] Shoppinglist with id {} found", shoppinglistId);
-                shoppinglist.removeGroceryItem(groceryItem);
+                shoppinglist.removeGroceryItem(groceryItem, timestamp);
                 shoppinglist.addGroceryItem(groceryItem, amount);
                 if (actualShelfLife == null || actualShelfLife == 0) {
                     groceryItem.setActualShelfLife(groceryItem.getExpectedShelfLife());
@@ -407,6 +413,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                     groceryItemDto.setAmount(grocery.getAmount());
                     groceryItemDto.setDays_since_purchase(ChronoUnit.DAYS.between(LocalDate.now(), grocery.getPurchaseDate()));
                     groceryItemDto.setDays_until_spoilt(ChronoUnit.DAYS.between(LocalDate.now(), grocery.getExpirationDate()));
+                    groceryItemDto.setTimestamp(grocery.getTimestamp());
                     groceryItemDtos.add(groceryItemDto);
                 }
                 return new ResponseEntity<>(groceryItemDtos, HttpStatus.OK);
@@ -439,6 +446,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                         groceryItemDto.setAmount(grocery.getAmount());
                         groceryItemDto.setDays_since_purchase(ChronoUnit.DAYS.between(LocalDate.now(), grocery.getPurchaseDate()));
                         groceryItemDto.setDays_until_spoilt(ChronoUnit.DAYS.between(LocalDate.now(), grocery.getExpirationDate()));
+                        groceryItemDto.setTimestamp(grocery.getTimestamp());
                         return new ResponseEntity<>(groceryItemDto, HttpStatus.OK);
                     }
                 }
@@ -476,7 +484,9 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
 
 
     @Override
-    public ResponseEntity<FridgeDto> removeGroceryItemFromFridge(Long fridgeId, Long groceryItemId) {
+    public ResponseEntity<FridgeDto> removeGroceryItemFromFridge(Long fridgeId, GroceryItemDto groceryItemDto) {
+        Long groceryItemId = groceryItemDto.getGroceryItemId();
+        LocalDateTime timestamp = groceryItemDto.getTimestamp();
         log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
         try {
             GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
@@ -486,7 +496,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
             if (fridgeOptional.isPresent()) {
                 Fridge fridge = fridgeOptional.get();
                 log.info("[X] Fridge with id {} found", fridgeId);
-                fridge.removeGroceryItem(groceryItem);
+                fridge.removeGroceryItem(groceryItem, timestamp);
                 fridgeRepository.save(fridge);
                 FridgeDto fridgeDto = castFridgeToDto(fridge);
                 log.info("[X] Grocery Item with id {} removed from Fridge with id {}", groceryItemId, fridgeId);
@@ -500,6 +510,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         }
     }
 
+    /*
     @Override
     public ResponseEntity<FridgeDto> removeGroceryItemsFromFridge(Long fridgeId, Long[] groceryItemIds) {
         log.debug("[X] Fetching Grocery Items with ids: {}", Arrays.toString(groceryItemIds));
@@ -530,6 +541,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+     */
 
 
     @Override
@@ -584,6 +596,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         Set<GroceryItemDto> groceryItemToBeReturned = new HashSet<>();
         for (GroceryItem groceryItem : allGroceryItem) {
             GroceryItemDto groceryItemDto = castGroceryItemToDto(groceryItem);
+            groceryItemDto.setAmount(1);
             groceryItemToBeReturned.add(groceryItemDto);
         }
         if (groceryItemToBeReturned.size() == 0) {

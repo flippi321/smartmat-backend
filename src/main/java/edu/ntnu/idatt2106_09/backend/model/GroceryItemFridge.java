@@ -49,6 +49,10 @@ public class GroceryItemFridge {
     public Long getGroceryItemId() {
         return groceryItem.getGroceryItemId();
     }
+
+    public LocalDateTime getTimestamp() {
+        return id.getTimestamp();
+    }
 }
 
 @AllArgsConstructor
@@ -59,4 +63,8 @@ class GroceryItemFridgeId implements Serializable {
     private Long fridgeId;
     private Long groceryItemId;
     private LocalDateTime timestamp;
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 }

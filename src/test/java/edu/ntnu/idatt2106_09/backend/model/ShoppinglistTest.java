@@ -3,7 +3,11 @@ package edu.ntnu.idatt2106_09.backend.model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ShoppinglistTest {
 
@@ -28,12 +32,13 @@ public class ShoppinglistTest {
 
     @Test
     public void testRemoveGroceryItem() {
+        Shoppinglist shoppinglist = new Shoppinglist();
         GroceryItem groceryItem = new GroceryItem();
         int amount = 1;
-
         shoppinglist.addGroceryItem(groceryItem, amount);
-        shoppinglist.removeGroceryItem(groceryItem);
-
-        assertThat(shoppinglist.getGroceries()).isEmpty();
+        assertEquals(1, shoppinglist.getGroceries().size());
+        LocalDateTime timestamp = shoppinglist.getGroceries().iterator().next().getTimestamp();
+        shoppinglist.removeGroceryItem(groceryItem, timestamp);
+        assertEquals(0, shoppinglist.getGroceries().size());
     }
 }

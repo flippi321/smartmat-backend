@@ -4,6 +4,7 @@ import edu.ntnu.idatt2106_09.backend.model.Category;
 import lombok.*;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -20,6 +21,7 @@ public class GroceryItemDto implements Serializable {
     private String imageLink;
     private int amount;
     private Category category;
+    private LocalDateTime timestamp;
 
     public GroceryItemDto(long groceryItemId, String name) {
         this.groceryItemId = groceryItemId;
