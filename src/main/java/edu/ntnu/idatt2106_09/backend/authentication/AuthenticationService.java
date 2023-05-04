@@ -77,6 +77,10 @@ public class AuthenticationService {
         refreshTokenCookie.setSecure(false); // Set this to true only for HTTPS connections
         refreshTokenCookie.setPath("/");
 
+        // Set the expiration times for the cookies using JwtService values
+        accessTokenCookie.setMaxAge((int) (jwtService.getAccessTokenExpiration() / 1000));
+        refreshTokenCookie.setMaxAge((int) (jwtService.getRefreshTokenExpiration() / 1000));
+
         // Add the cookies to the HttpServletResponse
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
