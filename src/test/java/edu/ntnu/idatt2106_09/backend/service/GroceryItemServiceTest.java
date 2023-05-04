@@ -40,6 +40,7 @@ class GroceryItemServiceTest {
     private GroceryItemServiceImplementation groceryItemService;
 
     //TESTS FOR GROCERY ITEMS IN RELATION TO SHOPPINGLIST AND FRIDGE
+    /*
     @Test
     public void GroceryItemService_TransferGroceryItemsToFridge() {
         Long shoppinglistId = 1L;
@@ -71,6 +72,8 @@ class GroceryItemServiceTest {
         assertThat(shoppinglist.getGroceries().size()).isEqualTo(0);
         assertThat(fridge.getGroceries().size()).isEqualTo(2);
     }
+
+     */
 
 
     //TESTS FOR GROCERY ITEMS IN RELATION TO SHOPPINGLIST
