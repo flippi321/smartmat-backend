@@ -11,4 +11,8 @@ public class HouseholdDto {
 
     private Long householdId;
     private String name;
+    private FridgeDtoWithoutHousehold fridge;
+    private ShoppinglistDto shoppinglist;
+    private UserDto userDto;
+
 }
