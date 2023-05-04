@@ -134,11 +134,13 @@ public class RecipeServiceImplementation implements RecipeService {
 
             RecipeResponseDTO recipeResponseDTO = new RecipeResponseDTO();
 
-            recipeResponseDTO.setId(recipe.getRecipe_id());
+            recipeResponseDTO.setRecipe_id(recipe.getRecipe_id());
             recipeResponseDTO.setName(recipe.getName());
             recipeResponseDTO.setDescription(recipe.getDescription());
             recipeResponseDTO.setSteps(recipe.getSteps());
             recipeResponseDTO.setImageLink(recipe.getImageLink());
+
+            System.out.println("IMAGE LINK HERE " + recipe.getImageLink());
 
             Set<GroceryItemRecipe> ingredients = groceryItemRecipeRepository.findGroceryItemRecipeByRecipeId(recipeId);
 
@@ -247,7 +249,11 @@ public class RecipeServiceImplementation implements RecipeService {
                     .recipe_id(recipe.getRecipe_id())
                     .name(recipe.getName())
                     .description(recipe.getDescription())
+                    .imageLink(recipe.getImageLink())
+                    .steps(recipe.getSteps())
                     .build();
+
+            System.out.println("Image link here !" + recipe.getImageLink());
 
             for(GroceryItemRecipe groceryItemRecipe : allGroceryItemRecipe) {
                 currentGIRDTO = new GroceryItemRecipeDto();
@@ -452,9 +458,11 @@ public class RecipeServiceImplementation implements RecipeService {
         for (List<GroceryItemRecipeDto> groceryItemRecipeList : listOfGroceryItemRecipeLists) {
             RecipeDTO recipe = groceryItemRecipeList.get(0).getRecipe();
             RecipeResponseDTO recipeResponseDTO = new RecipeResponseDTO();
-            recipeResponseDTO.setId(recipe.getRecipe_id());
+            recipeResponseDTO.setRecipe_id(recipe.getRecipe_id());
             recipeResponseDTO.setName(recipe.getName());
             recipeResponseDTO.setDescription(recipe.getDescription());
+            recipeResponseDTO.setImageLink(recipe.getImageLink());
+            recipeResponseDTO.setSteps(recipe.getSteps());
 
             List<IngredientDTO> ingredients = new ArrayList<>();
             for (GroceryItemRecipeDto groceryItemRecipeDTO : groceryItemRecipeList) {
@@ -645,7 +653,7 @@ public class RecipeServiceImplementation implements RecipeService {
         missingIngredientsResponse.setIngredients(ingredientList);
         missingIngredientsResponse.setName("Missing Ingredients of: " + recipe.getName());
         missingIngredientsResponse.setDescription("Missing items");
-        missingIngredientsResponse.setId(recipeId);
+        missingIngredientsResponse.setRecipe_id(recipeId);
 
         response.add(missingIngredientsResponse);
 
@@ -654,9 +662,10 @@ public class RecipeServiceImplementation implements RecipeService {
         RecipeResponseDTO originalRecipe = new RecipeResponseDTO();
 
 
-        originalRecipe.setId(recipe.getRecipe_id());
+        originalRecipe.setRecipe_id(recipe.getRecipe_id());
         originalRecipe.setName(recipe.getName());
         originalRecipe.setDescription(recipe.getDescription());
+        originalRecipe.setImageLink(recipe.getImageLink());
         originalRecipe.setSteps(recipe.getSteps());
         Set<GroceryItemRecipe> originalIngredients = groceryItemRecipeRepository.findGroceryItemRecipeByRecipeId(recipeId);
 

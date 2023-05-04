@@ -94,7 +94,7 @@ class RecipeServiceTests {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         RecipeResponseDTO result = (RecipeResponseDTO) response.getBody();
-        assertThat(result.getId()).isEqualTo(recipeId);
+        assertThat(result.getRecipe_id()).isEqualTo(recipeId);
         assertThat(result.getName()).isEqualTo("Test Recipe");
         assertThat(result.getDescription()).isEqualTo("This is a test recipe");
         assertThat(result.getIngredients().size()).isEqualTo(2);
@@ -256,7 +256,7 @@ class RecipeServiceTests {
         // Assert the result
         assertEquals(1, result.size());
         RecipeResponseDTO recipeResponseDTO = result.get(0);
-        assertEquals(recipeDTO.getRecipe_id(), recipeResponseDTO.getId());
+        assertEquals(recipeDTO.getRecipe_id(), recipeResponseDTO.getRecipe_id());
         assertEquals(recipeDTO.getName(), recipeResponseDTO.getName());
         assertEquals(recipeDTO.getDescription(), recipeResponseDTO.getDescription());
         List<IngredientDTO> ingredients = recipeResponseDTO.getIngredients();
