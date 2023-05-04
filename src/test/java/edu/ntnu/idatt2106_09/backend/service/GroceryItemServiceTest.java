@@ -281,6 +281,50 @@ class GroceryItemServiceTest {
         assertThat(response.getBody().getGroceries().size()).isEqualTo(0);
     }
 
+    @Test
+    public void GroceryItemService_UpdateGroceryItemInShoppinglist_ReturnUpdatedGroceryItemDto() {
+        Long shoppinglistId = 1L;
+        Long oldGroceryItemId = 1L;
+        Long newGroceryItemId = 2L;
+        int amount = 1;
+        int actualShelfLife = 3;
+
+        Shoppinglist shoppinglist = new Shoppinglist();
+        shoppinglist.setShoppinglistId(shoppinglistId);
+
+        GroceryItem oldGroceryItem = new GroceryItem();
+        oldGroceryItem.setGroceryItemId(oldGroceryItemId);
+
+        GroceryItem newGroceryItem = new GroceryItem();
+        newGroceryItem.setGroceryItemId(newGroceryItemId);
+
+        when(groceryItemRepository.findById(oldGroceryItemId)).thenReturn(Optional.of(oldGroceryItem));
+        when(groceryItemRepository.findById(newGroceryItemId)).thenReturn(Optional.of(newGroceryItem));
+        when(shoppinglistRepository.findById(shoppinglistId)).thenReturn(Optional.of(shoppinglist));
+
+        GroceryItemDto oldGroceryItemDto = new GroceryItemDto();
+        oldGroceryItemDto.setGroceryItemId(oldGroceryItem.getGroceryItemId());
+        oldGroceryItemDto.setName(oldGroceryItem.getName());
+        oldGroceryItemDto.setActualShelfLife(oldGroceryItem.getActualShelfLife());
+        oldGroceryItemDto.setExpectedShelfLife(oldGroceryItem.getExpectedShelfLife());
+        oldGroceryItemDto.setCategory(oldGroceryItem.getCategory());
+
+        GroceryItemDto newGroceryItemDto = new GroceryItemDto();
+        newGroceryItemDto.setGroceryItemId(newGroceryItem.getGroceryItemId());
+        newGroceryItemDto.setName(newGroceryItem.getName());
+        newGroceryItemDto.setActualShelfLife(actualShelfLife);
+        newGroceryItemDto.setExpectedShelfLife(newGroceryItem.getExpectedShelfLife());
+        newGroceryItemDto.setCategory(newGroceryItem.getCategory());
+        newGroceryItemDto.setAmount(amount);
+
+        groceryItemService.addGroceryItemsToShoppinglist(shoppinglistId, Collections.singleton(oldGroceryItemDto));
+
+        ResponseEntity<GroceryItemDto> response = groceryItemService.updateGroceryItemInShoppinglist(shoppinglistId, newGroceryItemDto);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody().getGroceryItemId()).isEqualTo(newGroceryItemId);
+    }
+
 
 
 
@@ -470,8 +514,6 @@ class GroceryItemServiceTest {
         ResponseEntity<FridgeDto> response = groceryItemService.removeGroceryItemFromFridge(fridgeId, groceryItemId1);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        //Needs fixing, as fridgedto doesnt return groceries currently
-        //assertThat(response.getBody().getGroceries().size()).isEqualTo(1);
     }
 
     @Test
@@ -498,6 +540,34 @@ class GroceryItemServiceTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
+    @Test
+    public void GroceryItemService_UpdateGroceryItemInFridge_ReturnGroceryItemDto() {
+        Long fridgeId = 1L;
+        Long groceryItemId = 1L;
+        int amount = 2;
+        Integer actualShelfLife = 3;
+
+        GroceryItemDto groceryItemDto = new GroceryItemDto();
+        groceryItemDto.setGroceryItemId(groceryItemId);
+        groceryItemDto.setAmount(amount);
+        groceryItemDto.setActualShelfLife(actualShelfLife);
+
+        Fridge fridge = new Fridge();
+        fridge.setFridgeId(fridgeId);
+
+        GroceryItem groceryItem = new GroceryItem();
+        groceryItem.setGroceryItemId(groceryItemId);
+        fridge.addGroceryItem(groceryItem, 1);
+
+        when(groceryItemRepository.findById(groceryItemId)).thenReturn(Optional.of(groceryItem));
+        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(fridge));
+
+        ResponseEntity<GroceryItemDto> response = groceryItemService.updateGroceryItemInFridge(fridgeId, groceryItemDto);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody().getGroceryItemId()).isEqualTo(groceryItemId);
+        assertThat(response.getBody().getAmount()).isEqualTo(amount);
+    }
 
 
 

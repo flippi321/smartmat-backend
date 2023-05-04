@@ -32,6 +32,8 @@ public interface GroceryItemService {
 
     public ResponseEntity<ShoppinglistDto> removeGroceryItemsFromShoppinglist(Long shoppinglistId, Long[] groceryItemIds);
 
+    public ResponseEntity<GroceryItemDto> updateGroceryItemInShoppinglist(Long shoppinglistId, GroceryItemDto groceryItemDto);
+
 
 
     //BELOW ARE CRUD METHODS FOR GROCERY ITEM IN RELATION TO A FRIDGE
@@ -46,6 +48,8 @@ public interface GroceryItemService {
     public ResponseEntity<FridgeDto> removeGroceryItemFromFridge( Long fridgeId, Long groceryItemId);
 
     public ResponseEntity<FridgeDto> removeGroceryItemsFromFridge(Long fridgeId, Long[] groceryItemIds);
+
+    public ResponseEntity<GroceryItemDto> updateGroceryItemInFridge(Long fridgeId, GroceryItemDto groceryItemDto);
 
 
     //BELOW ARE CRUD METHODS FOR GROCERY ITEM ALONE

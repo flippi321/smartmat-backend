@@ -306,6 +306,41 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         }
     }
 
+    @Override
+    public ResponseEntity<GroceryItemDto> updateGroceryItemInShoppinglist(Long shoppinglistId, GroceryItemDto groceryItemDto) {
+        Long groceryItemId = groceryItemDto.getGroceryItemId();
+        int amount = groceryItemDto.getAmount();
+        Integer actualShelfLife = groceryItemDto.getActualShelfLife();
+        log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
+        try {
+            GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
+                    .orElseThrow(() -> new NotFoundException("groceryItem with id " + groceryItemId + " not found"));
+            log.info("[X] Grocery Item with id {} found", groceryItemId);
+            Optional<Shoppinglist> shoppinglistOptional = shoppinglistRepository.findById(shoppinglistId);
+            if (shoppinglistOptional.isPresent()) {
+                Shoppinglist shoppinglist = shoppinglistOptional.get();
+                log.info("[X] Shoppinglist with id {} found", shoppinglistId);
+                shoppinglist.removeGroceryItem(groceryItem);
+                shoppinglist.addGroceryItem(groceryItem, amount);
+                if (actualShelfLife == null || actualShelfLife == 0) {
+                    groceryItem.setActualShelfLife(groceryItem.getExpectedShelfLife());
+                } else {
+                    groceryItem.setActualShelfLife(actualShelfLife);
+                }
+                shoppinglistRepository.save(shoppinglist);
+                GroceryItemDto updatedGroceryItemDto = castGroceryItemToDto(groceryItem);
+                updatedGroceryItemDto.setAmount(amount);
+                log.info("[X] Grocery Item with id {} updated in Shoppinglist with id {}", groceryItemId, shoppinglistId);
+                return new ResponseEntity<>(updatedGroceryItemDto, HttpStatus.OK);
+            } else {
+                throw new NotFoundException("shoppingList with id " + shoppinglistId + " not found");
+            }
+        } catch (NotFoundException ex) {
+            log.warn("[X] Exception caught: {}", ex.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 
 
 
@@ -497,12 +532,51 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
     }
 
 
+    @Override
+    public ResponseEntity<GroceryItemDto> updateGroceryItemInFridge(Long fridgeId, GroceryItemDto groceryItemDto) {
+        Long groceryItemId = groceryItemDto.getGroceryItemId();
+        int amount = groceryItemDto.getAmount();
+        Integer actualShelfLife = groceryItemDto.getActualShelfLife();
+        log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
+        try {
+            GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
+                    .orElseThrow(() -> new NotFoundException("groceryItem with id " + groceryItemId + " not found"));
+            log.info("[X] Grocery Item with id {} found", groceryItemId);
+            Optional<Fridge> fridgeOptional = fridgeRepository.findById(fridgeId);
+            if (fridgeOptional.isPresent()) {
+                Fridge fridge = fridgeOptional.get();
+                log.info("[X] Fridge with id {} found", fridgeId);
+                boolean negative = false;
+                if(actualShelfLife >= groceryItem.getActualShelfLife()){
+                    actualShelfLife = actualShelfLife-groceryItem.getActualShelfLife();
+                    negative = false;
+                }else if(actualShelfLife < groceryItem.getActualShelfLife()) {
+                    actualShelfLife = Math.abs(groceryItem.getActualShelfLife() - actualShelfLife);
+                    negative = true;
+                }
+                fridge.updateGroceryItem(groceryItem, amount, actualShelfLife, negative);
+                fridgeRepository.save(fridge);
+                GroceryItemDto updatedGroceryItemDto = castGroceryItemToDto(groceryItem);
+                updatedGroceryItemDto.setAmount(amount);
+                log.info("[X] Grocery Item with id {} updated in Fridge with id {}",
+                        groceryItemId, fridgeId);
+                return new ResponseEntity<>(updatedGroceryItemDto, HttpStatus.OK);
+            } else {
+                throw new NotFoundException("fridge with id " + fridgeId + " not found");
+            }
+        } catch (NotFoundException ex) {
+            log.warn("[X] Exception caught: {}", ex.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
 
 
 
 
-    //BELOW ARE CRUD METHODS FOR GROCERYITEM ALONE
+
+
+                        //BELOW ARE CRUD METHODS FOR GROCERYITEM ALONE
     @Override
     public ResponseEntity<Set<GroceryItemDto>> getAllGroceryItems() {
         log.debug("[X] Fetching all Grocery Items");

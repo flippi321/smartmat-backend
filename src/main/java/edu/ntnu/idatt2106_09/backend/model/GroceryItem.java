@@ -48,37 +48,4 @@ public class GroceryItem {
         this.actualShelfLife = actualShelfLife;
     }
 
-
-    /**
-    @OneToMany(
-            mappedBy = "groceryItem",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
-    private Set<GroceryItemFridge> fridges = new HashSet<>();
-    */
-
-    /**
-    public void addFridge(Fridge fridge) {
-        GroceryItemFridge groceryItemFridge = new GroceryItemFridge(fridge,this);
-        fridges.add(groceryItemFridge);
-        fridge.getGroceries().add(groceryItemFridge);
-    }
-     */
-
-    /**
-    public void removeFridge(Fridge fridge) {
-        for (Iterator<GroceryItemFridge> iterator = fridges.iterator();
-             iterator.hasNext(); ) {
-            GroceryItemFridge groceryItemFridge = iterator.next();
-
-            if (groceryItemFridge.getGroceryItem().equals(this) &&
-                    groceryItemFridge.getFridge().equals(fridge)) {
-                iterator.remove();
-                groceryItemFridge.getFridge().getGroceries().remove(groceryItemFridge);
-                groceryItemFridge.setGroceryItem(null);
-                groceryItemFridge.setFridge(null);
-            }
-        }
-    }
-     */
 }

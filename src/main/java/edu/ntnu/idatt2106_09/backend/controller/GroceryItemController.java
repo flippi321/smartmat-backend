@@ -94,6 +94,29 @@ public class GroceryItemController {
     }
 
 
+/*
+    {
+        "groceryItemId": 16,
+            "name": "Kylling",
+            "expectedShelfLife": 14,
+            "actualShelfLife": 0,
+            "amount": 18,
+            "category": {
+        "category": 5,
+                "name": "Fisk og sjømat",
+                "unit": "kg"
+    }
+    }
+
+ */
+    // UPDATE (update grocery item with given id in a shoppinglist)
+    @PutMapping("/shoppinglist/updateItem/{shoppinglistId}")
+    public ResponseEntity<GroceryItemDto> removeGroceryItemsFromShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @RequestBody GroceryItemDto groceryItemDto){
+        log.debug("[X] Call to update a given grocery in shoppinglist");
+        return groceryItemService.updateGroceryItemInShoppinglist(shoppinglistId, groceryItemDto);
+    }
+
+
 
 
 
@@ -143,7 +166,27 @@ public class GroceryItemController {
         return groceryItemService.removeGroceryItemsFromFridge(fridgeId, groceryItemIds);
     }
 
+    /*
+        {
+            "groceryItemId": 16,
+                "name": "Kylling",
+                "expectedShelfLife": 14,
+                "actualShelfLife": 0,
+                "amount": 18,
+                "category": {
+            "category": 5,
+                    "name": "Fisk og sjømat",
+                    "unit": "kg"
+        }
+        }
 
+     */
+    // UPDATE (update grocery item with given id in a fridge)
+    @PutMapping("/fridge/updateItem/{fridgeId}")
+    public ResponseEntity<GroceryItemDto> removeGroceryItemsFromFridge(@PathVariable("fridgeId") Long shoppinglistId, @RequestBody GroceryItemDto groceryItemDto){
+        log.debug("[X] Call to update a given grocery in fridge");
+        return groceryItemService.updateGroceryItemInFridge(shoppinglistId, groceryItemDto);
+    }
 
 
 
@@ -179,6 +222,7 @@ public class GroceryItemController {
         log.debug("[X] Call to delete a grocery item with id = {}", groceryItemId);
         return groceryItemService.deleteGroceryItem(groceryItemId);
     }
+
 
 
 }

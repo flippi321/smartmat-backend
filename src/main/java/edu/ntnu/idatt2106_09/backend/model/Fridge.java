@@ -60,4 +60,18 @@ public class Fridge {
             }
         }
     }
+
+    public void updateGroceryItem(GroceryItem groceryItem, int amount, int actualShelfLife, boolean negative) {
+        for (GroceryItemFridge groceryItemFridge : groceries) {
+            if (groceryItemFridge.getGroceryItem().equals(groceryItem)) {
+                groceryItemFridge.setAmount(amount);
+                if(negative == false){
+                    groceryItemFridge.setExpirationDate(groceryItemFridge.getExpirationDate().plusDays(actualShelfLife));
+                }else if(negative == true) {
+                    groceryItemFridge.setExpirationDate(groceryItemFridge.getExpirationDate().minusDays(actualShelfLife));
+                }
+                return;
+            }
+        }
+    }
 }
