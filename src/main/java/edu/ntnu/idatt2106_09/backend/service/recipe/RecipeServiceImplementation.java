@@ -437,9 +437,10 @@ public class RecipeServiceImplementation implements RecipeService {
 
 
     @Override
-    public List<List<GroceryItemRecipeDto>> getRecommendedRecipes(Long fridgeId) {
+    public List<List<GroceryItemRecipeDto>> getRecommendedRecipes(Long fridgeId, int portions) {
         HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
         List<List<GroceryItemRecipeDto>> recipeList = getAllRecipeList();
+        adjustAmountForMultipleRecipesBasedOnPortion(recipeList, portions);
         List<List<GroceryItemRecipeDto>> recommendedRecipeList;
 
         recommendedRecipeList = getRecipesOverThreshold(fridge, recipeList);
@@ -525,9 +526,11 @@ public class RecipeServiceImplementation implements RecipeService {
     }
 
     @Override
-    public List<List<GroceryItemRecipeDto>>  retrieveRecommendedWeekMenu(Long fridgeId) {
+    public List<List<GroceryItemRecipeDto>>  retrieveRecommendedWeekMenu(Long fridgeId, int portions) {
         HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
         List<List<GroceryItemRecipeDto>> recipeList = getAllRecipeList();
+        adjustAmountForMultipleRecipesBasedOnPortion(recipeList, portions);
+
         List<List<GroceryItemRecipeDto>> weekMenu = new ArrayList<>();
         List<Long> recipeIdUsed = new ArrayList<>();
         int originalRecipeListSize = recipeList.size();
@@ -571,9 +574,10 @@ public class RecipeServiceImplementation implements RecipeService {
      * @return A list of Grocery items the fridge is missing
      */
     public List<GroceryItemRecipeDto> getMissingIngredient(HashMap<Long, GroceryItemFridgeAlgoDto> fridge,
-                                                           Recipe recipe) {
+                                                           Recipe recipe, int portion) {
 
         List<GroceryItemRecipeDto> groceryItemRecipe = getRecipeGroceryList(recipe);
+        adjustAmountBasedOnPortion(groceryItemRecipe, portion);
         List<GroceryItemRecipeDto> missingRequiredGroceries = new ArrayList<>();
         GroceryItemRecipeDto currentGroceryItemDto;
         GroceryItemRecipeDto missingGroceryItemAmount;
@@ -599,6 +603,34 @@ public class RecipeServiceImplementation implements RecipeService {
         }
         return missingRequiredGroceries;
     }
+
+    /**
+     * Adjust the all GroceryItemRecipeDto amount based on portion size.
+     * Will multiply GroceryItemRecipeDto.amount with portion
+     * @param groceryItemRecipeDtos A list of GroceryItemRecipeDto representing the recipe
+     * @param portion int representing poriton
+     */
+    public void adjustAmountBasedOnPortion(List<GroceryItemRecipeDto> groceryItemRecipeDtos, int portion) {
+        double currentAmount;
+        for(int i = 0; i < groceryItemRecipeDtos.size(); i++) {
+            currentAmount = groceryItemRecipeDtos.get(i).getAmount();
+            currentAmount *= portion;
+            groceryItemRecipeDtos.get(i).setAmount(currentAmount);
+        }
+    }
+
+    /**
+     * Adjust all recipes amount based on portion size.
+     * Will multiply GroceryItemRecipeDto amount with portion size
+     * @param groceryItemRecipeDtos A double nested listed represeting a RecipeList
+     * @param portion int representing portion
+     */
+    public void adjustAmountForMultipleRecipesBasedOnPortion(List<List<GroceryItemRecipeDto>> groceryItemRecipeDtos, int portion) {
+        for(int i = 0; i < groceryItemRecipeDtos.size(); i++) {
+            adjustAmountBasedOnPortion(groceryItemRecipeDtos.get(i), portion);
+        }
+    }
+
 
     /**
      * Return a random long between min and max, excluding numbers from the specified idList.
@@ -630,7 +662,7 @@ public class RecipeServiceImplementation implements RecipeService {
      * @param recipeId the id of the recipe
      * @return a list containing two RecipeResponseDto: the first Dto contains the missing ingredients, and the second Dto contains the original Recipe
      */
-    public List<RecipeResponseDTO> getMissingIngredientsAndOriginalRecipe(Long fridgeId, Long recipeId){
+    public List<RecipeResponseDTO> getMissingIngredientsAndOriginalRecipe(Long fridgeId, Long recipeId, int portion){
         List<RecipeResponseDTO> response = new ArrayList<>();
 
         HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
@@ -638,7 +670,7 @@ public class RecipeServiceImplementation implements RecipeService {
 
         // Create the Missing Ingredient Response
         RecipeResponseDTO missingIngredientsResponse = new RecipeResponseDTO();
-        List<GroceryItemRecipeDto> ingredients = getMissingIngredient(fridge,recipe);
+        List<GroceryItemRecipeDto> ingredients = getMissingIngredient(fridge,recipe,portion);
         List<IngredientDTO> ingredientList = new ArrayList<>();
         IngredientDTO currentIngredient;
 
@@ -673,7 +705,7 @@ public class RecipeServiceImplementation implements RecipeService {
 
         for (GroceryItemRecipe gir : originalIngredients) {
             currentIngredient = new IngredientDTO();
-            currentIngredient.setAmount(gir.getAmount());
+            currentIngredient.setAmount(gir.getAmount()*portion);
             currentIngredient.setName(gir.getGroceryItem().getName());
             currentIngredient.setId(gir.getGroceryItem().getGroceryItemId());
             currentIngredient.setUnit(gir.getGroceryItem().getCategory().getUnit());
