@@ -1,15 +1,16 @@
 spring:
   datasource:
-    url: jdbc:mysql://mysql-ait.stud.idi.ntnu.no:3306/bjornjob
-    username: bjornjob
-    password: 7Wk7DTGpF
+    url: jdbc:mysql://mysql-ait.stud.idi.ntnu.no:3306/hadarh?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: hadarh
+    password: C4mNvdtNb
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
     database: mysql
     database-platform: org.hibernate.dialect.MySQLDialect
+
