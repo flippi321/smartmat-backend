@@ -47,6 +47,8 @@ public class GroceryItemShoppinglist {
     }
 }
 
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode

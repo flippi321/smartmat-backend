@@ -55,6 +55,8 @@ public class GroceryItemFridge {
     }
 }
 
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
