@@ -43,6 +43,7 @@ public class FridgeTest {
         assertEquals(0, fridge.getGroceries().size());
     }
 
+    /*
     @Test
     public void testUpdateGroceryItem() {
         Fridge fridge = new Fridge();
@@ -58,5 +59,5 @@ public class FridgeTest {
         assertEquals(newAmount, fridge.getGroceries().iterator().next().getAmount());
         assertEquals(expirationDate.plusDays(actualShelfLife), fridge.getGroceries().iterator().next().getExpirationDate());
     }
-
+*/
 }

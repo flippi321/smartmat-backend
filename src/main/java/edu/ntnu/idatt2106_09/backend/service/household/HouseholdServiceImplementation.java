@@ -66,9 +66,14 @@ public class HouseholdServiceImplementation implements HouseholdService {
     }
 
 
-    public HouseholdServiceImplementation(HouseholdRepository householdRepository) {
+    public HouseholdServiceImplementation(HouseholdRepository householdRepository, UserRepository userRepository, FridgeRepository fridgeRepository, ShoppinglistRepository shoppinglistRepository) {
         this.householdRepository = householdRepository;
+        this.userRepository = userRepository;
+        this.fridgeRepository = fridgeRepository;
+        this.shoppinglistRepository = shoppinglistRepository;
+
     }
+
 
     @Override
     public Optional<Household> getHouseholdById(Long householdId) {

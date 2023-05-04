@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://mysql-ait.stud.idi.ntnu.no:3306/arnoldsh?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
-    username: arnoldsh
-    password: RoZIXrchM
+    url: jdbc:mysql://mysql-ait.stud.idi.ntnu.no:3306/hadarh?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: hadarh
+    password: C4mNvdtNb
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -18,7 +18,7 @@ application:
   security:
     jwt:
       secret-key: 452948404D635166546A576E5A7134743777217A25432A462D4A614E64526755
-      expiration: 60000 # 1 minute
-      #expiration: 86400000 # 1 day
+      #expiration: 60000 # 1 minute
+      expiration: 86400000 # 1 day
       refresh-token:
         expiration: 604800000 # 7 days

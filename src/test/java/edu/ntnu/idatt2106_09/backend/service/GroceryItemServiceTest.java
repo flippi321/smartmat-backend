@@ -508,32 +508,6 @@ class GroceryItemServiceTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-    /*
-    @Test
-    public void GroceryItemService_RemoveGroceryItemsFromFridge_ReturnFridgeDto() {
-        Long fridgeId = 1L;
-        Long[] groceryItemIds = {1L, 2L};
-
-        Fridge fridge = new Fridge();
-        fridge.setFridgeId(fridgeId);
-
-        List<GroceryItem> groceryItems = new ArrayList<>();
-        for (Long groceryItemId : groceryItemIds) {
-            GroceryItem groceryItem = new GroceryItem();
-            groceryItem.setGroceryItemId(groceryItemId);
-            groceryItems.add(groceryItem);
-            fridge.addGroceryItem(groceryItem, 1);
-            when(groceryItemRepository.findById(groceryItemId)).thenReturn(Optional.of(groceryItem));
-        }
-
-        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(fridge));
-
-        ResponseEntity<FridgeDto> response = groceryItemService.removeGroceryItemsFromFridge(fridgeId, groceryItemIds);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
-     */
 
     @Test
     public void GroceryItemService_UpdateGroceryItemInFridge_ReturnGroceryItemDto() {

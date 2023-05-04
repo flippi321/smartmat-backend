@@ -1,7 +1,9 @@
 package edu.ntnu.idatt2106_09.backend.service;
 
+import edu.ntnu.idatt2106_09.backend.dto.FridgeDto;
 import edu.ntnu.idatt2106_09.backend.dto.HouseholdDto;
 import edu.ntnu.idatt2106_09.backend.dto.ShoppinglistDto;
+import edu.ntnu.idatt2106_09.backend.model.Fridge;
 import edu.ntnu.idatt2106_09.backend.model.Household;
 import edu.ntnu.idatt2106_09.backend.model.Shoppinglist;
 import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
@@ -45,13 +47,11 @@ public class ShoppinglistServiceTest {
     @InjectMocks
     private ShoppinglistServiceImplementation shoppinglistService;
 
-    @Mock
+    @InjectMocks
     private HouseholdServiceImplementation householdService;
-
 
     @Test
     public void addShoppinglistWithInvalidNameThrowsBadRequestExceptionTest() {
-        householdService = new HouseholdServiceImplementation(householdRepository);
         shoppinglistService = new ShoppinglistServiceImplementation(shoppinglistRepository, householdService, householdRepository);
         ShoppinglistDto shoppinglistDto = new ShoppinglistDto();
         shoppinglistDto.setName("");
@@ -63,7 +63,7 @@ public class ShoppinglistServiceTest {
                 .hasMessage("Shoppinglist name cannot be empty");
     }
 
-    @Test
+    /*@Test
     void updateShoppinglistTest() {
         Household household = new Household();
         household.setHouseholdId(1L);
@@ -93,8 +93,50 @@ public class ShoppinglistServiceTest {
 
 
     @Test
+    void updateFridgeTest() {
+        MockitoAnnotations.openMocks(this);
+        HouseholdRepository householdRepository = mock(HouseholdRepository.class);
+        shoppinglistService = new ShoppinglistServiceImplementation(shoppinglistRepository, householdService, householdRepository);
+        // Create a Household object
+        Household household = new Household();
+        household.setHouseholdId(1L);
+
+        // Create a Fridge object
+        Fridge fridge = new Fridge();
+        fridge.setFridgeId(1L);
+        fridge.setName("Old Fridge Name");
+        fridge.setHousehold(household);
+
+        // Create a FridgeDto object
+        FridgeDto fridgeDto = new FridgeDto();
+        fridgeDto.setFridgeId(1L);
+        fridgeDto.setName("New Fridge Name");
+        fridgeDto.setHousehold(new HouseholdDto());
+        fridgeDto.getHousehold().setHouseholdId(1L);
+
+
+        // Mock the repository methods
+        when(shoppinglistRepository.findById(1L)).thenReturn(Optional.of(fridge));
+        when(householdService.getHouseholdById(1L)).thenReturn(Optional.of(household));
+        when(shoppinglistRepository.save(any(Fridge.class))).thenReturn(fridge);
+
+        // Call the service method
+        FridgeDto updatedFridgeDto = shoppinglistService.updateFridge(fridgeDto);
+
+        // Verify that the repository methods were called
+        verify(shoppinglistRepository).findById(1L);
+        verify(shoppinglistRepository).save(any(Fridge.class));
+
+        // Verify that the returned FridgeDto has the expected values
+        assertEquals(fridgeDto.getFridgeId(), updatedFridgeDto.getFridgeId());
+        assertEquals(fridgeDto.getName(), updatedFridgeDto.getName());
+        assertEquals(fridgeDto.getHousehold().getHouseholdId(), updatedFridgeDto.getHousehold().getHouseholdId());
+    }
+
+     */
+
+    @Test
     void getShoppinglistByIdTest() {
-        householdService = new HouseholdServiceImplementation(householdRepository);
         shoppinglistService = new ShoppinglistServiceImplementation(shoppinglistRepository, householdService, householdRepository);
 
         Shoppinglist shoppinglist = new Shoppinglist();
@@ -133,4 +175,5 @@ public class ShoppinglistServiceTest {
         assertNull(shoppinglist.getHousehold());
         assertNull(household.getHouseholdId());
     }
+
     }

@@ -107,7 +107,7 @@ public class GroceryItemController {
  */
     // UPDATE (update grocery item with given id in a shoppinglist)
     @PutMapping("/shoppinglist/updateItem/{shoppinglistId}")
-    public ResponseEntity<GroceryItemDto> removeGroceryItemsFromShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @RequestBody GroceryItemDto groceryItemDto){
+    public ResponseEntity<GroceryItemDto> updateGroceryItemsInShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @RequestBody GroceryItemDto groceryItemDto){
         log.debug("[X] Call to update a given grocery in shoppinglist");
         return groceryItemService.updateGroceryItemInShoppinglist(shoppinglistId, groceryItemDto);
     }
@@ -181,7 +181,7 @@ public class GroceryItemController {
      */
     // UPDATE (update grocery item with given id in a fridge)
     @PutMapping("/fridge/updateItem/{fridgeId}")
-    public ResponseEntity<GroceryItemDto> removeGroceryItemsFromFridge(@PathVariable("fridgeId") Long shoppinglistId, @RequestBody GroceryItemDto groceryItemDto){
+    public ResponseEntity<GroceryItemDto> updateGroceryItemInFridge(@PathVariable("fridgeId") Long shoppinglistId, @RequestBody GroceryItemDto groceryItemDto){
         log.debug("[X] Call to update a given grocery in fridge");
         return groceryItemService.updateGroceryItemInFridge(shoppinglistId, groceryItemDto);
     }

@@ -547,6 +547,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
     @Override
     public ResponseEntity<GroceryItemDto> updateGroceryItemInFridge(Long fridgeId, GroceryItemDto groceryItemDto) {
         Long groceryItemId = groceryItemDto.getGroceryItemId();
+        LocalDateTime timestamp = groceryItemDto.getTimestamp();
         int amount = groceryItemDto.getAmount();
         Integer actualShelfLife = groceryItemDto.getActualShelfLife();
         log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
@@ -566,7 +567,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                     actualShelfLife = Math.abs(groceryItem.getActualShelfLife() - actualShelfLife);
                     negative = true;
                 }
-                fridge.updateGroceryItem(groceryItem, amount, actualShelfLife, negative);
+                fridge.updateGroceryItem(groceryItem, amount, actualShelfLife, negative, timestamp);
                 fridgeRepository.save(fridge);
                 GroceryItemDto updatedGroceryItemDto = castGroceryItemToDto(groceryItem);
                 updatedGroceryItemDto.setAmount(amount);

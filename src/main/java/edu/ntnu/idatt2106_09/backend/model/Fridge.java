@@ -63,9 +63,11 @@ public class Fridge {
         }
     }
 
-    public void updateGroceryItem(GroceryItem groceryItem, int amount, int actualShelfLife, boolean negative) {
+    public void updateGroceryItem(GroceryItem groceryItem, int amount, int actualShelfLife, boolean negative, LocalDateTime timestamp) {
         for (GroceryItemFridge groceryItemFridge : groceries) {
-            if (groceryItemFridge.getGroceryItem().equals(groceryItem)) {
+            if (groceryItemFridge.getFridge().equals(this) &&
+                    groceryItemFridge.getGroceryItem().equals(groceryItem) &&
+                    groceryItemFridge.getTimestamp().equals(timestamp)) {
                 groceryItemFridge.setAmount(amount);
                 if(negative == false){
                     groceryItemFridge.setExpirationDate(groceryItemFridge.getExpirationDate().plusDays(actualShelfLife));
