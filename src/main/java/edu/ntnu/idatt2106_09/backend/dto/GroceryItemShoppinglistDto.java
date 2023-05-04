@@ -13,5 +13,5 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroceryItemShoppinglistDto extends GroceryItemDto {
-    private int amount;
+    private double amount;
 }

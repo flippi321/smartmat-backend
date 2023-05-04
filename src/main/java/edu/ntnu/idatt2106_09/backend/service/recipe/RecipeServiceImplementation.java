@@ -482,8 +482,8 @@ public class RecipeServiceImplementation implements RecipeService {
     @Override
     public void updateFridgeAfterRecipe(Map<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe) {
         GroceryItemRecipeDto recipeItem;
-        int fridgeItemAmount;
-        int updatedAmount;
+        double fridgeItemAmount;
+        double updatedAmount;
 
         for (int i = 0; i < recipe.size(); i++) {
             recipeItem = recipe.get(i);

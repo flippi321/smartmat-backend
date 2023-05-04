@@ -73,11 +73,11 @@ public class GroceryItemController {
     }
 
     // DELETE (delete a grocery item in a shoppinglist)
-    @DeleteMapping("/shoppinglist/deleteItem/{shoppinglistId}")
-    @Operation(summary = "Remove a grocery item from a shopping list", description = "Remove a grocery item from a shopping list")
-    public ResponseEntity<ShoppinglistDto> removeGroceryItemFromShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @RequestBody GroceryItemDto groceryItemDto){
+    @DeleteMapping("/shoppinglist/deleteItems/{shoppinglistId}")
+    @Operation(summary = "Remove a list og grocery items from a shopping list", description = "Remove a grocery item from a shopping list")
+    public void removeGroceryItemsFromShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @RequestBody Set<GroceryItemDto> groceryItems){
         log.debug("[X] Call to delete a given grocery from shoppinglist");
-        return groceryItemService.removeGroceryItemFromShoppinglist(shoppinglistId, groceryItemDto);
+        groceryItemService.removeGroceryItemsFromShoppinglist(shoppinglistId, groceryItems);
     }
 
     /*

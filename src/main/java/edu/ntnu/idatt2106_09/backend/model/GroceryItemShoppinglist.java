@@ -18,7 +18,7 @@ public class GroceryItemShoppinglist {
     @EmbeddedId
     private GroceryItemShoppinglistId id;
 
-    public GroceryItemShoppinglist(Shoppinglist shoppinglist, GroceryItem groceryItem, int amount) {
+    public GroceryItemShoppinglist(Shoppinglist shoppinglist, GroceryItem groceryItem, double amount) {
         this.shoppinglist = shoppinglist;
         this.groceryItem = groceryItem;
         this.id = new GroceryItemShoppinglistId(shoppinglist.getShoppinglistId(), groceryItem.getGroceryItemId(), LocalDateTime.now());
@@ -36,7 +36,7 @@ public class GroceryItemShoppinglist {
     private GroceryItem groceryItem;
 
     @Column(name = "amount")
-    private int amount;
+    private double amount;
 
     public Long getGroceryItemId() {
         return groceryItem.getGroceryItemId();

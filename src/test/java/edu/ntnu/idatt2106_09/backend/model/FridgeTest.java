@@ -21,7 +21,7 @@ public class FridgeTest {
     @Test
     public void testAddGroceryItem() {
         GroceryItem groceryItem = new GroceryItem();
-        int amount = 1;
+        double amount = 1.0;
 
         fridge.addGroceryItem(groceryItem, amount);
 
@@ -35,7 +35,7 @@ public class FridgeTest {
     public void testRemoveGroceryItem() {
         Fridge fridge = new Fridge();
         GroceryItem groceryItem = new GroceryItem();
-        int amount = 1;
+        double amount = 1.0;
         fridge.addGroceryItem(groceryItem, amount);
         assertEquals(1, fridge.getGroceries().size());
         LocalDateTime timestamp = fridge.getGroceries().iterator().next().getTimestamp();

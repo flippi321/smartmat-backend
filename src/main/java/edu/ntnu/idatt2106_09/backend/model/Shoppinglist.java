@@ -41,7 +41,7 @@ public class Shoppinglist {
             orphanRemoval = true)
     private Set<GroceryItemShoppinglist> groceries = new HashSet<>();
 
-    public void addGroceryItem(GroceryItem groceryItem, int amount) {
+    public void addGroceryItem(GroceryItem groceryItem, double amount) {
         GroceryItemShoppinglist groceryItemShoppinglist = new GroceryItemShoppinglist(this, groceryItem, amount);
         groceries.add(groceryItemShoppinglist);
     }

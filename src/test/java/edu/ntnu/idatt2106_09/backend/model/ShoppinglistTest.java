@@ -21,7 +21,7 @@ public class ShoppinglistTest {
     @Test
     public void testAddGroceryItem() {
         GroceryItem groceryItem = new GroceryItem();
-        int amount = 1;
+        double amount = 1;
 
         shoppinglist.addGroceryItem(groceryItem, amount);
 
@@ -34,7 +34,7 @@ public class ShoppinglistTest {
     public void testRemoveGroceryItem() {
         Shoppinglist shoppinglist = new Shoppinglist();
         GroceryItem groceryItem = new GroceryItem();
-        int amount = 1;
+        double amount = 1;
         shoppinglist.addGroceryItem(groceryItem, amount);
         assertEquals(1, shoppinglist.getGroceries().size());
         LocalDateTime timestamp = shoppinglist.getGroceries().iterator().next().getTimestamp();

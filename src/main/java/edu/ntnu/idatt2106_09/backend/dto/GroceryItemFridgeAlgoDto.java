@@ -18,7 +18,7 @@ import java.time.LocalDate;
 public class GroceryItemFridgeAlgoDto {
     private FridgeDto fridgeDto;
     private GroceryItemDto groceryItem;
-    private int amount;
+    private double amount;
     private LocalDate purchaseDate;
     private LocalDate expirationDate;
 

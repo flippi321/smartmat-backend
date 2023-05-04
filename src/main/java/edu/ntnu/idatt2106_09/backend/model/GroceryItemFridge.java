@@ -18,7 +18,7 @@ public class GroceryItemFridge {
     @EmbeddedId
     private GroceryItemFridgeId id;
 
-    public GroceryItemFridge(Fridge fridge, GroceryItem groceryItem, int amount) {
+    public GroceryItemFridge(Fridge fridge, GroceryItem groceryItem, double amount) {
         this.fridge = fridge;
         this.groceryItem = groceryItem;
         this.id = new GroceryItemFridgeId(fridge.getFridgeId(), groceryItem.getGroceryItemId(), LocalDateTime.now());
@@ -38,7 +38,7 @@ public class GroceryItemFridge {
     private GroceryItem groceryItem;
 
     @Column(name = "amount")
-    private int amount;
+    private double amount;
 
     @Column(name = "purchase_date")
     private LocalDate purchaseDate = LocalDate.now();

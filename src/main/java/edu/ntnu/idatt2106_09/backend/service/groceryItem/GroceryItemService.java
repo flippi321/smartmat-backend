@@ -28,9 +28,7 @@ public interface GroceryItemService {
 
     public ResponseEntity<Void> deleteAllGroceryItemsInShoppinglist(Long shoppinglistId);
 
-    public ResponseEntity<ShoppinglistDto> removeGroceryItemFromShoppinglist(Long shoppinglistId, GroceryItemDto groceryItemDto);
-
-    //public ResponseEntity<ShoppinglistDto> removeGroceryItemsFromShoppinglist(Long shoppinglistId, Long[] groceryItemIds);
+    public void removeGroceryItemsFromShoppinglist(Long shoppinglistId,  Set<GroceryItemDto> groceryItems);
 
     public ResponseEntity<GroceryItemDto> updateGroceryItemInShoppinglist(Long shoppinglistId, GroceryItemDto groceryItemDto);
 
@@ -46,8 +44,6 @@ public interface GroceryItemService {
     public ResponseEntity<Void> deleteAllGroceryItemsInFridge(Long fridgeId);
 
     public ResponseEntity<FridgeDto> removeGroceryItemFromFridge( Long fridgeId, GroceryItemDto groceryItemDto);
-
-    //public ResponseEntity<FridgeDto> removeGroceryItemsFromFridge(Long fridgeId, Long[] groceryItemIds);
 
     public ResponseEntity<GroceryItemDto> updateGroceryItemInFridge(Long fridgeId, GroceryItemDto groceryItemDto);
 

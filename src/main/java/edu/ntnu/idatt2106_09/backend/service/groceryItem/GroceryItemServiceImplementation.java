@@ -130,7 +130,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         Set<GroceryItemDto> groceryItemDtos = new HashSet<>();
         for (GroceryItemDto groceryItemDto : groceryItems) {
             Long groceryItemId = groceryItemDto.getGroceryItemId();
-            int amount = groceryItemDto.getAmount();
+            double amount = groceryItemDto.getAmount();
             Integer actualShelfLife = groceryItemDto.getActualShelfLife();
             log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
             try {
@@ -252,29 +252,29 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
     }
 
     @Override
-    public ResponseEntity<ShoppinglistDto> removeGroceryItemFromShoppinglist(Long shoppinglistId, GroceryItemDto groceryItemDto) {
-        Long groceryItemId = groceryItemDto.getGroceryItemId();
-        LocalDateTime timestamp = groceryItemDto.getTimestamp();
-        log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
-        try {
-            GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
-                    .orElseThrow(() -> new NotFoundException("groceryItem with id " + groceryItemId + " not found"));
-            log.info("[X] Grocery Item with id {} found", groceryItemId);
-            Optional<Shoppinglist> shoppinglistOptional = shoppinglistRepository.findById(shoppinglistId);
-            if (shoppinglistOptional.isPresent()) {
-                Shoppinglist shoppinglist = shoppinglistOptional.get();
-                log.info("[X] Shoppinglist with id {} found", shoppinglistId);
-                shoppinglist.removeGroceryItem(groceryItem, timestamp);
-                shoppinglistRepository.save(shoppinglist);
-                ShoppinglistDto shoppinglistDto = castShoppinglistToDto(shoppinglist);
-                log.info("[X] Grocery Item with id {} removed from Shoppinglist with id {}", groceryItemId, shoppinglistId);
-                return new ResponseEntity<>(shoppinglistDto, HttpStatus.OK);
-            } else {
-                throw new NotFoundException("shoppingList with id " + shoppinglistId + " not found");
+    public void removeGroceryItemsFromShoppinglist(Long shoppinglistId,  Set<GroceryItemDto> groceryItems) {
+        for (GroceryItemDto groceryItemDto : groceryItems) {
+            Long groceryItemId = groceryItemDto.getGroceryItemId();
+            LocalDateTime timestamp = groceryItemDto.getTimestamp();
+            log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
+            try {
+                GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
+                        .orElseThrow(() -> new NotFoundException("groceryItem with id " + groceryItemId + " not found"));
+                log.info("[X] Grocery Item with id {} found", groceryItemId);
+                Optional<Shoppinglist> shoppinglistOptional = shoppinglistRepository.findById(shoppinglistId);
+                if (shoppinglistOptional.isPresent()) {
+                    Shoppinglist shoppinglist = shoppinglistOptional.get();
+                    log.info("[X] Shoppinglist with id {} found", shoppinglistId);
+                    shoppinglist.removeGroceryItem(groceryItem, timestamp);
+                    shoppinglistRepository.save(shoppinglist);
+                    ShoppinglistDto shoppinglistDto = castShoppinglistToDto(shoppinglist);
+                    log.info("[X] Grocery Item with id {} removed from Shoppinglist with id {}", groceryItemId, shoppinglistId);
+                } else {
+                    throw new NotFoundException("shoppingList with id " + shoppinglistId + " not found");
+                }
+            } catch (NotFoundException ex) {
+                log.warn("[X] Exception caught: {}", ex.getMessage());
             }
-        } catch (NotFoundException ex) {
-            log.warn("[X] Exception caught: {}", ex.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -315,7 +315,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
     public ResponseEntity<GroceryItemDto> updateGroceryItemInShoppinglist(Long shoppinglistId, GroceryItemDto groceryItemDto) {
         Long groceryItemId = groceryItemDto.getGroceryItemId();
         LocalDateTime timestamp = groceryItemDto.getTimestamp();
-        int amount = groceryItemDto.getAmount();
+        double amount = groceryItemDto.getAmount();
         Integer actualShelfLife = groceryItemDto.getActualShelfLife();
         log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
         try {
@@ -358,7 +358,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         Set<GroceryItemDto> groceryItemDtos = new HashSet<>();
         for (GroceryItemDto groceryItemDto : groceryItems) {
             Long groceryItemId = groceryItemDto.getGroceryItemId();
-            int amount = groceryItemDto.getAmount();
+            double amount = groceryItemDto.getAmount();
             Integer actualShelfLife = groceryItemDto.getActualShelfLife();
             log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
             try {
@@ -548,7 +548,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
     public ResponseEntity<GroceryItemDto> updateGroceryItemInFridge(Long fridgeId, GroceryItemDto groceryItemDto) {
         Long groceryItemId = groceryItemDto.getGroceryItemId();
         LocalDateTime timestamp = groceryItemDto.getTimestamp();
-        int amount = groceryItemDto.getAmount();
+        double amount = groceryItemDto.getAmount();
         Integer actualShelfLife = groceryItemDto.getActualShelfLife();
         log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
         try {
