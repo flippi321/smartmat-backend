@@ -35,17 +35,6 @@ public class AuthenticationController {
     }
     */
 
-
-    /**
-    @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest authenticationRequest) {
-        log.debug("[X] Received authentication request for email: {}", authenticationRequest.getEmail());
-        AuthenticationResponse authenticationResponse = authenticationService.authenticate(authenticationRequest);
-        log.info("[X] Authentication request successful for email: {}", authenticationRequest.getEmail());
-        return ResponseEntity.ok(authenticationResponse);
-    }
-     */
-
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest authenticationRequest, HttpServletResponse response) {
         log.debug("[X] Received authentication request for email: {}", authenticationRequest.getEmail());
@@ -55,9 +44,27 @@ public class AuthenticationController {
     }
 
     /**
+     @PostMapping("/authenticate")
+     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest authenticationRequest) {
+     log.debug("[X] Received authentication request for email: {}", authenticationRequest.getEmail());
+     AuthenticationResponse authenticationResponse = authenticationService.authenticate(authenticationRequest);
+     log.info("[X] Authentication request successful for email: {}", authenticationRequest.getEmail());
+     return ResponseEntity.ok(authenticationResponse);
+     }
+     */
+
+    @PostMapping("/refresh-token")
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        log.debug("[X] Received token refresh request");
+        authenticationService.handleTokenRefreshRequest(request, response);
+        log.info("[X] Token refresh request successful");
+    }
+
+    /**
     @PostMapping("/refresh-token")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         authenticationService.handleTokenRefreshRequest(request, response);
     }
     */
+
 }

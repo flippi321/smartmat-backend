@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.ntnu.idatt2106_09.backend.config.JwtService;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.BadRequestException;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.InternalServerErrorException;
+import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.repository.UserRepository;
 import edu.ntnu.idatt2106_09.backend.token.Token;
 import edu.ntnu.idatt2106_09.backend.token.TokenRepository;
@@ -63,30 +64,23 @@ public class AuthenticationService {
         tokenRepository.saveAll(validUserTokens);
     }
 
-    /**
-    private void setAccessTokenAndRefreshTokenCookies(HttpServletResponse response, AuthenticationResponse authenticationResponse) {
+    private void setAccessTokenAndRefreshTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
         // Create cookies for the access token and refresh token
-        Cookie accessTokenCookie = new Cookie("access_token", authenticationResponse.getAccessToken());
-        Cookie refreshTokenCookie = new Cookie("refresh_token", authenticationResponse.getRefreshToken());
-
-        // Set the expiration time for both cookies
-        accessTokenCookie.setMaxAge((int) (jwtService.getAccessTokenExpiration() / 1000));
-        refreshTokenCookie.setMaxAge((int) (jwtService.getRefreshTokenExpiration() / 1000));
+        Cookie accessTokenCookie = new Cookie("access_token", accessToken);
+        Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken);
 
         // Set HttpOnly, Secure, and SameSite attributes for both cookies
         accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true); // Set this to true only for HTTPS connections
+        accessTokenCookie.setSecure(false); // Set this to true only for HTTPS connections
         accessTokenCookie.setPath("/");
         refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true); // Set this to true only for HTTPS connections
+        refreshTokenCookie.setSecure(false); // Set this to true only for HTTPS connections
         refreshTokenCookie.setPath("/");
 
         // Add the cookies to the HttpServletResponse
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
     }
-     */
-
 
     /**
     public AuthenticationResponse register(RegistrationRequest request) {
@@ -145,24 +139,7 @@ public class AuthenticationService {
             var generatedRefreshToken = jwtService.generateRefreshToken(user);
             saveUserTokenToRepository(savedUser, generatedAccessToken);
 
-            // Create cookies for the access token and refresh token
-            Cookie accessTokenCookie = new Cookie("access_token", generatedAccessToken);
-            Cookie refreshTokenCookie = new Cookie("refresh_token", generatedRefreshToken);
-
-            // Set HttpOnly, Secure, and SameSite attributes for both cookies
-            accessTokenCookie.setHttpOnly(true);
-            accessTokenCookie.setSecure(false); // Set this to true only for HTTPS connections
-            accessTokenCookie.setPath("/");
-            accessTokenCookie.setMaxAge((int) (jwtService.getAccessTokenExpiration() / 1000));
-
-            refreshTokenCookie.setHttpOnly(true);
-            refreshTokenCookie.setSecure(false); // Set this to true only for HTTPS connections
-            refreshTokenCookie.setPath("/");
-            refreshTokenCookie.setMaxAge((int) (jwtService.getRefreshTokenExpiration() / 1000));
-
-            // Add the cookies to the HttpServletResponse
-            response.addCookie(accessTokenCookie);
-            response.addCookie(refreshTokenCookie);
+            setAccessTokenAndRefreshTokenCookies(response, generatedAccessToken, generatedRefreshToken);
 
             return AuthenticationResponse.builder()
                     .id(savedUser.getId())
@@ -178,7 +155,6 @@ public class AuthenticationService {
             throw new InternalServerErrorException("An unexpected error occurred during registration.");
         }
     }
-
 
     private void validateRegistrationRequest(RegistrationRequest request) {
         userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
@@ -257,21 +233,7 @@ public class AuthenticationService {
             revokeAllTokensForUser(user);
             saveUserTokenToRepository(user, generatedAccessToken);
 
-            // Create cookies for the access token and refresh token
-            Cookie accessTokenCookie = new Cookie("access_token", generatedAccessToken);
-            Cookie refreshTokenCookie = new Cookie("refresh_token", generatedRefreshToken);
-
-            // Set HttpOnly, Secure, and SameSite attributes for both cookies
-            accessTokenCookie.setHttpOnly(true);
-            accessTokenCookie.setSecure(false); // Set this to true only for HTTPS connections
-            accessTokenCookie.setPath("/");
-            refreshTokenCookie.setHttpOnly(true);
-            refreshTokenCookie.setSecure(false); // Set this to true only for HTTPS connections
-            refreshTokenCookie.setPath("/");
-
-            // Add the cookies to the HttpServletResponse
-            response.addCookie(accessTokenCookie);
-            response.addCookie(refreshTokenCookie);
+            setAccessTokenAndRefreshTokenCookies(response, generatedAccessToken, generatedRefreshToken);
 
             return AuthenticationResponse.builder()
                     .id(user.getId())
@@ -302,6 +264,52 @@ public class AuthenticationService {
         emptyField.ifPresent(field -> {
             throw new BadCredentialsException(field + " cannot be empty or null.");
         });
+    }
+
+    public void handleTokenRefreshRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new BadRequestException("Invalid token format in the request header.");
+        }
+
+        final String refreshToken = authorizationHeader.substring(7);
+        final String userEmail = jwtService.extractUsername(refreshToken);
+
+        if (userEmail == null) {
+            throw new NotFoundException("User not found for the provided refresh token.");
+        }
+
+        var user = this.userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("The user was not found"));
+
+        try {
+            if (!jwtService.isTokenValid(refreshToken, user)) {
+                throw new BadCredentialsException("Invalid refresh token.");
+            }
+
+            var generatedAccessToken = jwtService.generateAccessToken(user);
+            revokeAllTokensForUser(user);
+            saveUserTokenToRepository(user, generatedAccessToken);
+
+            setAccessTokenAndRefreshTokenCookies(response, generatedAccessToken, refreshToken);
+
+            var authenticationResponse = AuthenticationResponse.builder()
+                    .id(user.getId())
+                    .firstname(user.getFirstname())
+                    .lastname(user.getLastname())
+                    .email(user.getEmail())
+                    .build();
+            response.setContentType("application/json");
+            new ObjectMapper().writeValue(response.getOutputStream(), authenticationResponse);
+
+            log.info("[X] Token refresh successful for email: {}", userEmail);
+        } catch (BadCredentialsException e) {
+            log.warn("[X] Failed to refresh token for user with email: {} - Invalid refresh token", userEmail);
+            throw e;
+        } catch (Exception e) {
+            log.error("[X] Unexpected error during token refresh for user with email: {}", userEmail, e);
+            throw new InternalServerErrorException("An unexpected error occurred during token refresh.");
+        }
     }
 
     /**
