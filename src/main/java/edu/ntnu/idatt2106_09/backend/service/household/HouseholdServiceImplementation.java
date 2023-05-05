@@ -1,12 +1,7 @@
 package edu.ntnu.idatt2106_09.backend.service.household;
 
-import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationResponse;
 import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationService;
-import edu.ntnu.idatt2106_09.backend.authentication.RegistrationRequest;
-import edu.ntnu.idatt2106_09.backend.dto.FridgeDto;
-import edu.ntnu.idatt2106_09.backend.dto.HouseholdDto;
-import edu.ntnu.idatt2106_09.backend.dto.ShoppinglistDto;
-import edu.ntnu.idatt2106_09.backend.dto.UserDto;
+import edu.ntnu.idatt2106_09.backend.dto.*;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.Fridge;
 import edu.ntnu.idatt2106_09.backend.model.Household;
@@ -22,11 +17,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 
+/**
+ * The HouseholdServiceImplementation class is responsible for implementing the logic for managing Household in the
+ * application. It allows for updating, adding, retrieving and deleting households from the database.
+ */
 @Slf4j
 @Service
 public class HouseholdServiceImplementation implements HouseholdService {
@@ -49,133 +50,208 @@ public class HouseholdServiceImplementation implements HouseholdService {
     @Autowired
     private ModelMapper modelMapper;
 
-    private HouseholdDto castHouseholdToDto(Household household){
+    /**
+     * Casts a Household object to a HouseholdDtoForHouseholdService object using the ModelMapper library.
+     *
+     * @param household the Household object to be casted
+     * @return a HouseholdDtoForHouseholdService object that represents the input Household object
+     */
+    private HouseholdDtoForHouseholdService castHouseholdToDto(Household household){
         modelMapper = new ModelMapper();
-        return modelMapper.map(household, HouseholdDto.class);
+        return modelMapper.map(household, HouseholdDtoForHouseholdService.class);
     }
 
-    private Household castDtoToHousehold(HouseholdDto householdDto){
+    /**
+     * Converts a HouseholdDtoForHouseholdService object to a Household object using the ModelMapper library.
+     *
+     * @param householdDto The HouseholdDtoForHouseholdService object to be converted.
+     * @return A Household object converted from the given HouseholdDtoForHouseholdService object.
+     */
+    private Household castDtoToHousehold(HouseholdDtoForHouseholdService householdDto){
         modelMapper = new ModelMapper();
         return modelMapper.map(householdDto, Household.class);
     }
 
+    /**
+     * Maps a User entity to a UserDto using ModelMapper.
+     *
+     * @param user the User entity to be mapped
+     * @return the UserDto object that represents the User entity
+     */
     private UserDto castUserToDto(User user){
         modelMapper = new ModelMapper();
         return modelMapper.map(user, UserDto.class);
     }
 
+    /**
+     * Maps a UserDto object to a User object using ModelMapper.
+     *
+     * @param userdto the UserDto object to map to a User object
+     * @return the mapped User object
+     */
     private User castDtoToUser(UserDto userdto){
         return modelMapper.map(userdto, User.class);
     }
 
-    public HouseholdServiceImplementation(HouseholdRepository householdRepository, FridgeRepository fridgeRepository, ShoppinglistRepository shoppinglistRepository, UserRepository userRepository) {
+    /**
+     * Made for mocking in 'HouseholdServiceTest'
+     */
+    public HouseholdServiceImplementation(HouseholdRepository householdRepository, UserRepository userRepository,
+                                          FridgeRepository fridgeRepository, ShoppinglistRepository
+                                                  shoppinglistRepository) {
         this.householdRepository = householdRepository;
+        this.userRepository = userRepository;
         this.fridgeRepository = fridgeRepository;
         this.shoppinglistRepository = shoppinglistRepository;
-        this.userRepository = userRepository;
+
     }
 
+    /**
+     * Retrieves the household with the given ID from the database, if it exists.
+     *
+     * @param householdId the ID of the household to retrieve
+     * @return an Optional containing the household with the given ID, or an empty Optional if no household is found
+     */
     @Override
     public Optional<Household> getHouseholdById(Long householdId) {
         return householdRepository.findById(householdId);
     }
 
-
+    /**
+     * Retrieves a Household with the specified id as a DTO object.
+     *
+     * @param householdId the id of the Household to retrieve.
+     * @return an Optional object containing a DTO representation of the Household if it exists, or an empty Optional if
+     *         it does not. If an error occurs while retrieving the Household, an empty Optional is returned.
+     *         The DTO contains the Household's id, name, invitation number, Fridge object
+     *         (as a FridgeDtoWithoutHousehold), and Shoppinglist object (as a ShoppinglistDto). If the Household has
+     *         no associated Fridge or Shoppinglist, the corresponding DTO object is null.
+     @throws NullPointerException if the specified id is null.
+     */
     @Override
-    public Optional<HouseholdDto> getHouseholdByIdAsDto(Long householdId) {
-        log.debug("Fetching Household with id: {}", householdId);
-        Optional<HouseholdDto> householdDtoOptional = Optional.empty();
+    public Optional<HouseholdDtoForHouseholdService> getHouseholdByIdAsDto(Long householdId) {
+        log.debug("[X] Fetching Household with id: {}", householdId);
+        modelMapper = new ModelMapper();
+        Optional<HouseholdDtoForHouseholdService> householdDtoOptional = Optional.empty();
         try {
             Optional<Household> householdOptional = householdRepository.findById(householdId);
             if (householdOptional.isPresent()) {
-                log.info("[x] Household with id {} found", householdId);
+                log.info("[X] Household with id {} found", householdId);
 
-                Shoppinglist shoppinglist = shoppinglistRepository.findByHouseholdId(householdId);
+                Shoppinglist shoppinglist = shoppinglistRepository.findByHouseholdIdAsShoppinglist(householdId);
                 Fridge fridge = fridgeRepository.findByHouseholdIdAsFridge(householdId);
 
                 Household household = householdOptional.get();
                 household.setShoppinglist(shoppinglist);
                 household.setFridge(fridge);
-
-                ModelMapper modelMapper = new ModelMapper();
-                HouseholdDto householdDto = modelMapper.map(household, HouseholdDto.class);
+                HouseholdDtoForHouseholdService householdDto = new HouseholdDtoForHouseholdService();
+                householdDto.setHouseholdId(household.getHouseholdId());
+                householdDto.setName(household.getName());
+                householdDto.setInvitationNr(household.getInvitationNr());
+                householdDto.setFridge(modelMapper.map(household.getFridge(), FridgeDtoWithoutHousehold.class));
+                householdDto.setShoppinglist(modelMapper.map(household.getShoppinglist(), ShoppinglistDto.class));
                 householdDtoOptional = Optional.of(householdDto);
             } else {
-                log.warn("[x] Household with id {} not found", householdId);
+                log.warn("[X] Household with id {} not found", householdId);
             }
         } catch (Exception e) {
-            log.error("An error occurred while fetching Household with id {}: {}", householdId, e.getMessage());
+            log.error("[X] An error occurred while fetching Household with id {}: {}", householdId, e.getMessage());
         }
         return householdDtoOptional;
     }
 
-
+    /**
+     * Retrieves a HouseholdDtoForHouseholdService object for the household associated with the given user id.
+     *
+     * @param userId the id of the user whose household should be retrieved
+     * @return a ResponseEntity object with the retrieved HouseholdDtoForHouseholdService object in the body if the user and their household are found, or a not found response if the user is not found
+     */
     @Override
-    public ResponseEntity<HouseholdDto> getHouseholdByUserId(Integer userId) {
-        log.debug("Fetching User with id: {}", userId);
+    public ResponseEntity<HouseholdDtoForHouseholdService> getHouseholdByUserId(Integer userId) {
+        log.debug("[X] Fetching User with id: {}", userId);
+        modelMapper = new ModelMapper();
         try {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
-            log.info("[x] User with id {} found", userId);
+            log.info("[X] User with id {} found", userId);
             Household household = user.getHousehold();
-            Shoppinglist shoppinglist = shoppinglistRepository.findByHouseholdId(household.getHouseholdId());
+            Shoppinglist shoppinglist = shoppinglistRepository.findByHouseholdIdAsShoppinglist(household.getHouseholdId());
             Fridge fridge = fridgeRepository.findByHouseholdIdAsFridge(household.getHouseholdId());
             household.setFridge(fridge);
             household.setShoppinglist(shoppinglist);
-            HouseholdDto householdDto = castHouseholdToDto(household);
+            HouseholdDtoForHouseholdService householdDto = new HouseholdDtoForHouseholdService();
+            householdDto.setHouseholdId(household.getHouseholdId());
+            householdDto.setName(household.getName());
+            householdDto.setInvitationNr(household.getInvitationNr());
+            householdDto.setFridge(modelMapper.map(household.getFridge(), FridgeDtoWithoutHousehold.class));
+            householdDto.setShoppinglist(modelMapper.map(household.getShoppinglist(), ShoppinglistDto.class));
+
             UserDto userDto = castUserToDto(user); // Convert the User object to a UserDto object
             householdDto.setUserDto(userDto); // Set the userDto field of the HouseholdDto object
             return ResponseEntity.ok(householdDto);
         } catch (NotFoundException ex) {
-            log.warn("[x] Exception caught: {}", ex.getMessage());
+            log.warn("[X] Exception caught: {}", ex.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
 
-    @Override
-    public ResponseEntity<UserDto> addUserToHousehold(Long householdId, UserDto userDto) {
-        return null;
-    }
-
-
-  /*  {
-        "firstname" : "test1",
-        "lastname" : "test1surname",
-        "email" : "test1@test.com",
-        "password" : "passord"
-      }*/
     /**
+     * Adds a user to a household with the given invitation number.
+     *
+     * @param invitationNr the invitation number of the household to add the user to
+     * @param userId the id of the user to be added to the household
+     * @return a ResponseEntity with the updated UserDto object
+     * @throws ResponseStatusException if no household with the given invitation number or user with the given id exists
+     */
     @Override
-    public ResponseEntity<UserDto> addUserToHousehold(Long householdId, UserDto userDto) {
-        log.debug("Fetching Household with id: {}", householdId);
-        try {
-            Household household = householdRepository.findById(householdId)
-                    .orElseThrow(() -> new NotFoundException("Household with id " + householdId + " not found"));
-            log.info("[x] Household with id {} found", householdId);
-
-            RegistrationRequest request = new RegistrationRequest(userDto.getFirstname(), userDto.getLastname(), userDto.getEmail(), userDto.getPassword());
-            AuthenticationResponse response = authenticationService.register(request);
-            User user = userRepository.findById(response.getId())
-                    .orElseThrow(() -> new NotFoundException("User with id " + response.getId() + " not found"));
-
-            user.setHousehold(household);
-            userRepository.save(user);
-
-            UserDto newUserDto = castUserToDto(user);
-            return ResponseEntity.ok(newUserDto);
-        } catch (NotFoundException ex) {
-            log.warn("[x] Exception caught: {}", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    public ResponseEntity<UserDto> addUserToHousehold(Long invitationNr, Integer userId) {
+        log.debug("[X] Adding user to household with invitationNr: {}", invitationNr);
+        Optional<Household> optionalHousehold = householdRepository.findByInvitationNr(invitationNr);
+        if (optionalHousehold.isPresent()) {
+            Household household = optionalHousehold.get();
+            Optional<User> optionalUser = userRepository.findById(userId);
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get();
+                user.setHousehold(household);
+                User updatedUser = userRepository.save(user);
+                UserDto updatedUserDto = castUserToDto(updatedUser);
+                log.info("[X] User with id {} added to household with id {}", updatedUser.getId(), household.getHouseholdId());
+                return ResponseEntity.ok(updatedUserDto);
+            } else {
+                log.error("[X] No user with id {} exists", userId);
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No user with the given id exists");
+            }
+        } else {
+            log.error("[X] No household with invitationNr {} exists", invitationNr);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No household with the given invitationNr exists");
         }
     }
-     */
 
+    /**
+     * Creates a new household and saves it to the database. Assigns the current user as a member of the new household.
+     * Generates a unique invitation number for the household and creates a new fridge and shopping list for it.
+     *
+     * @param userId the ID of the current user
+     * @param householdDto the DTO containing the data for the new household to be created
+     * @return a ResponseEntity containing the DTO for the newly created household and a HTTP status code indicating
+     *         successor failure of the request
+     */
     @Override
-    public ResponseEntity<HouseholdDto> createHousehold(Integer userId, HouseholdDto householdDto) {
-        HouseholdDto newHouseholdDto = null;
+    public ResponseEntity<HouseholdDtoForHouseholdService> createHousehold(Integer userId, HouseholdDtoForHouseholdService householdDto) {
+        HouseholdDtoForHouseholdService newHouseholdDto = new HouseholdDtoForHouseholdService();
         try {
-            log.debug("Creating new Household with name: {}", householdDto.getName());
+            log.debug("[X] Creating new Household with name: {}", householdDto.getName());
             Household household = castDtoToHousehold(householdDto);
+
+            Random rand = new Random();
+            long invitationNr;
+            Optional<Household> existingHousehold;
+            do {
+                invitationNr = 100000L + (long)(rand.nextDouble() * (999999L - 100000L));
+                existingHousehold = householdRepository.findByInvitationNr(invitationNr);
+            } while (existingHousehold.isPresent());
+            household.setInvitationNr(invitationNr);
+
             Fridge fridge = new Fridge();
             fridge.setName(householdDto.getFridge().getName());
             fridgeRepository.save(fridge);
@@ -198,22 +274,36 @@ public class HouseholdServiceImplementation implements HouseholdService {
                 userRepository.save(currentUser);
             }
 
-            log.info("[x] Household with id {} created", newHousehold.getHouseholdId());
-            newHouseholdDto = castHouseholdToDto(household);
+            log.info("[X] Household with id {} created", newHousehold.getHouseholdId());
+
+            newHouseholdDto.setHouseholdId(household.getHouseholdId());
+            newHouseholdDto.setName(household.getName());
+            newHouseholdDto.setInvitationNr(household.getInvitationNr());
+            newHouseholdDto.setFridge(modelMapper.map(household.getFridge(), FridgeDtoWithoutHousehold.class));
+            newHouseholdDto.setShoppinglist(modelMapper.map(household.getShoppinglist(), ShoppinglistDto.class));
 
             if (currentUser != null) {
                 UserDto userDto = castUserToDto(currentUser);
                 newHouseholdDto.setUserDto(userDto);
             }
         } catch (Exception e) {
-            log.error("An error occurred while creating a new household: {}", e.getMessage());
+            log.error("[X] An error occurred while creating a new household: {}", e.getMessage());
         }
         return ResponseEntity.ok(newHouseholdDto);
     }
 
-
-        @Override
-    public ResponseEntity<HouseholdDto> updateHousehold(Long householdId, HouseholdDto householdDto) {
+    /**
+     * Updates an existing household with the provided id using the provided household DTO object.
+     * If the household with the provided id does not exist, a 404 Not Found response is returned.
+     *
+     * @param householdId The id of the household to be updated
+     * @param householdDto The DTO object containing the updated household data
+     * @return ResponseEntity A response entity with the updated household DTO object if the update was successful, or
+     *         a 404 Not Found response if the household with the provided id does not exist
+     */
+    @Override
+    public ResponseEntity<HouseholdDtoForHouseholdService> updateHousehold(Long householdId, HouseholdDtoForHouseholdService householdDto) {
+        modelMapper = new ModelMapper();
         Optional<Household> householdOptional = householdRepository.findById(householdId);
         if (householdOptional.isPresent()) {
             Household household = householdOptional.get();
@@ -227,18 +317,33 @@ public class HouseholdServiceImplementation implements HouseholdService {
                 household.getShoppinglist().setName(householdDto.getShoppinglist().getName());
             }
             householdRepository.save(household);
-            HouseholdDto updatedHouseholdDto = castHouseholdToDto(household);
+            HouseholdDtoForHouseholdService updatedHouseholdDto = new HouseholdDtoForHouseholdService();
+            updatedHouseholdDto.setHouseholdId(household.getHouseholdId());
+            updatedHouseholdDto.setName(household.getName());
+            updatedHouseholdDto.setInvitationNr(household.getInvitationNr());
+            updatedHouseholdDto.setFridge(modelMapper.map(household.getFridge(), FridgeDtoWithoutHousehold.class));
+            updatedHouseholdDto.setShoppinglist(modelMapper.map(household.getShoppinglist(), ShoppinglistDto.class));
+
             return ResponseEntity.ok(updatedHouseholdDto);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
+    /**
+     * Returns a set of UserDto objects containing information about all users in the household with the specified
+     * household ID. If the household is found, it retrieves all users associated with the household and maps their
+     * information to a UserDto object, which is then added to a set of UserDto objects. If an error occurs while
+     * retrieving the users, an error message is logged and an empty set is returned.
+     *
+     * @param householdId the ID of the household to retrieve users from
+     * @return a set of UserDto objects containing information about all users in the household, or an empty set if an error occurs
+     */
     @Override
     public Set<UserDto> getAllUsersInHousehold(Long householdId) {
         Set<UserDto> userDtos = new HashSet<>();
         try {
-            log.debug("Getting all users in household with id: {}", householdId);
+            log.debug("[X] Getting all users in household with id: {}", householdId);
             Optional<Household> optionalHousehold = householdRepository.findById(householdId);
             if (optionalHousehold.isPresent()) {
                 Household household = optionalHousehold.get();
@@ -252,9 +357,9 @@ public class HouseholdServiceImplementation implements HouseholdService {
                     userDtos.add(userDto);
                 }
             }
-            log.info("[x] Found {} users in household with id {}", userDtos.size(), householdId);
+            log.info("[X] Found {} users in household with id {}", userDtos.size(), householdId);
         } catch (Exception e) {
-            log.error("An error occurred while getting all users in household with id {}: {}", householdId, e.getMessage());
+            log.error("[X] An error occurred while getting all users in household with id {}: {}", householdId, e.getMessage());
         }
         return userDtos;
     }

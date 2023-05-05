@@ -12,6 +12,6 @@ import lombok.Setter;
 public class IngredientDTO {
     private Long id;
     private String name;
-    private int amount;
+    private double amount;
     private String unit;
 }

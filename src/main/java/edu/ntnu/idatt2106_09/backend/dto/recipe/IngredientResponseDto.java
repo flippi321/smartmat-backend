@@ -1,5 +1,4 @@
-package edu.ntnu.idatt2106_09.backend.dto;
-
+package edu.ntnu.idatt2106_09.backend.dto.recipe;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroceryItemShoppinglistDto extends GroceryItemDto {
-    private double amount;
+public class IngredientResponseDto extends IngredientDTO {
+    private LocalDateTime timestamp;
+
 }

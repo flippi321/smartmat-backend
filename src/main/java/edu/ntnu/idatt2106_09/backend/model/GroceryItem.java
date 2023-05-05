@@ -3,13 +3,20 @@ package edu.ntnu.idatt2106_09.backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.*;
 
+/**
+ * Represents a grocery item in the application.
+ * A grocery item contains information such as its name, expected shelf life, actual shelf life, image link, and
+ * associated category. Grocery items can be added to fridges and shopping lists, and used in recipes.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@Builder
 @Entity
 @Table(name = "grocery_item")
 public class GroceryItem {
@@ -22,43 +29,40 @@ public class GroceryItem {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "shelf_life")
-    private int shelfLife;
+    @Column(name = "expected_shelf_life")
+    private int expectedShelfLife;
+
+    @Column(name = "actual_shelf_life")
+    private int actualShelfLife;
+
+    @Column(name = "image_link")
+    private String imageLink;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "category_id")
     private Category category;
 
     /**
-    @OneToMany(
-            mappedBy = "groceryItem",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
-    private Set<GroceryItemFridge> fridges = new HashSet<>();
-    */
+     * Constructs a new GroceryItem with the specified ID and name.
+     *
+     * @param groceryItemId The unique ID of the grocery item.
+     * @param name The name of the grocery item.
+     */
+    public GroceryItem(long groceryItemId, String name) {
+        this.groceryItemId = groceryItemId;
+        this.name = name;
+    }
 
     /**
-    public void addFridge(Fridge fridge) {
-        GroceryItemFridge groceryItemFridge = new GroceryItemFridge(fridge,this);
-        fridges.add(groceryItemFridge);
-        fridge.getGroceries().add(groceryItemFridge);
-    }
+     * Constructs a new GroceryItem with the specified ID, name, and actual shelf life.
+     *
+     * @param groceryItemId The unique ID of the grocery item.
+     * @param name The name of the grocery item.
+     * @param actualShelfLife The actual shelf life of the grocery item, in days.
      */
-
-    /**
-    public void removeFridge(Fridge fridge) {
-        for (Iterator<GroceryItemFridge> iterator = fridges.iterator();
-             iterator.hasNext(); ) {
-            GroceryItemFridge groceryItemFridge = iterator.next();
-
-            if (groceryItemFridge.getGroceryItem().equals(this) &&
-                    groceryItemFridge.getFridge().equals(fridge)) {
-                iterator.remove();
-                groceryItemFridge.getFridge().getGroceries().remove(groceryItemFridge);
-                groceryItemFridge.setGroceryItem(null);
-                groceryItemFridge.setFridge(null);
-            }
-        }
+    public GroceryItem(long groceryItemId, String name, int actualShelfLife) {
+        this.groceryItemId = groceryItemId;
+        this.name = name;
+        this.actualShelfLife = actualShelfLife;
     }
-     */
 }

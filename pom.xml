@@ -85,7 +85,15 @@
 			<artifactId>hibernate-validator</artifactId>
 			<version>7.0.1.Final</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+
+
+    </dependencies>
 
 	<build>
 		<plugins>
