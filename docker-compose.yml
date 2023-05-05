@@ -21,13 +21,6 @@ services:
     ports:
       - "3306:3306"
 
-  frontend:
-    build: ../frontend
-    ports:
-      - "5173:5173"
-    depends_on:
-      - app
-
 
 volumes:
   mysql-data:
