@@ -26,31 +26,31 @@ INSERT INTO category (name, unit) VALUES ('Hermetikk', 'stk');
 
 
 -- Insert grocery items
-INSERT INTO grocery_item (name, expected_shelf_life, actual_shelf_life, image_link, category_id) VALUES ('Melk', 7, 0, 'https://www.lunsj.no/21397-large_default/tine-melk-lett.jpg', 2);
-INSERT INTO grocery_item (name, expected_shelf_life, actual_shelf_life, image_link, category_id) VALUES ('Egg', 30, 0, 'https://www.lunsj.no/20130-large_default/egg-fritgaende-honer-prior.jpg', 6);
-INSERT INTO grocery_item (name, expected_shelf_life, actual_shelf_life, image_link, category_id) VALUES ('Brød', 5, 0, 'https://bilder.ngdata.no/2000254700006/meny/large.jpg', 4);
-INSERT INTO grocery_item (name, expected_shelf_life, actual_shelf_life, image_link, category_id) VALUES ('Eple', 30, 0, 'https://www.lunsj.no/22685-large_default/okologiske-epler-braebrun.jpg', 3);
-INSERT INTO grocery_item (name, expected_shelf_life, actual_shelf_life, image_link, category_id) VALUES ('Banan', 7, 0, 'https://www.bamastorkjokken.no/globalassets/produktbilder-2/100/1301-32-main.jpg?width=250&height=250&quality=90&mode=Crop&anchor=Middlecenter&scale=Down&factor=1&backgroundColor=', 3);
-INSERT INTO grocery_item (name, expected_shelf_life, actual_shelf_life, image_link, category_id) VALUES ('Gulrøtt', 30, 0,'https://bilder.kolonial.no/produkter/840c1ecf-12aa-427b-909c-226568c4f5de.jpg?auto=format&fit=max&w=500&s=05bff6f537c33ab4425279c066b9b251', 3);
-INSERT INTO grocery_item (name, expected_shelf_life, actual_shelf_life,image_link, category_id) VALUES ('Tomat', 7 ,0,'https://bilder.kolonial.no/local_products/d785a14a-c247-49a5-95a3-466060b1d498.jpg?auto=format&fit=max&w=500&s=0ed6f571960da62cb8e4cb6da68906a5', 3);
-INSERT INTO grocery_item (name ,expected_shelf_life ,actual_shelf_life ,image_link,category_id )VALUES ('Agurk' ,7 ,0 ,'https://engrosnett.no/image/frukt-og-gronnsaker/gronnsaker/1504-agurk.png?lb=true&v=638180975011870000' ,3 );
-INSERT INTO grocery_item (name ,expected_shelf_life ,actual_shelf_life ,image_link,category_id )VALUES ('Mais' ,365 ,0 ,'https://havaristen-i03.mycdn.no/mysimgprod/havaristen_mystore_no/images/eNnns_Green_Giant__kologisk_Mais_2x160g_1.jpg/w600h600.jpg' , 7);
-INSERT INTO grocery_item (name ,expected_shelf_life ,actual_shelf_life ,image_link,category_id )VALUES ('Erter' ,365 ,0 ,'https://www.lunsj.no/16638-large_default/friske-erter-eldorado.jpg' , 7);
-INSERT INTO grocery_item (name ,expected_shelf_life ,actual_shelf_life ,image_link,category_id )VALUES ('Bønner' ,365 ,0 ,'https://www.lunsj.no/19944-large_default/salat-og-grytebonner-goeco.jpg' , 7);
-INSERT INTO grocery_item (name ,expected_shelf_life ,actual_shelf_life ,image_link,category_id )VALUES ('Havregryn' ,365 ,0 ,'https://www.lunsj.no/17227-large_default/okologisk-havregryn-stor-helios.jpg' , 4);
-INSERT INTO grocery_item (name ,expected_shelf_life ,actual_shelf_life,image_link,category_id )VALUES ('Pasta' ,730 ,0 ,'https://bilder.ngdata.no/7035620053566/kmh/large.jpg' , 4);
-INSERT INTO grocery_item (name ,expected_shelf_life ,actual_shelf_life,image_link,category_id )VALUES ('Ris' ,730 ,0 ,'https://bilder.ngdata.no/7311041016237/meny/large.jpg' , 4);
-INSERT INTO grocery_item (name ,expected_shelf_life ,actual_shelf_life,image_link,category_id )VALUES ('Laks' ,13 ,0 ,'https://bilder.ngdata.no/7033352672284/kiwi/large.jpg' , 5);
-INSERT INTO grocery_item (name ,expected_shelf_life ,actual_shelf_life,image_link,category_id )VALUES ('Kylling' ,14 ,0 ,'https://bilder.ngdata.no/7090013751535/meny/large.jpg' , 1);
-INSERT INTO grocery_item (name ,expected_shelf_life ,actual_shelf_life,image_link,category_id )VALUES ('Svinekjøtt' ,14 ,0 ,'https://bilder.kolonial.no/local_products/3e91cf78-4de8-49a8-8c63-7df8b32f32ce.png?auto=format&fit=max&w=500&s=3438af3de8c1feb97e5d26b2120fc4ac' , 1);
-INSERT INTO grocery_item (name ,expected_shelf_life ,actual_shelf_life,image_link,category_id )VALUES ('Storfekjøtt' ,14 ,0 ,'https://engrosnett.no/image/kjottprodukter/storfekjott/2262897-2262897.png?lb=true' , 1);
-INSERT INTO grocery_item (name, expected_shelf_life, actual_shelf_life, image_link, category_id) VALUES ('Lam', 14, 0, 'https://bilder.ngdata.no/2000769900007/meny/large.jpg', 1);
-INSERT INTO grocery_item (name, expected_shelf_life, actual_shelf_life, image_link, category_id) VALUES ('Kalkun', 14, 0, 'https://res.cloudinary.com/norgesgruppen/image/upload/v1606951149/Product/2323257700003.jpg', 1);
-INSERT INTO grocery_item (name, expected_shelf_life, actual_shelf_life, image_link, category_id) VALUES ('Brokkoli', 14, 0,'https://engrosnett.no/image/frukt-og-gronnsaker/gronnsaker/2502-2502.jpg?lb=true&v=638181005813400000', 3);
-INSERT INTO grocery_item (name, expected_shelf_life, actual_shelf_life, image_link, category_id) VALUES ('Spinat', 7, 0,'https://www.lunsj.no/18990-large_default/spinat-puter-eldorado.jpg', 3);
-INSERT INTO grocery_item (name, expected_shelf_life, actual_shelf_life, image_link, category_id) VALUES ('Yoghurt', 14, 0,'https://bilder.kolonial.no/local_products/c750d06a-0aa3-4d75-928f-59246b8ec1bf.jpeg?auto=format&fit=max&w=330&s=b38f59cb178be5b274264c508427bea7', 2);
-INSERT INTO grocery_item (name, expected_shelf_life, actual_shelf_life, image_link, category_id) VALUES ('Ost', 30, 0,'https://www.lunsj.no/21389-large_default/tine-norvegia-ost.jpg', 6);
-INSERT INTO grocery_item (name, expected_shelf_life, actual_shelf_life, image_link, category_id) VALUES ('Appelsin', 21, 0,'https://www.lunsj.no/21018-large_default/okologisk-appelsin.jpg', 3);
+INSERT INTO grocery_item (name, expected_shelf_life, image_link, category_id) VALUES ('Melk', 7, 'https://www.lunsj.no/21397-large_default/tine-melk-lett.jpg', 2);
+INSERT INTO grocery_item (name, expected_shelf_life, image_link, category_id) VALUES ('Egg', 30,'https://www.lunsj.no/20130-large_default/egg-fritgaende-honer-prior.jpg', 6);
+INSERT INTO grocery_item (name, expected_shelf_life, image_link, category_id) VALUES ('Brød', 5, 'https://bilder.ngdata.no/2000254700006/meny/large.jpg', 4);
+INSERT INTO grocery_item (name, expected_shelf_life, image_link, category_id) VALUES ('Eple', 30,  'https://www.lunsj.no/22685-large_default/okologiske-epler-braebrun.jpg', 3);
+INSERT INTO grocery_item (name, expected_shelf_life, image_link, category_id) VALUES ('Banan', 7,'https://www.bamastorkjokken.no/globalassets/produktbilder-2/100/1301-32-main.jpg?width=250&height=250&quality=90&mode=Crop&anchor=Middlecenter&scale=Down&factor=1&backgroundColor=', 3);
+INSERT INTO grocery_item (name, expected_shelf_life, image_link, category_id) VALUES ('Gulrøtt', 30,'https://bilder.kolonial.no/produkter/840c1ecf-12aa-427b-909c-226568c4f5de.jpg?auto=format&fit=max&w=500&s=05bff6f537c33ab4425279c066b9b251', 3);
+INSERT INTO grocery_item (name, expected_shelf_life, image_link, category_id) VALUES ('Tomat', 7 ,'https://bilder.kolonial.no/local_products/d785a14a-c247-49a5-95a3-466060b1d498.jpg?auto=format&fit=max&w=500&s=0ed6f571960da62cb8e4cb6da68906a5', 3);
+INSERT INTO grocery_item (name ,expected_shelf_life, image_link,category_id )VALUES ('Agurk' ,7 ,'https://engrosnett.no/image/frukt-og-gronnsaker/gronnsaker/1504-agurk.png?lb=true&v=638180975011870000' ,3 );
+INSERT INTO grocery_item (name ,expected_shelf_life, image_link,category_id )VALUES ('Mais' ,365  ,'https://havaristen-i03.mycdn.no/mysimgprod/havaristen_mystore_no/images/eNnns_Green_Giant__kologisk_Mais_2x160g_1.jpg/w600h600.jpg' , 7);
+INSERT INTO grocery_item (name ,expected_shelf_life ,image_link,category_id )VALUES ('Erter' ,365  ,'https://www.lunsj.no/16638-large_default/friske-erter-eldorado.jpg' , 7);
+INSERT INTO grocery_item (name ,expected_shelf_life,image_link,category_id )VALUES ('Bønner' ,365  ,'https://www.lunsj.no/19944-large_default/salat-og-grytebonner-goeco.jpg' , 7);
+INSERT INTO grocery_item (name ,expected_shelf_life ,image_link,category_id )VALUES ('Havregryn' ,365 ,'https://www.lunsj.no/17227-large_default/okologisk-havregryn-stor-helios.jpg' , 4);
+INSERT INTO grocery_item (name ,expected_shelf_life,image_link,category_id )VALUES ('Pasta' ,730  ,'https://bilder.ngdata.no/7035620053566/kmh/large.jpg' , 4);
+INSERT INTO grocery_item (name ,expected_shelf_life,image_link,category_id )VALUES ('Ris' ,730  ,'https://bilder.ngdata.no/7311041016237/meny/large.jpg' , 4);
+INSERT INTO grocery_item (name ,expected_shelf_life,image_link,category_id )VALUES ('Laks' ,13  ,'https://bilder.ngdata.no/7033352672284/kiwi/large.jpg' , 5);
+INSERT INTO grocery_item (name ,expected_shelf_life,image_link,category_id )VALUES ('Kylling' ,14  ,'https://bilder.ngdata.no/7090013751535/meny/large.jpg' , 1);
+INSERT INTO grocery_item (name ,expected_shelf_life,image_link,category_id )VALUES ('Svinekjøtt' ,14  ,'https://bilder.kolonial.no/local_products/3e91cf78-4de8-49a8-8c63-7df8b32f32ce.png?auto=format&fit=max&w=500&s=3438af3de8c1feb97e5d26b2120fc4ac' , 1);
+INSERT INTO grocery_item (name ,expected_shelf_life,image_link,category_id )VALUES ('Storfekjøtt' ,14  ,'https://engrosnett.no/image/kjottprodukter/storfekjott/2262897-2262897.png?lb=true' , 1);
+INSERT INTO grocery_item (name, expected_shelf_life, image_link, category_id) VALUES ('Lam', 14, 'https://bilder.ngdata.no/2000769900007/meny/large.jpg', 1);
+INSERT INTO grocery_item (name, expected_shelf_life, image_link, category_id) VALUES ('Kalkun', 14,  'https://res.cloudinary.com/norgesgruppen/image/upload/v1606951149/Product/2323257700003.jpg', 1);
+INSERT INTO grocery_item (name, expected_shelf_life, image_link, category_id) VALUES ('Brokkoli', 14, 'https://engrosnett.no/image/frukt-og-gronnsaker/gronnsaker/2502-2502.jpg?lb=true&v=638181005813400000', 3);
+INSERT INTO grocery_item (name, expected_shelf_life, image_link, category_id) VALUES ('Spinat', 7, 'https://www.lunsj.no/18990-large_default/spinat-puter-eldorado.jpg', 3);
+INSERT INTO grocery_item (name, expected_shelf_life, image_link, category_id) VALUES ('Yoghurt', 14, 'https://bilder.kolonial.no/local_products/c750d06a-0aa3-4d75-928f-59246b8ec1bf.jpeg?auto=format&fit=max&w=330&s=b38f59cb178be5b274264c508427bea7', 2);
+INSERT INTO grocery_item (name, expected_shelf_life, image_link, category_id) VALUES ('Ost', 30, 'https://www.lunsj.no/21389-large_default/tine-norvegia-ost.jpg', 6);
+INSERT INTO grocery_item (name, expected_shelf_life, image_link, category_id) VALUES ('Appelsin', 21, 'https://www.lunsj.no/21018-large_default/okologisk-appelsin.jpg', 3);
 
 
 -- Add grocery items to fridges
@@ -142,17 +142,17 @@ INSERT INTO shoppinglist (name, household_id) VALUES ('Shoppinglist1', 1);
 INSERT INTO shoppinglist (name, household_id) VALUES ('Shoppinglist2', 2);
 
 -- Add last 6 grocery items to Shoppinglist1
-INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp, amount) VALUES (16, 1, CURRENT_TIMESTAMP, 250);
-INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp, amount) VALUES (17, 1, CURRENT_TIMESTAMP, 500);
-INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp ,amount) VALUES (18 ,1 ,CURRENT_TIMESTAMP ,600);
-INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp ,amount) VALUES (19 ,1 ,CURRENT_TIMESTAMP ,750);
-INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp ,amount) VALUES (20 ,1 ,CURRENT_TIMESTAMP ,100);
-INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp ,amount) VALUES (21 ,1 ,CURRENT_TIMESTAMP ,350);
+INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp, actual_shelf_life, amount) VALUES (16, 1, CURRENT_TIMESTAMP, 14, 250);
+INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp, actual_shelf_life, amount) VALUES (17, 1, CURRENT_TIMESTAMP, 14, 500);
+INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp, actual_shelf_life, amount) VALUES (18 ,1 ,CURRENT_TIMESTAMP , 14,600);
+INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp, actual_shelf_life, amount) VALUES (19 ,1 ,CURRENT_TIMESTAMP , 14,750);
+INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp, actual_shelf_life, amount) VALUES (20 ,1 ,CURRENT_TIMESTAMP , 14,100);
+INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp, actual_shelf_life, amount) VALUES (21 ,1 ,CURRENT_TIMESTAMP , 14,350);
 
 -- Add last 3 grocery items to Shoppinglist2
-INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp ,amount) VALUES (19 ,2 ,CURRENT_TIMESTAMP ,200);
-INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp ,amount) VALUES (20 ,2 ,CURRENT_TIMESTAMP ,300);
-INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp ,amount) VALUES (21 ,2 ,CURRENT_TIMESTAMP ,100);
+INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp, actual_shelf_life, amount) VALUES (19 ,2 ,CURRENT_TIMESTAMP , 14,200);
+INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp, actual_shelf_life, amount) VALUES (20 ,2 ,CURRENT_TIMESTAMP , 14,300);
+INSERT INTO grocery_item_shoppinglist (grocery_item_id, shoppinglist_id, timestamp, actual_shelf_life, amount) VALUES (21 ,2 ,CURRENT_TIMESTAMP , 14,100);
 
 -- Eggerøre
 INSERT INTO recipe_steps (recipe_id, step, step_order) VALUES (1, 'I en bolle, visp sammen egg, melk, salt og pepper.', 0);
