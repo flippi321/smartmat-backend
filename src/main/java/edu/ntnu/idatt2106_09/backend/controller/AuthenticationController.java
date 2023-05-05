@@ -4,6 +4,7 @@ import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationRequest;
 import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationResponse;
 import edu.ntnu.idatt2106_09.backend.authentication.RegistrationRequest;
 import edu.ntnu.idatt2106_09.backend.service.security.AuthenticationService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "Endpoints for user registration, authentication, and token refresh")
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
