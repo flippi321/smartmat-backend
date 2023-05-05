@@ -27,7 +27,8 @@ public class FridgeServiceImplementation implements FridgeService {
     @Autowired
     private HouseholdRepository householdRepository;
 
-    private final ModelMapper modelMapper = new ModelMapper();
+    @Autowired
+    private ModelMapper modelMapper = new ModelMapper();
 
     public FridgeServiceImplementation(FridgeRepository fridgeRepository,
                                        HouseholdServiceImplementation householdService, HouseholdRepository householdRepository) {
@@ -35,13 +36,35 @@ public class FridgeServiceImplementation implements FridgeService {
         this.householdService = householdService;
         this.householdRepository = householdRepository;
     }
+
+    /**
+     * Converts a Fridge object to a FridgeDto object using ModelMapper.
+     *
+     * @param fridge The Fridge object to be converted.
+     * @return A FridgeDto object with the same properties as the given Fridge object.
+     */
     private FridgeDto castFridgetoToDto(Fridge fridge) {
         return modelMapper.map(fridge, FridgeDto.class);
     }
 
+    /**
+     * Converts a FridgeDto object to a Fridge object using ModelMapper.
+     *
+     * @param fridgeDto The FridgeDto object to be converted.
+     * @return A Fridge object with the same properties as the given FridgeDto object.
+     */
     private Fridge castDtoToFridge(FridgeDto fridgeDto) {
         return modelMapper.map(fridgeDto, Fridge.class);
     }
+
+    /**
+     * Adds a new Fridge to the database.
+     *
+     * @param fridgeDto A FridgeDto object representing the new Fridge to be added.
+     * @return A FridgeDto object representing the new Fridge that was added to the database.
+     * @throws BadRequestException if the FridgeDto name is empty or null, if the household ID does not exist in the database,
+     * if a Fridge with the same name already exists for the household, or if the household already has a fridge.
+     */
     @Override
     public FridgeDto addFridge(FridgeDto fridgeDto) {
         if (fridgeDto.getName() == null || fridgeDto.getName().trim().isEmpty()) {
@@ -68,6 +91,14 @@ public class FridgeServiceImplementation implements FridgeService {
     }
 
 
+    /**
+     * Updates an existing Fridge in the database.
+     *
+     * @param fridgeDto A FridgeDto object representing the Fridge to be updated.
+     * @return A FridgeDto object representing the updated Fridge in the database.
+     * @throws BadRequestException if the FridgeDto ID or name is empty or null, if the Fridge does not exist in the database,
+     * if the household ID does not exist in the database, or if a Fridge with the same name already exists for the household.
+     */
     @Override
     public FridgeDto updateFridge(FridgeDto fridgeDto) {
         if (fridgeDto.getFridgeId() == null || fridgeDto.getName() == null || fridgeDto.getName().trim().isEmpty()) {
@@ -90,6 +121,14 @@ public class FridgeServiceImplementation implements FridgeService {
         FridgeDto updatedFridgeDto = castFridgetoToDto(updatedFridge);
         return updatedFridgeDto;
     }
+
+    /**
+     * Retrieves a Fridge from the database by its ID.
+     *
+     * @param fridgeId A Long representing the ID of the Fridge to retrieve.
+     * @return A FridgeDto object representing the retrieved Fridge.
+     * @throws NotFoundException if the Fridge with the given ID does not exist in the database.
+     */
     @Override
     public FridgeDto getFridgeById(Long fridgeId) {
         log.debug("Fetching Fridge by id: {}", fridgeId);
@@ -101,6 +140,12 @@ public class FridgeServiceImplementation implements FridgeService {
         return castFridgetoToDto(fridge);
     }
 
+    /**
+     * Deletes a Fridge from the database by its ID.
+     *
+     * @param fridgeId A Long representing the ID of the Fridge to delete.
+     * @throws NotFoundException if the Fridge with the given ID does not exist in the database.
+     */
     @Override
     public void deleteFridge(Long fridgeId) {
         Fridge fridge = fridgeRepository.findById(fridgeId)
