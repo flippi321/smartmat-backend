@@ -1,7 +1,9 @@
-package edu.ntnu.idatt2106_09.backend.token;
+package edu.ntnu.idatt2106_09.backend.repository;
 
 import java.util.List;
 import java.util.Optional;
+
+import edu.ntnu.idatt2106_09.backend.model.token.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

@@ -1,5 +1,9 @@
-package edu.ntnu.idatt2106_09.backend.authentication;
+package edu.ntnu.idatt2106_09.backend.controller;
 
+import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationRequest;
+import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationResponse;
+import edu.ntnu.idatt2106_09.backend.authentication.RegistrationRequest;
+import edu.ntnu.idatt2106_09.backend.service.security.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
