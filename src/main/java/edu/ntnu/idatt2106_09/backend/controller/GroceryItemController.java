@@ -16,7 +16,6 @@ import java.util.Set;
 
 @Slf4j
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @Tag(name = "Grocery Item Controller", description = "Grocery item management operations")
 @RequestMapping("/api/groceryItems")
 public class GroceryItemController {

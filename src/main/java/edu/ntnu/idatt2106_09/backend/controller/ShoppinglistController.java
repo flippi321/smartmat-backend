@@ -1,5 +1,5 @@
 package edu.ntnu.idatt2106_09.backend.controller;
-        import edu.ntnu.idatt2106_09.backend.dto.ShoppinglistDto;
+import edu.ntnu.idatt2106_09.backend.dto.ShoppinglistDto;
         import edu.ntnu.idatt2106_09.backend.service.shoppinglist.ShoppinglistService;
         import io.swagger.v3.oas.annotations.Operation;
         import io.swagger.v3.oas.annotations.media.Content;
@@ -17,7 +17,6 @@ package edu.ntnu.idatt2106_09.backend.controller;
 
 @Slf4j
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/shoppinglists")
 @Tag(name = "Shoppinglist Management", description = "Controller class to manage endpoints for managing shoppinglist objects")
 public class ShoppinglistController {

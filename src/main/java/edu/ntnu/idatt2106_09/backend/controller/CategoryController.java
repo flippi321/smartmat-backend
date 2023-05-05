@@ -19,7 +19,6 @@ import java.util.Set;
 
 @Slf4j
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/categories")
 @Tag(name = "Category Controller", description = "Category management operations")
 public class CategoryController {
