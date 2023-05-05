@@ -281,6 +281,8 @@ public class RecipeServiceImplementation implements RecipeService {
                 currentGroceryItemFridgeDTO.setPurchaseDate(gif.getPurchaseDate());
                 currentGroceryItemFridgeDTO.setFridgeDto(fridgeDTO);
                 currentGroceryItemFridgeDTO.setGroceryItem(modelMapper.map(gif.getGroceryItem(), GroceryItemDto.class));
+                currentGroceryItemFridgeDTO.setTimeStamp(gif.getTimestamp());
+
 
                 map.put(gif.getGroceryItem().getGroceryItemId(), currentGroceryItemFridgeDTO);
             }

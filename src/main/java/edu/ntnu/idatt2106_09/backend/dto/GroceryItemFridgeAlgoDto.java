@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -21,6 +22,7 @@ public class GroceryItemFridgeAlgoDto {
     private double amount;
     private LocalDate purchaseDate;
     private LocalDate expirationDate;
+    private LocalDateTime timeStamp;
 
     public GroceryItemFridgeAlgoDto(GroceryItemDto groceryItemDto, LocalDate expirationDate) {
         this.groceryItem = groceryItemDto;
