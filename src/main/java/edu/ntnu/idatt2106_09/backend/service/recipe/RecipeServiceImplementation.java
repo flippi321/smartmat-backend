@@ -259,7 +259,7 @@ public class RecipeServiceImplementation implements RecipeService {
             for (GroceryItemFridge gif : groceryItemFridge) {
 
                 // If statements is used to handle multiple of the same type of groceries
-                if(map.get(gif.getGroceryItemId()) != null) {
+                if(map.get(gif.getGroceryItemId()) == null) {
                     currentGroceryItemFridgeDTO = new GroceryItemFridgeAlgoDto();
                     currentGroceryItemFridgeDTO.setAmount(gif.getAmount());
                     currentGroceryItemFridgeDTO.setExpirationDate(gif.getExpirationDate());
