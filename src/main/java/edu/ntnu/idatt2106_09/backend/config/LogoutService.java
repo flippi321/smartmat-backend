@@ -1,5 +1,7 @@
 package edu.ntnu.idatt2106_09.backend.config;
 
+import edu.ntnu.idatt2106_09.backend.exceptionHandling.BadRequestException;
+import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.token.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,16 +30,19 @@ public class LogoutService implements LogoutHandler {
      * @param request The HttpServletRequest object containing the client request information.
      * @param response The HttpServletResponse object to send a response back to the client.
      * @param authentication The Authentication object representing the authenticated user.
+     * @throws BadRequestException if the token format in the request header is invalid.
+     * @throws NotFoundException if the token is not found in the TokenRepository.
      */
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         final String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            return;
+            throw new BadRequestException("Invalid token format in the request header.");
         }
 
         final String token = authorizationHeader.substring(7);
-        var storedToken = tokenRepository.findByToken(token).orElse(null);
+        var storedToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new NotFoundException("Token not found in the repository."));
         if (storedToken != null) {
             storedToken.setExpired(true);
             storedToken.setRevoked(true);
