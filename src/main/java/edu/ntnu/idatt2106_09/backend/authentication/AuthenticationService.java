@@ -150,6 +150,9 @@ public class AuthenticationService {
      * @param request  The registration request containing the user's information.
      * @param response The HTTP response containing the access and refresh token cookies.
      * @return An AuthenticationResponse containing the user's ID, first name, last name, and email.
+     * @throws BadRequestException if the provided email is already registered, or any of the required fields are empty
+     *                             or null.
+     * @throws InternalServerErrorException if an unexpected error occurs during registration.
      */
     public AuthenticationResponse register(RegistrationRequest request, HttpServletResponse response) {
         log.debug("[X] Attempting to register a new user with email: {}", request.getEmail());
@@ -192,8 +195,10 @@ public class AuthenticationService {
      * none of the required fields are empty or null.
      *
      * @param request The registration request containing the user's information.
+     * @throws BadRequestException if the provided email is already registered, or any of the required fields (firstname,
+     *                             lastname, email and password) are empty or null.
      */
-    private void validateRegistrationRequest(RegistrationRequest request) {
+    private void validateRegistrationRequest(RegistrationRequest request) throws IOException {
         userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
             throw new BadRequestException("The provided email is already registered.");
         });
@@ -259,6 +264,8 @@ public class AuthenticationService {
      * @param request  The authentication request containing the user's email and password.
      * @param response The HTTP response containing the access and refresh token cookies.
      * @return An AuthenticationResponse containing the user's ID, first name, last name, and email.
+     * @throws BadCredentialsException if the provided email or password is incorrect.
+     * @throws InternalServerErrorException if an unexpected error occurs during authentication.
      */
     public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response) {
         log.debug("[X] Attempting to authenticate a new user with email: {}", request.getEmail());
@@ -300,6 +307,7 @@ public class AuthenticationService {
      * empty or null.
      *
      * @param request The authentication request containing the user's email and password.
+     * @throws BadCredentialsException if any of the required fields (email and password) are empty or null.
      */
     private void validateAuthenticationRequest(AuthenticationRequest request) {
         Map<String, String> fields = Map.of(
@@ -323,7 +331,11 @@ public class AuthenticationService {
      *
      * @param request  The HTTP request, containing the refresh token in the Authorization header.
      * @param response The HTTP response, containing the updated access token as a cookie.
-     * @throws IOException If an error occurs while writing the authentication response to the output stream.
+     * @throws BadRequestException if the token format in the request header is invalid.
+     * @throws NotFoundException if the user is not found for the provided refresh token.
+     * @throws BadCredentialsException if the provided refresh token is invalid.
+     * @throws IOException if an error occurs while writing the authentication response to the output stream.
+     * @throws InternalServerErrorException if an unexpected error occurs during token refresh.
      */
     public void handleTokenRefreshRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);

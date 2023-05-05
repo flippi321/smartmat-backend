@@ -29,6 +29,7 @@ public class AppConfiguration {
      * Provides a UserDetailsService implementation that fetches a user from the database using the UserRepository.
      *
      * @return an instance of UserDetailsService.
+     * @throws UsernameNotFoundException if the requested user is not found in the database.
      */
     @Bean
     public UserDetailsService userDetailsService() {

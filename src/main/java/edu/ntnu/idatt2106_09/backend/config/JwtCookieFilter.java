@@ -39,7 +39,8 @@ public class JwtCookieFilter extends OncePerRequestFilter {
      * @throws IOException if an input or output error occurs during request processing.
      */
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         Cookie[] cookies = request.getCookies();
 
         if (cookies != null) {

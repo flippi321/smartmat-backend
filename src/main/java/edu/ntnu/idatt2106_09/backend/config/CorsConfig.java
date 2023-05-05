@@ -1,5 +1,6 @@
 package edu.ntnu.idatt2106_09.backend.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -11,9 +12,9 @@ import java.util.logging.Logger;
  * Configures Cross-Origin Resource Sharing (CORS) settings for the application.
  * This configuration allows the application to control which origins, methods, and headers are allowed in HTTP requests.
  */
+@Slf4j
 @Configuration
 public class CorsConfig {
-    private static final Logger LOGGER = Logger.getLogger(CorsConfig.class.getName());
 
     /**
      * Configures a WebMvcConfigurer bean to set up CORS mappings.
@@ -26,7 +27,7 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                LOGGER.info("Setting up CORS configuration");
+                log.info("Setting up CORS configuration");
                 registry.addMapping("/**")
                         .allowedOrigins("http://localhost:5173") // Replace with your frontend base URL
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS")
