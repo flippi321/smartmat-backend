@@ -14,7 +14,7 @@ import java.util.Set;
 public interface CategoryService {
     public ResponseEntity<Set<CategoryDto>> getAllCategories();
 
-    public ResponseEntity<CategoryDto> getCategoryById(Long categoryId);
+    public ResponseEntity<Object> getCategoryById(Long categoryId);
 
     public ResponseEntity<CategoryDto> updateCategory(Long categoryId, CategoryDto updatedCategoryDto);
 
