@@ -157,7 +157,8 @@ public class GroceryItemController {
         return groceryItemService.removeGroceryItemFromFridge(fridgeId, groceryItemDto);
     }
 
-    @DeleteMapping("/fridge/deleteMultipleItems/{fridgeId}")
+    @DeleteMapping("/fridge/removeAmountFromMultipleItems/{fridgeId}")
+    @Operation(summary = "Modifies or removes amount from items in fridge based on List given", description = "Removes or modifies amount of multiple groceryItems based on IngredientDto list.")
     public ResponseEntity<Object> removeGroceryItemFromFridgeBasedOnList(@PathVariable Long fridgeId ,
                                                                                       @RequestBody List<IngredientDTO> ingredients) {
         log.debug("[X] Call to delete a list of grocery from fridge");
