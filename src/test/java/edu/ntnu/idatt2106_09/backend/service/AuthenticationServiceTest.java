@@ -173,5 +173,4 @@ class AuthenticationServiceTest {
         verify(jwtService).generateAccessToken(user);
         verify(response).setContentType("application/json");
     }
-
 }
