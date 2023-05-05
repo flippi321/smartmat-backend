@@ -48,10 +48,10 @@ public class HouseholdController {
         "password" : "passord"
       }
         */
-    @PostMapping("/addNewUser/{householdId}")
-    public ResponseEntity<UserDto> addUserToHousehold(@PathVariable("householdId") Long householdId, @RequestBody UserDto userdto) {
+    @PostMapping("/addNewUser/{userId}/{invitationNr}")
+    public ResponseEntity<UserDto> addUserToHousehold(@PathVariable("userId") Integer userId, @PathVariable("invitationNr") Long invitationNr) {
         log.debug("[X] Call add a new user to a household");
-        return householdService.addUserToHousehold(householdId, userdto);
+        return householdService.addUserToHousehold(invitationNr, userId);
     }
 
 

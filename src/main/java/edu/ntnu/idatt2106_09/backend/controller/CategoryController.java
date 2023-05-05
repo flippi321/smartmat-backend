@@ -6,6 +6,7 @@ import edu.ntnu.idatt2106_09.backend.service.category.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,8 @@ import java.util.Set;
 @Tag(name = "Category Controller", description = "Category management operations")
 public class CategoryController {
 
-    private final CategoryService categoryService;
+    @Autowired
+    private CategoryService categoryService;
 
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
@@ -55,6 +57,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/delete/{groceryItemId}")
+    @Operation(summary = "Delete category", description = "Delete an existing category by using categoryId")
     public ResponseEntity<CategoryDto> deleteCategory(@PathVariable Long categoryId) {
         log.debug("[X] Call to delete a category item with id = {}", categoryId);
         return categoryService.deleteCategory(categoryId);
