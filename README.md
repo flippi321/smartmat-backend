@@ -2,7 +2,8 @@
 
 ## Description
 
-The purpose of the project is to make an application that makes it easier for people to throw less food away. A core functionality in the application, is generating recipes based on the groceryitems a user has in his fridge, and their expiration dates. This will allow the user to eat the food he already has, and the food that will soon expire.
+The purpose of the project is to make an application that makes it easier for people to throw less food away. A core functionality in the application, is generating recipes based on the grocery items a user has in his fridge, and their expiration dates. This will allow the user to eat the food he already has, and the food that will soon expire.
+
 Food production consumes energy and releases CO2 into the atmosphere. If people use less food, there will be less pollution. Also, the app-user will save money from the food they don’t need to buy. 
 
 
@@ -95,6 +96,28 @@ When the user is “in” his household, he can begin to administer his fridge a
 
 Images for groceryitems and groceries makes it easier for the user to navigate the application. 
 
+## Using Swagger UI for API Documentation
+
+This project uses Swagger UI API documentation to access and use Swagger UI, follow these steps:
+
+1. **Access Swagger UI:** Once the backend is up and running, open your web browser and navigate to the following URL: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html).
+
+3. **Explore API endpoints:** Swagger UI presents a list of available API endpoints, organized by tags. Click on a tag to expand it and view the related API operations. For each operation, you will see the HTTP method, endpoint URL, a brief description, and the request/response details.
+
+
+## Test users
+The database already contains some test users 
+
+Users in the Smith household (invitation_nr: 354674):
+- willsmith@gmail.com
+- johnsmith@gmail.com
+- janesmith@gmail.com
+
+Users in the Johnson household (invitation_nr: 847382)
+- robertjohnson@gmail.com
+- emilyjohnson@gmail.com
+
+All users have password: passord123
 
 ## Tests
 
@@ -111,7 +134,7 @@ npm run test:unit
 ```
 
 
-## CI/CD
+## CI
 
 Both frontend and backend has a ".gitlab-ci.yml" file.. This file controls Continous Integration for the projects. It manages the pipeline which holds the jobs for GitLab to run.
 
