@@ -37,17 +37,6 @@ public class HouseholdController {
         return householdService.getHouseholdByUserId(userId);
     }
 
-
-
-
-    /*
-    {
-        "firstname" : "test1",
-        "lastname" : "test1surname",
-        "email" : "test1@test.com",
-        "password" : "passord"
-      }
-        */
     @PostMapping("/addNewUser/{userId}/{invitationNr}")
     public ResponseEntity<UserDto> addUserToHousehold(@PathVariable("userId") Integer userId, @PathVariable("invitationNr") Long invitationNr) {
         log.debug("[X] Call add a new user to a household");
@@ -55,19 +44,6 @@ public class HouseholdController {
     }
 
 
-
-    /*
-    * {
-        "name" : "householdfor1user2",
-        "fridge" : {
-	        "name" : "fridgeforhousehold2"
-            },
-        "shoppinglist": {
-	        "name" : "shoppinglistforhousehold2"
-            }
-       }*/
-
-    //works but throws sendError() error
     @PostMapping("/create/{userId}")
     public ResponseEntity<HouseholdDtoForHouseholdService> createHousehold(@PathVariable("userId") Integer userId, @RequestBody HouseholdDtoForHouseholdService householdDto) {
         log.debug("[X] Call to create a new household");
@@ -75,43 +51,12 @@ public class HouseholdController {
     }
 
 
-
-
-    /*
-    {
-        "id": 1,
-        "email": "test3@test.com",
-        "firstname": "test3",
-        "lastname": "test3surname",
-        "password": null
-    },
-    {
-        "id": 2,
-        "email": "test43@test.com",
-        "firstname": "test4",
-        "lastname": "test4surname",
-        "password": null
-    }
-     */
     @GetMapping("/users/{householdId}")
     public Set<UserDto> getAllUsersInHousehold(@PathVariable("householdId") Long householdId) {
         log.debug("[X] Call to return all users in a household");
         return householdService.getAllUsersInHousehold(householdId);
     }
 
-
-
-    /*
-    {
-        "name" : "householdfor1user2",
-        "fridge" : {
-	        "name" : "fridgeforhousehold2"
-        },
-        "shoppinglist": {
-	        "name" : "shoppinglistforhousehold2"
-        }
-    }
-     */
     @PutMapping("/update/{householdId}")
     public ResponseEntity<HouseholdDtoForHouseholdService> updateHousehold(@PathVariable("householdId") Long householdId, @RequestBody HouseholdDtoForHouseholdService householdDto) {
         log.debug("[X] Call to update the household info");
