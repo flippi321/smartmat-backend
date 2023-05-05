@@ -254,16 +254,28 @@ public class RecipeServiceImplementation implements RecipeService {
             Set<GroceryItemFridge> groceryItemFridge = groceryItemFridgeRepository.findAllByFridgeId(fridgeId);
 
             GroceryItemFridgeAlgoDto currentGroceryItemFridgeDTO;
+            double currentAmount;
 
             for (GroceryItemFridge gif : groceryItemFridge) {
-                currentGroceryItemFridgeDTO = new GroceryItemFridgeAlgoDto();
-                currentGroceryItemFridgeDTO.setAmount(gif.getAmount());
-                currentGroceryItemFridgeDTO.setExpirationDate(gif.getExpirationDate());
-                currentGroceryItemFridgeDTO.setPurchaseDate(gif.getPurchaseDate());
-                currentGroceryItemFridgeDTO.setFridgeDto(fridgeDTO);
-                currentGroceryItemFridgeDTO.setGroceryItem(modelMapper.map(gif.getGroceryItem(), GroceryItemDto.class));
 
-                map.put(gif.getGroceryItem().getGroceryItemId(), currentGroceryItemFridgeDTO);
+                // If statements is used to handle multiple of the same type of groceries
+                if(map.get(gif.getGroceryItemId()) == null) {
+                    currentGroceryItemFridgeDTO = new GroceryItemFridgeAlgoDto();
+                    currentGroceryItemFridgeDTO.setAmount(gif.getAmount());
+                    currentGroceryItemFridgeDTO.setExpirationDate(gif.getExpirationDate());
+                    currentGroceryItemFridgeDTO.setPurchaseDate(gif.getPurchaseDate());
+                    currentGroceryItemFridgeDTO.setFridgeDto(fridgeDTO);
+                    currentGroceryItemFridgeDTO.setGroceryItem(modelMapper.map(gif.getGroceryItem(), GroceryItemDto.class));
+                    currentGroceryItemFridgeDTO.setTimeStamp(gif.getTimestamp());
+
+
+                    map.put(gif.getGroceryItem().getGroceryItemId(), currentGroceryItemFridgeDTO);
+                }
+                // If the entry already exist. Just update the amount
+                else {
+                    currentAmount = map.get(gif.getGroceryItemId()).getAmount();
+                    map.get(gif.getGroceryItemId()).getGroceryItem().setAmount(currentAmount+gif.getAmount());
+                }
             }
         } else {
             throw new NotFoundException("Fridge with id " + fridgeId + " not found");
@@ -393,6 +405,7 @@ public class RecipeServiceImplementation implements RecipeService {
      * @return A list of lists of GroceryItemRecipeDTO objects representing the filtered recipes that meet or exceed
      *         the threshold.
      */
+
     @Override
     public List<List<GroceryItemRecipeDto>> getRecipesOverThreshold (
                     Map<Long, GroceryItemFridgeAlgoDto> fridge,
