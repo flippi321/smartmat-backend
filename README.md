@@ -1,92 +1,134 @@
-# backend
-
-
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.stud.idi.ntnu.no/idatt2106-v21-09/backend.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.stud.idi.ntnu.no/idatt2106-v21-09/backend/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
+# SmartMat
 
 ## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+The purpose of the project is to make an application that makes it easier for people to throw less food away. A core functionality in the application, is generating recipes based on the groceryitems a user has in his fridge, and their expiration dates. This will allow the user to eat the food he already has, and the food that will soon expire.
+Food production consumes energy and releases CO2 into the atmosphere. If people use less food, there will be less pollution. Also, the app-user will save money from the food they don’t need to buy. 
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## Technologies
+- The Vue.js Framework 
+- MySQL - PHPMyAdmin
+- SpringBoot 
+- H2 Database Engine - In-memory database for testing
+- JWT - Authentication for REST APIs
+- Swagger - API documentation
+- Docker
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+## How to run and install the project backend
+### The technologies needed to run the program are:
+- JDK(java development kit) 17 - can be installed [here](https://www.oracle.com/java/technologies/downloads/#java17)
+- Maven(building tool) - can be installed [here](https://maven.apache.org/download.cgi)
+- Docker - can be installed [here](https://www.docker.com/products/docker-desktop/)
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### Clone the project by running this command in the terminal
+```sh
+git clone git@gitlab.stud.idi.ntnu.no:idatt2106-v21-09/backend.git
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+### Build the project
+```sh
+mvn clean install
+```
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+### Build the Docker Image
+```sh
+docker-compose up
+```
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### To stop the Docker Image
+```sh
+docker-compose down
+```
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
 
-## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+
+
+
+## How to run and install the project frontend
+### The technologies needed to run the program are:
+
+- Node.js - can be installed [here](https://nodejs.org/en/download)
+
+### To be certain you have Node.js installed, run this command:
+```sh
+- node -v
+```
+
+
+### Do the same for NPM:
+```sh
+- npm -v
+```
+
+### Use this command to install Vue:
+
+```sh
+- npm install vue
+```
+
+### After installing Vue, the frontend project can be cloned. Run this command in the terminal:
+
+```sh
+git clone git@gitlab.stud.idi.ntnu.no:idatt2106-v21-09/frontend.git
+```
+
+### To download the necessary dependencies, run this command while inside the project:
+
+
+```sh
+npm install
+```
+
+### To start the application, type this command:
+
+```sh
+npm run dev
+```
+
+## Navigating the application
+The first thing the user sees when he starts the application, is the welcome page. He can then choose to either log in, if the user already exists in the database, or register. When he registers, he can either join an existing household (if he has the invitation code), or create a new one. Either way, new users can join his household later if he chooses to invite them.
+
+When the user is “in” his household, he can begin to administer his fridge and shoppinglist. He can also choose to have recipes generated for him based on the grocery items in his fridge. He can update his personal information, and general information regarding the household. 
+
+Images for groceryitems and groceries makes it easier for the user to navigate the application. 
+
+
+## Tests
+
+The backend-project has tests that can be run in the terminal with this command:
+
+```sh
+mvn clean test
+```
+
+
+The frontend-project has tests that can be run in the terminal with this command:
+```sh
+npm run test:unit
+```
+
+
+## CI/CD
+
+Both frontend and backend has a ".gitlab-ci.yml" file.. This file controls Continous Integration for the projects. It manages the pipeline which holds the jobs for GitLab to run.
+
+The backend pipeline has these stages:
+- build
+- test
+
+
+The frontend pipeline has these stages:
+- build
+- test
+
+
+## Team Members
+- Bjørn-Johnny Bendixen
+- Håkon Hansen Bergrem
+- Teodor Birkeland
+- Christoffer Brevik
+- Arnold Sverre Hansen
+- Hadar Hayat
