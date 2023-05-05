@@ -1,3 +1,3 @@
-CREATE USER 'team9'@'%' IDENTIFIED BY 'passord';
-GRANT ALL PRIVILEGES ON smartmat.* TO 'team9'@'%';
+CREATE USER 'bjorn'@'%' IDENTIFIED BY 'passord';
+GRANT ALL PRIVILEGES ON smartmat.* TO 'bjorn'@'%';
 FLUSH PRIVILEGES;
