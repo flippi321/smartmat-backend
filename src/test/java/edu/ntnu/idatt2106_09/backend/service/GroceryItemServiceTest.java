@@ -3,9 +3,10 @@ package edu.ntnu.idatt2106_09.backend.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import edu.ntnu.idatt2106_09.backend.dto.*;
@@ -40,12 +41,19 @@ class GroceryItemServiceTest {
     private GroceryItemServiceImplementation groceryItemService;
 
     //TESTS FOR GROCERY ITEMS IN RELATION TO SHOPPINGLIST AND FRIDGE
-    /*
     @Test
     public void GroceryItemService_TransferGroceryItemsToFridge() {
         Long shoppinglistId = 1L;
         Long fridgeId = 1L;
-        Long[] groceryItemIds = {1L, 2L};
+        Set<GroceryItemDto> groceryItems = new HashSet<>();
+        GroceryItemDto item1 = new GroceryItemDto();
+        item1.setGroceryItemId(1L);
+        item1.setTimestamp(LocalDateTime.now());
+        GroceryItemDto item2 = new GroceryItemDto();
+        item2.setGroceryItemId(2L);
+        item2.setTimestamp(LocalDateTime.now());
+        groceryItems.add(item1);
+        groceryItems.add(item2);
 
         Shoppinglist shoppinglist = new Shoppinglist();
         shoppinglist.setShoppinglistId(shoppinglistId);
@@ -53,7 +61,8 @@ class GroceryItemServiceTest {
         Fridge fridge = new Fridge();
         fridge.setFridgeId(fridgeId);
 
-        for (Long groceryItemId : groceryItemIds) {
+        for (GroceryItemDto groceryItemDto : groceryItems) {
+            Long groceryItemId = groceryItemDto.getGroceryItemId();
             GroceryItem groceryItem = new GroceryItem();
             groceryItem.setGroceryItemId(groceryItemId);
             Category category = new Category();
@@ -62,18 +71,18 @@ class GroceryItemServiceTest {
             when(groceryItemRepository.findById(groceryItemId)).thenReturn(Optional.of(groceryItem));
             shoppinglist.addGroceryItem(groceryItem, 1);
         }
+
         when(shoppinglistRepository.findById(shoppinglistId)).thenReturn(Optional.of(shoppinglist));
         when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(fridge));
 
         assertThat(shoppinglist.getGroceries().size()).isEqualTo(2);
 
-        groceryItemService.transferGroceryItemsToFridge(shoppinglistId, fridgeId, groceryItemIds);
+        groceryItemService.transferGroceryItemsToFridge(shoppinglistId, fridgeId, groceryItems);
 
-        assertThat(shoppinglist.getGroceries().size()).isEqualTo(0);
-        assertThat(fridge.getGroceries().size()).isEqualTo(2);
+        verify(shoppinglistRepository, times(2)).save(any(Shoppinglist.class));
+        verify(fridgeRepository, times(2)).save(any(Fridge.class));
     }
 
-     */
 
 
     //TESTS FOR GROCERY ITEMS IN RELATION TO SHOPPINGLIST
@@ -81,7 +90,7 @@ class GroceryItemServiceTest {
     public void GroceryItemService_AddGroceryItemsToShoppinglist_ReturnGroceryItemDtos() {
         Long shoppinglistId = 1L;
         Long groceryItemId = 1L;
-        int amount = 1;
+        double amount = 1.0;
         int actualShelfLife = 3;
 
         Shoppinglist shoppinglist = new Shoppinglist();
@@ -109,7 +118,7 @@ class GroceryItemServiceTest {
     public void GroceryItemService_AddGroceryItemsToShoppinglist_ActualShelfLifeSetToExpectedShelfLife() {
         Long shoppinglistId = 1L;
         Long groceryItemId = 1L;
-        int amount = 1;
+        double amount = 1.0;
         int expectedShelfLife = 3;
 
         Shoppinglist shoppinglist = new Shoppinglist();
@@ -138,7 +147,7 @@ class GroceryItemServiceTest {
     public void GroceryItemService_AddGroceryItemsToShoppinglist_ShoppinglistNotFound() {
         Long shoppinglistId = 1L;
         Long groceryItemId = 1L;
-        int amount = 1;
+        double amount = 1.0;
         int actualShelfLife = 3;
 
         GroceryItem groceryItem = new GroceryItem();
@@ -232,64 +241,55 @@ class GroceryItemServiceTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(shoppinglist.getGroceries()).isEmpty();
-        //Needs fixing
-        //assertThat(shoppinglist.getGroceries().size()).isEqualTo(0);
     }
 
 
     @Test
-    public void GroceryItemService_RemoveGroceryItemFromShoppinglist_ReturnShoppinglistDto() {
+    public void GroceryItemService_RemoveGroceryItemsFromShoppinglist_RemovesGroceryItems() {
         Long shoppinglistId = 1L;
-        Long groceryItemId = 1L;
-
+        Long groceryItemId1 = 1L;
+        Long groceryItemId2 = 2L;
         Shoppinglist shoppinglist = new Shoppinglist();
         shoppinglist.setShoppinglistId(shoppinglistId);
-
-        GroceryItem groceryItem = new GroceryItem();
-        groceryItem.setGroceryItemId(groceryItemId);
-
-        shoppinglist.addGroceryItem(groceryItem, 1);
-
-        when(groceryItemRepository.findById(groceryItemId)).thenReturn(Optional.of(groceryItem));
-        when(shoppinglistRepository.findById(shoppinglistId)).thenReturn(Optional.of(shoppinglist));
-
-        ResponseEntity<ShoppinglistDto> response = groceryItemService.removeGroceryItemFromShoppinglist(shoppinglistId, groceryItemId);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().getGroceries().size()).isEqualTo(0);
-    }
-
-    @Test
-    public void GroceryItemService_RemoveGroceryItemsFromShoppinglist_ReturnShoppinglistDto() {
-        Long shoppinglistId = 1L;
-        Long[] groceryItemIds = {1L, 2L};
-
-        Shoppinglist shoppinglist = new Shoppinglist();
-        shoppinglist.setShoppinglistId(shoppinglistId);
-
-        List<GroceryItem> groceryItems = new ArrayList<>();
-        for (Long groceryItemId : groceryItemIds) {
-            GroceryItem groceryItem = new GroceryItem();
-            groceryItem.setGroceryItemId(groceryItemId);
-            groceryItems.add(groceryItem);
-            shoppinglist.addGroceryItem(groceryItem, 1);
-            when(groceryItemRepository.findById(groceryItemId)).thenReturn(Optional.of(groceryItem));
-        }
+        GroceryItem groceryItem1 = new GroceryItem();
+        groceryItem1.setGroceryItemId(groceryItemId1);
+        LocalDateTime timestamp = LocalDateTime.now();
+        GroceryItemShoppinglist groceryItemShoppinglist1 = new GroceryItemShoppinglist(shoppinglist, groceryItem1, 1);
+        GroceryItem groceryItem2 = new GroceryItem();
+        groceryItem2.setGroceryItemId(groceryItemId2);
+        GroceryItemShoppinglist groceryItemShoppinglist2 = new GroceryItemShoppinglist(shoppinglist, groceryItem2, 1);
+        Set<GroceryItemShoppinglist> groceries = new HashSet<>();
+        groceries.add(groceryItemShoppinglist1);
+        groceries.add(groceryItemShoppinglist2);
+        shoppinglist.setGroceries(groceries);
 
         when(shoppinglistRepository.findById(shoppinglistId)).thenReturn(Optional.of(shoppinglist));
+        when(groceryItemRepository.findById(groceryItemId1)).thenReturn(Optional.of(groceryItem1));
+        when(groceryItemRepository.findById(groceryItemId2)).thenReturn(Optional.of(groceryItem2));
 
-        ResponseEntity<ShoppinglistDto> response = groceryItemService.removeGroceryItemsFromShoppinglist(shoppinglistId, groceryItemIds);
+        Set<GroceryItemDto> groceryItemsDto = new HashSet<>();
+        GroceryItemDto groceryItemDto1 = new GroceryItemDto();
+        groceryItemDto1.setGroceryItemId(groceryItemId1);
+        groceryItemDto1.setTimestamp(timestamp);
+        groceryItemsDto.add(groceryItemDto1);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().getGroceries().size()).isEqualTo(0);
+        GroceryItemDto groceryItemDto2 = new GroceryItemDto();
+        groceryItemDto2.setGroceryItemId(groceryItemId2);
+        groceryItemDto2.setTimestamp(timestamp);
+        groceryItemsDto.add(groceryItemDto2);
+
+        groceryItemService.removeGroceryItemsFromShoppinglist(shoppinglistId, groceryItemsDto);
+
+        verify(shoppinglistRepository, times(2)).save(any(Shoppinglist.class));
     }
 
-    @Test
+
+        @Test
     public void GroceryItemService_UpdateGroceryItemInShoppinglist_ReturnUpdatedGroceryItemDto() {
         Long shoppinglistId = 1L;
         Long oldGroceryItemId = 1L;
         Long newGroceryItemId = 2L;
-        int amount = 1;
+        double amount = 1.0;
         int actualShelfLife = 3;
 
         Shoppinglist shoppinglist = new Shoppinglist();
@@ -339,7 +339,7 @@ class GroceryItemServiceTest {
     public void GroceryItemService_AddGroceryItemsToFridge_ReturnGroceryItemDtos() {
         Long fridgeId = 1L;
         Long groceryItemId = 1L;
-        int amount = 1;
+        double amount = 1.0;
         int actualShelfLife = 3;
 
         Fridge fridge = new Fridge();
@@ -368,7 +368,7 @@ class GroceryItemServiceTest {
     public void GroceryItemService_AddGroceryItemsToFridge_FridgeNotFound() {
         Long fridgeId = 1L;
         Long groceryItemId = 1L;
-        int amount = 1;
+        double amount = 1.0;
         int actualShelfLife = 3;
 
         GroceryItem groceryItem = new GroceryItem();
@@ -394,7 +394,7 @@ class GroceryItemServiceTest {
     public void GroceryItemService_AddGroceryItemsToFridge_ActualShelfLifeSetToExpectedShelfLife() {
         Long fridgeId = 1L;
         Long groceryItemId = 1L;
-        int amount = 1;
+        double amount = 1.0;
         int expectedShelfLife = 3;
 
         Fridge fridge = new Fridge();
@@ -502,10 +502,11 @@ class GroceryItemServiceTest {
         fridge.setFridgeId(fridgeId);
         GroceryItem groceryItem1 = new GroceryItem();
         groceryItem1.setGroceryItemId(groceryItemId1);
+        LocalDateTime timestamp = LocalDateTime.now();
         GroceryItemFridge groceryItemFridge1 = new GroceryItemFridge(fridge, groceryItem1, 1);
         GroceryItem groceryItem2 = new GroceryItem();
         groceryItem2.setGroceryItemId(groceryItemId2);
-        GroceryItemFridge groceryItemFridge2 = new GroceryItemFridge(fridge, groceryItem2, 2);
+        GroceryItemFridge groceryItemFridge2 = new GroceryItemFridge(fridge, groceryItem2, 1);
         Set<GroceryItemFridge> groceries = new HashSet<>();
         groceries.add(groceryItemFridge1);
         groceries.add(groceryItemFridge2);
@@ -514,40 +515,21 @@ class GroceryItemServiceTest {
         when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(fridge));
         when(groceryItemRepository.findById(groceryItemId1)).thenReturn(Optional.of(groceryItem1));
 
-        ResponseEntity<FridgeDto> response = groceryItemService.removeGroceryItemFromFridge(fridgeId, groceryItemId1);
+        GroceryItemDto groceryItemDto = new GroceryItemDto();
+        groceryItemDto.setGroceryItemId(groceryItemId1);
+        groceryItemDto.setTimestamp(timestamp);
+
+        ResponseEntity<FridgeDto> response = groceryItemService.removeGroceryItemFromFridge(fridgeId, groceryItemDto);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-    @Test
-    public void GroceryItemService_RemoveGroceryItemsFromFridge_ReturnFridgeDto() {
-        Long fridgeId = 1L;
-        Long[] groceryItemIds = {1L, 2L};
-
-        Fridge fridge = new Fridge();
-        fridge.setFridgeId(fridgeId);
-
-        List<GroceryItem> groceryItems = new ArrayList<>();
-        for (Long groceryItemId : groceryItemIds) {
-            GroceryItem groceryItem = new GroceryItem();
-            groceryItem.setGroceryItemId(groceryItemId);
-            groceryItems.add(groceryItem);
-            fridge.addGroceryItem(groceryItem, 1);
-            when(groceryItemRepository.findById(groceryItemId)).thenReturn(Optional.of(groceryItem));
-        }
-
-        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(fridge));
-
-        ResponseEntity<FridgeDto> response = groceryItemService.removeGroceryItemsFromFridge(fridgeId, groceryItemIds);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
 
     @Test
     public void GroceryItemService_UpdateGroceryItemInFridge_ReturnGroceryItemDto() {
         Long fridgeId = 1L;
         Long groceryItemId = 1L;
-        int amount = 2;
+        double amount = 2.0;
         Integer actualShelfLife = 3;
 
         GroceryItemDto groceryItemDto = new GroceryItemDto();

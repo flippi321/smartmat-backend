@@ -17,6 +17,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * The ShoppinglistServiceImplementation class is responsible for implementing the logic for managing Shoppinglists in
+ * the application. It allows for updating, adding, retrieving and deleting shoppinglists from the database.
+ */
 @Slf4j
 @Service
 public class ShoppinglistServiceImplementation implements ShoppinglistService {
@@ -33,6 +37,9 @@ public class ShoppinglistServiceImplementation implements ShoppinglistService {
     @Autowired
     private ModelMapper modelMapper;
 
+    /**
+     * Made for mocking in 'ShoppinglistServiceTest'
+     */
     public ShoppinglistServiceImplementation(ShoppinglistRepository shoppinglistRepository,
                                        HouseholdServiceImplementation householdService, HouseholdRepository householdRepository) {
         this.shoppinglistRepository = shoppinglistRepository;
@@ -40,16 +47,36 @@ public class ShoppinglistServiceImplementation implements ShoppinglistService {
         this.householdRepository = householdRepository;
     }
 
+    /**
+     * Converts a Shoppinglist entity to a ShoppinglistDto object using ModelMapper.
+     *
+     * @param shoppinglist the Shoppinglist entity to be converted to a ShoppinglistDto object
+     * @return the ShoppinglistDto object obtained from the conversion
+     */
     private ShoppinglistDto castShoppinglistToDto(Shoppinglist shoppinglist) {
         modelMapper = new ModelMapper();
         return modelMapper.map(shoppinglist, ShoppinglistDto.class);
     }
 
+    /**
+     * This method converts a ShoppinglistDto object to a Shoppinglist object using the ModelMapper library.
+     *
+     * @param shoppinglistDto the ShoppinglistDto object to be converted to a Shoppinglist object
+     * @return a Shoppinglist object with properties mapped from the input ShoppinglistDto object
+     */
     private Shoppinglist castDtoToShoppinglist(ShoppinglistDto shoppinglistDto) {
         modelMapper = new ModelMapper();
         return modelMapper.map(shoppinglistDto, Shoppinglist.class);
     }
 
+    /**
+     * Adds a new shopping list to a given household.
+     *
+     * @param shoppinglistDto a ShoppinglistDto object containing the shopping list information to be added.
+     * @return a ShoppinglistDto object containing the information of the newly created shopping list.
+     * @throws BadRequestException if the name of the shopping list is empty, the household does not exist, the shopping
+     *         list already exists for the household, or if the household already has a shopping list.
+     */
     @Override
     public ShoppinglistDto addShoppinglist(ShoppinglistDto shoppinglistDto) {
         if (shoppinglistDto.getName() == null || shoppinglistDto.getName().trim().isEmpty()) {
@@ -75,6 +102,14 @@ public class ShoppinglistServiceImplementation implements ShoppinglistService {
         return savedShoppinglistDto;
     }
 
+    /**
+     * Update a shopping list with the given ShoppinglistDto object.
+     *
+     * @param shoppinglistDto the ShoppinglistDto object to update the shopping list with
+     * @return the updated ShoppinglistDto object
+     * @throws BadRequestException if the ID or name of the shopping list is null or empty, or if the shopping list is
+     *         not found
+     */
     @Override
     public ShoppinglistDto updateShoppinglist(ShoppinglistDto shoppinglistDto) {
         if (shoppinglistDto.getShoppinglistID() == null || shoppinglistDto.getName() == null || shoppinglistDto.getName().trim().isEmpty()) {
@@ -100,22 +135,36 @@ public class ShoppinglistServiceImplementation implements ShoppinglistService {
         return updatedShoppinglistDto;
     }
 
+    /**
+     * Retrieves a ShoppinglistDto by its unique ID.
+     *
+     * @param shoppinglistId the ID of the shoppinglist to retrieve
+     * @return a ShoppinglistDto representing the shoppinglist with the given ID
+     * @throws NotFoundException if no shoppinglist is found with the given ID
+     */
     @Override
     public ShoppinglistDto getShoppinglistById(Long shoppinglistId) {
-        log.debug("Fetching Shoppinglist by id: {}", shoppinglistId);
+        log.debug("[X] Fetching Shoppinglist by id: {}", shoppinglistId);
         Shoppinglist shoppinglist = shoppinglistRepository.findById(shoppinglistId)
                 .orElseThrow(() -> {
-                    log.warn("Shoppinglist not found with id: {}", shoppinglistId);
+                    log.warn("[X] Shoppinglist not found with id: {}", shoppinglistId);
                     return new NotFoundException("Shoppinglist with id " + shoppinglistId + " not found");
                 });
         return castShoppinglistToDto(shoppinglist);
     }
 
+    /**
+     * Deletes the Shoppinglist with the given ID. If the Shoppinglist is associated with a Household, the Household's
+     * shoppinglist will be set to null and updated in the database after the Shoppinglist is deleted.
+     *
+     * @param shoppinglistId the ID of the Shoppinglist to be deleted
+     * @throws NotFoundException if no Shoppinglist with the given ID is found in the database
+     */
     @Override
     public void deleteShoppinglist(Long shoppinglistId) {
         Shoppinglist shoppinglist = shoppinglistRepository.findById(shoppinglistId)
                 .orElseThrow(() -> {
-                    log.warn("Shoppinglist not found with id: {}", shoppinglistId);
+                    log.warn("[X] Shoppinglist not found with id: {}", shoppinglistId);
                     return new NotFoundException("Shoppinglist with id " + shoppinglistId + " not found for deletion");
                 });
         Household household = shoppinglist.getHousehold();

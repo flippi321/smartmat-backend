@@ -1,7 +1,9 @@
 package edu.ntnu.idatt2106_09.backend.service;
 
+import edu.ntnu.idatt2106_09.backend.dto.FridgeDto;
 import edu.ntnu.idatt2106_09.backend.dto.HouseholdDto;
 import edu.ntnu.idatt2106_09.backend.dto.ShoppinglistDto;
+import edu.ntnu.idatt2106_09.backend.model.Fridge;
 import edu.ntnu.idatt2106_09.backend.model.Household;
 import edu.ntnu.idatt2106_09.backend.model.Shoppinglist;
 import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
@@ -45,13 +47,11 @@ public class ShoppinglistServiceTest {
     @InjectMocks
     private ShoppinglistServiceImplementation shoppinglistService;
 
-    @Mock
+    @InjectMocks
     private HouseholdServiceImplementation householdService;
-
 
     @Test
     public void addShoppinglistWithInvalidNameThrowsBadRequestExceptionTest() {
-        householdService = new HouseholdServiceImplementation(householdRepository);
         shoppinglistService = new ShoppinglistServiceImplementation(shoppinglistRepository, householdService, householdRepository);
         ShoppinglistDto shoppinglistDto = new ShoppinglistDto();
         shoppinglistDto.setName("");
@@ -65,8 +65,12 @@ public class ShoppinglistServiceTest {
 
     @Test
     void updateShoppinglistTest() {
+        MockitoAnnotations.openMocks(this);
+        HouseholdRepository householdRepository = mock(HouseholdRepository.class);
+        shoppinglistService = new ShoppinglistServiceImplementation(shoppinglistRepository, householdService, householdRepository);
         Household household = new Household();
         household.setHouseholdId(1L);
+
         Shoppinglist shoppinglist = new Shoppinglist();
         shoppinglist.setShoppinglistId(1L);
         shoppinglist.setName("Old Shoppinglist Name");
@@ -81,6 +85,7 @@ public class ShoppinglistServiceTest {
         when(shoppinglistRepository.findById(1L)).thenReturn(Optional.of(shoppinglist));
         when(householdService.getHouseholdById(1L)).thenReturn(Optional.of(household));
         when(shoppinglistRepository.save(any(Shoppinglist.class))).thenReturn(shoppinglist);
+
         ShoppinglistDto updatedShoppinglistDto = shoppinglistService.updateShoppinglist(shoppinglistDto);
 
         verify(shoppinglistRepository).findById(1L);
@@ -94,7 +99,6 @@ public class ShoppinglistServiceTest {
 
     @Test
     void getShoppinglistByIdTest() {
-        householdService = new HouseholdServiceImplementation(householdRepository);
         shoppinglistService = new ShoppinglistServiceImplementation(shoppinglistRepository, householdService, householdRepository);
 
         Shoppinglist shoppinglist = new Shoppinglist();
@@ -133,4 +137,5 @@ public class ShoppinglistServiceTest {
         assertNull(shoppinglist.getHousehold());
         assertNull(household.getHouseholdId());
     }
+
     }

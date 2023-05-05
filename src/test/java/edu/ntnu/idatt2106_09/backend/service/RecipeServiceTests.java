@@ -31,6 +31,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,7 +63,7 @@ class RecipeServiceTests {
 
         Set<GroceryItemRecipe> ingredients = new HashSet<>();
         GroceryItemRecipe gir1 = new GroceryItemRecipe();
-        gir1.setAmount(2);
+        gir1.setAmount(2.0);
         GroceryItem groceryItem1 = new GroceryItem();
         groceryItem1.setGroceryItemId(1L);
         groceryItem1.setName("Test Ingredient 1");
@@ -77,7 +78,7 @@ class RecipeServiceTests {
         ingredients.add(gir1);
 
         GroceryItemRecipe gir2 = new GroceryItemRecipe();
-        gir2.setAmount(3);
+        gir2.setAmount(3.0);
         GroceryItem groceryItem2 = new GroceryItem();
         groceryItem2.setGroceryItemId(2L);
         groceryItem2.setName("Test Ingredient 2");
@@ -106,13 +107,13 @@ class RecipeServiceTests {
 
         IngredientDTO ingredient1 = sortedIngredients.get(0);
         assertThat(ingredient1.getName()).isEqualTo("Test Ingredient 1");
-        assertThat(ingredient1.getAmount()).isEqualTo(2);
+        assertThat(ingredient1.getAmount()).isEqualTo(2.0);
         assertThat(ingredient1.getId()).isEqualTo(1L);
         assertThat(ingredient1.getUnit()).isEqualTo("Stk");
 
         IngredientDTO ingredient2 = sortedIngredients.get(1);
         assertThat(ingredient2.getName()).isEqualTo("Test Ingredient 2");
-        assertThat(ingredient2.getAmount()).isEqualTo(3);
+        assertThat(ingredient2.getAmount()).isEqualTo(3.0);
         assertThat(ingredient2.getId()).isEqualTo(2L);
         assertThat(ingredient2.getUnit()).isEqualTo("Stk");
 
@@ -143,24 +144,19 @@ class RecipeServiceTests {
         given(fridgeRepository.findById(fridgeId)).willReturn(Optional.of(fridge));
 
         Set<GroceryItemFridge> groceryItemFridge = new HashSet<>();
-        GroceryItemFridge gif1 = new GroceryItemFridge();
-        gif1.setAmount(2);
-        gif1.setExpirationDate(LocalDate.now());
-        gif1.setPurchaseDate(LocalDate.now());
         GroceryItem groceryItem1 = new GroceryItem();
         groceryItem1.setGroceryItemId(1L);
         groceryItem1.setName("Test Grocery Item 1");
-        gif1.setGroceryItem(groceryItem1);
+        GroceryItemFridge gif1 = new GroceryItemFridge(fridge, groceryItem1, 2.0);
         groceryItemFridge.add(gif1);
 
-        GroceryItemFridge gif2 = new GroceryItemFridge();
-        gif2.setAmount(3);
-        gif2.setExpirationDate(LocalDate.now());
-        gif2.setPurchaseDate(LocalDate.now());
+
+
+
         GroceryItem groceryItem2 = new GroceryItem();
         groceryItem2.setGroceryItemId(2L);
         groceryItem2.setName("Test Grocery Item 2");
-        gif2.setGroceryItem(groceryItem2);
+        GroceryItemFridge gif2 = new GroceryItemFridge(fridge, groceryItem2, 3.0);
         groceryItemFridge.add(gif2);
 
         given(groceryItemFridgeRepository.findAllByFridgeId(fridgeId)).willReturn(groceryItemFridge);
@@ -172,14 +168,14 @@ class RecipeServiceTests {
         assertThat(result.size()).isEqualTo(2);
 
         GroceryItemFridgeAlgoDto groceryItemFridgeDTO1 = result.get(1L);
-        assertThat(groceryItemFridgeDTO1.getAmount()).isEqualTo(2);
+        assertThat(groceryItemFridgeDTO1.getAmount()).isEqualTo(2.0);
         assertThat(groceryItemFridgeDTO1.getExpirationDate()).isEqualTo(LocalDate.now());
         assertThat(groceryItemFridgeDTO1.getPurchaseDate()).isEqualTo(LocalDate.now());
         assertThat(groceryItemFridgeDTO1.getFridgeDto().getFridgeId()).isEqualTo(fridgeId);
         assertThat(groceryItemFridgeDTO1.getGroceryItem().getName()).isEqualTo("Test Grocery Item 1");
 
         GroceryItemFridgeAlgoDto groceryItemFridgeDTO2 = result.get(2L);
-        assertThat(groceryItemFridgeDTO2.getAmount()).isEqualTo(3);
+        assertThat(groceryItemFridgeDTO2.getAmount()).isEqualTo(3.0);
         assertThat(groceryItemFridgeDTO2.getExpirationDate()).isEqualTo(LocalDate.now());
         assertThat(groceryItemFridgeDTO2.getPurchaseDate()).isEqualTo(LocalDate.now());
         assertThat(groceryItemFridgeDTO2.getFridgeDto().getFridgeId()).isEqualTo(fridgeId);
@@ -207,7 +203,7 @@ class RecipeServiceTests {
         groceryItem1.setName("Grocery Item 1");
 
         GroceryItemRecipe gir1 = new GroceryItemRecipe(recipe1, groceryItem1);
-        gir1.setAmount(2);
+        gir1.setAmount(2.0);
 
         Set<GroceryItemRecipe> girSet1 = new HashSet<>();
         girSet1.add(gir1);
@@ -226,7 +222,7 @@ class RecipeServiceTests {
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(1, result.get(0).size());
-        assertEquals(2, result.get(0).get(0).getAmount());
+        assertEquals(2.0, result.get(0).get(0).getAmount());
     }
 
 
@@ -272,8 +268,8 @@ class RecipeServiceTests {
 
         // Setup
         Map<Long, GroceryItemFridgeAlgoDto> fridge = new HashMap<>();
-        GroceryItemFridgeAlgoDto item1 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(1L, "Milk"), 1, LocalDate.now(), LocalDate.now().plusDays(7));
-        GroceryItemFridgeAlgoDto item2 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(2L, "Eggs"), 3, LocalDate.now(), LocalDate.now().plusDays(14));
+        GroceryItemFridgeAlgoDto item1 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(1L, "Milk"), 1, LocalDate.now(), LocalDate.now().plusDays(7), null);
+        GroceryItemFridgeAlgoDto item2 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(2L, "Eggs"), 3, LocalDate.now(), LocalDate.now().plusDays(14), null);
         fridge.put(1L, item1);
         fridge.put(2L, item2);
 
@@ -332,8 +328,8 @@ class RecipeServiceTests {
     public void testGetWeightListOfRecipeList() {
         // Setup
         Map<Long, GroceryItemFridgeAlgoDto> fridge = new HashMap<>();
-        GroceryItemFridgeAlgoDto item1 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(1L, "Milk"), 1, LocalDate.now(), LocalDate.now().plusDays(7));
-        GroceryItemFridgeAlgoDto item2 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(2L, "Eggs"), 3, LocalDate.now(), LocalDate.now().plusDays(14));
+        GroceryItemFridgeAlgoDto item1 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(1L, "Milk"), 1, LocalDate.now(), LocalDate.now().plusDays(7), null);
+        GroceryItemFridgeAlgoDto item2 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(2L, "Eggs"), 3, LocalDate.now(), LocalDate.now().plusDays(14), null);
         fridge.put(1L, item1);
         fridge.put(2L, item2);
 

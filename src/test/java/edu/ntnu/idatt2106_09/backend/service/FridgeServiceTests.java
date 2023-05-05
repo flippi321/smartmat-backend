@@ -14,6 +14,7 @@ import edu.ntnu.idatt2106_09.backend.service.household.HouseholdServiceImplement
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -29,11 +30,15 @@ import static org.mockito.Mockito.*;
 public class FridgeServiceTests {
 
     @Mock
-    private FridgeRepository fridgeRepository;
+    private HouseholdRepository householdRepository;
 
     @Mock
+    private FridgeRepository fridgeRepository;
+
+    @InjectMocks
     private HouseholdServiceImplementation householdService;
 
+    @InjectMocks
     private FridgeServiceImplementation fridgeService;
 
 
@@ -46,7 +51,6 @@ public class FridgeServiceTests {
     public void addFridgeWithInvalidNameThrowsBadRequestExceptionTest() {
         MockitoAnnotations.openMocks(this);
         HouseholdRepository householdRepository = mock(HouseholdRepository.class);
-        householdService = new HouseholdServiceImplementation(householdRepository);
         fridgeService = new FridgeServiceImplementation(fridgeRepository, householdService, householdRepository);
         // Given
         FridgeDto fridgeDto = new FridgeDto();
@@ -64,39 +68,30 @@ public class FridgeServiceTests {
     void updateFridgeTest() {
         MockitoAnnotations.openMocks(this);
         HouseholdRepository householdRepository = mock(HouseholdRepository.class);
-        householdService = new HouseholdServiceImplementation(householdRepository);
         fridgeService = new FridgeServiceImplementation(fridgeRepository, householdService, householdRepository);
-        // Create a Household object
         Household household = new Household();
         household.setHouseholdId(1L);
 
-        // Create a Fridge object
         Fridge fridge = new Fridge();
         fridge.setFridgeId(1L);
         fridge.setName("Old Fridge Name");
         fridge.setHousehold(household);
 
-        // Create a FridgeDto object
         FridgeDto fridgeDto = new FridgeDto();
         fridgeDto.setFridgeId(1L);
         fridgeDto.setName("New Fridge Name");
         fridgeDto.setHousehold(new HouseholdDto());
         fridgeDto.getHousehold().setHouseholdId(1L);
 
-
-        // Mock the repository methods
         when(fridgeRepository.findById(1L)).thenReturn(Optional.of(fridge));
         when(householdService.getHouseholdById(1L)).thenReturn(Optional.of(household));
         when(fridgeRepository.save(any(Fridge.class))).thenReturn(fridge);
 
-        // Call the service method
         FridgeDto updatedFridgeDto = fridgeService.updateFridge(fridgeDto);
 
-        // Verify that the repository methods were called
         verify(fridgeRepository).findById(1L);
         verify(fridgeRepository).save(any(Fridge.class));
 
-        // Verify that the returned FridgeDto has the expected values
         assertEquals(fridgeDto.getFridgeId(), updatedFridgeDto.getFridgeId());
         assertEquals(fridgeDto.getName(), updatedFridgeDto.getName());
         assertEquals(fridgeDto.getHousehold().getHouseholdId(), updatedFridgeDto.getHousehold().getHouseholdId());
@@ -106,7 +101,6 @@ public class FridgeServiceTests {
     void getFridgeByIdTest() {
         MockitoAnnotations.openMocks(this);
         HouseholdRepository householdRepository = mock(HouseholdRepository.class);
-        householdService = new HouseholdServiceImplementation(householdRepository);
         fridgeService = new FridgeServiceImplementation(fridgeRepository, householdService, householdRepository);
         // Create a Fridge object
         Fridge fridge = new Fridge();
@@ -152,7 +146,8 @@ public class FridgeServiceTests {
         assertEquals(savedFridgeDto.getName(), fridgeDto.getName());
         assertEquals(savedFridgeDto.getHousehold().getHouseholdId(), fridgeDto.getHousehold().getHouseholdId());
     }
-*/
+
+     */
 
 
 }

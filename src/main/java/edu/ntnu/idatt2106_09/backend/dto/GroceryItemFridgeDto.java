@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroceryItemFridgeDto extends GroceryItemDto {
-    private int amount;
+    private double amount;
     private long days_since_purchase;
     private long days_until_spoilt;
 }
