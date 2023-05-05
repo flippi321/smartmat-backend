@@ -78,38 +78,6 @@ public class AuthenticationService {
     }
 
     /**
-     * Sets access and refresh token cookies in the HTTP response using the provided access and refresh tokens.
-     * Configures the cookies' attributes, such as HttpOnly, Secure, SameSite, and expiration times.
-     *
-     * @param response     The HTTP response to set the cookies on.
-     * @param accessToken  The access token to set as a cookie.
-     * @param refreshToken The refresh token to set as a cookie.
-     */
-    /**
-     private void setAccessTokenAndRefreshTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
-     // Create cookies for the access token and refresh token
-     Cookie accessTokenCookie = new Cookie("access_token", accessToken);
-     Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken);
-
-     // Set HttpOnly, Secure, and SameSite attributes for both cookies
-     accessTokenCookie.setHttpOnly(true);
-     accessTokenCookie.setSecure(false); // Set this to true only for HTTPS connections
-     accessTokenCookie.setPath("/");
-     refreshTokenCookie.setHttpOnly(true);
-     refreshTokenCookie.setSecure(false); // Set this to true only for HTTPS connections
-     refreshTokenCookie.setPath("/");
-
-     // Set the expiration times for the cookies using JwtService values
-     accessTokenCookie.setMaxAge((int) (jwtService.getAccessTokenExpiration() / 1000));
-     refreshTokenCookie.setMaxAge((int) (jwtService.getRefreshTokenExpiration() / 1000));
-
-     // Add the cookies to the HttpServletResponse
-     response.addCookie(accessTokenCookie);
-     response.addCookie(refreshTokenCookie);
-     }
-     */
-
-    /**
      * Registers a new user by validating the provided registration details and saving the user in the system. The
      * method generates an access token and a refresh token for successful registration. If the registration is successful,
      * a new {@link AuthenticationResponse} object is returned to the client, containing the user's information, access
@@ -157,55 +125,6 @@ public class AuthenticationService {
             throw new InternalServerErrorException("An unexpected error occurred during registration.");
         }
     }
-
-    /**
-     * Registers a new user, saves the user's access token to the repository, and sets access and refresh token cookies
-     * in the HTTP response. Validates the registration request before processing.
-     *
-     * @param request  The registration request containing the user's information.
-     * @param response The HTTP response containing the access and refresh token cookies.
-     * @return An AuthenticationResponse containing the user's ID, first name, last name, and email.
-     * @throws BadRequestException if the provided email is already registered, or any of the required fields are empty
-     *                             or null.
-     * @throws InternalServerErrorException if an unexpected error occurs during registration.
-     */
-    /**
-     public AuthenticationResponse register(RegistrationRequest request, HttpServletResponse response) {
-     log.debug("[X] Attempting to register a new user with email: {}", request.getEmail());
-     try {
-     validateRegistrationRequest(request);
-
-     var user = User.builder()
-     .firstname(request.getFirstname())
-     .lastname(request.getLastname())
-     .email(request.getEmail())
-     .password(passwordEncoder.encode(request.getPassword()))
-     .role(Role.USER)
-     .build();
-     var savedUser = userRepository.save(user);
-     log.info("[X] User registered successfully: {}", savedUser);
-
-     var generatedAccessToken = jwtService.generateAccessToken(user);
-     var generatedRefreshToken = jwtService.generateRefreshToken(user);
-     saveUserTokenToRepository(savedUser, generatedAccessToken);
-
-     setAccessTokenAndRefreshTokenCookies(response, generatedAccessToken, generatedRefreshToken);
-
-     return AuthenticationResponse.builder()
-     .id(savedUser.getId())
-     .firstname(savedUser.getFirstname())
-     .lastname(savedUser.getLastname())
-     .email(savedUser.getEmail())
-     .build();
-     } catch (BadRequestException e) {
-     log.warn("[X] User registration failed: {} - {}", request.getEmail(), e.getMessage());
-     throw e;
-     } catch (Exception e) {
-     log.error("[X] Unexpected error during user registration: {} - {}", request.getEmail(), e.getMessage(), e);
-     throw new InternalServerErrorException("An unexpected error occurred during registration.");
-     }
-     }
-     */
 
     /**
      * Validates the registration request by checking if the provided email is already registered and ensuring that
@@ -282,53 +201,6 @@ public class AuthenticationService {
             throw new InternalServerErrorException("An unexpected error occurred during authentication.");
         }
     }
-
-    /**
-     * Authenticates a user, revokes all their previous tokens, saves the new access token to the repository, and sets
-     * access and refresh token cookies in the HTTP response. Validates the authentication request before processing.
-     *
-     * @param request  The authentication request containing the user's email and password.
-     * @param response The HTTP response containing the access and refresh token cookies.
-     * @return An AuthenticationResponse containing the user's ID, first name, last name, and email.
-     * @throws BadCredentialsException if the provided email or password is incorrect.
-     * @throws InternalServerErrorException if an unexpected error occurs during authentication.
-     */
-    /**
-     public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response) {
-     log.debug("[X] Attempting to authenticate a new user with email: {}", request.getEmail());
-     try {
-     validateAuthenticationRequest(request);
-
-     authenticationManager.authenticate(
-     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-     );
-
-     var user = userRepository.findByEmail(request.getEmail())
-     .orElseThrow(() -> new UsernameNotFoundException("The user was not found"));
-     log.info("[X] User registered successfully: {}", user);
-
-     var generatedAccessToken = jwtService.generateAccessToken(user);
-     var generatedRefreshToken = jwtService.generateRefreshToken(user);
-     revokeAllTokensForUser(user);
-     saveUserTokenToRepository(user, generatedAccessToken);
-
-     setAccessTokenAndRefreshTokenCookies(response, generatedAccessToken, generatedRefreshToken);
-
-     return AuthenticationResponse.builder()
-     .id(user.getId())
-     .firstname(user.getFirstname())
-     .lastname(user.getLastname())
-     .email(user.getEmail())
-     .build();
-     } catch (BadCredentialsException e) {
-     log.warn("[X] Failed to authenticate user with email: {} - Invalid credentials", request.getEmail());
-     throw e;
-     } catch (Exception e) {
-     log.error("[X] Unexpected error during authentication for user with email: {}", request.getEmail(), e);
-     throw new InternalServerErrorException("An unexpected error occurred during authentication.");
-     }
-     }
-     */
 
     /**
      * Validates the authentication request by ensuring that none of the required fields (email and password) are
@@ -413,65 +285,4 @@ public class AuthenticationService {
             throw new InternalServerErrorException("An unexpected error occurred during token refresh.");
         }
     }
-
-    /**
-     * Handles a token refresh request by validating the provided refresh token and generating a new access token.
-     * Updates the access token cookie in the HTTP response.
-     *
-     * @param request  The HTTP request, containing the refresh token in the Authorization header.
-     * @param response The HTTP response, containing the updated access token as a cookie.
-     * @throws BadRequestException if the token format in the request header is invalid.
-     * @throws NotFoundException if the user is not found for the provided refresh token.
-     * @throws BadCredentialsException if the provided refresh token is invalid.
-     * @throws IOException if an error occurs while writing the authentication response to the output stream.
-     * @throws InternalServerErrorException if an unexpected error occurs during token refresh.
-     */
-    /**
-     public void handleTokenRefreshRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
-     final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-     throw new BadRequestException("Invalid token format in the request header.");
-     }
-
-     final String refreshToken = authorizationHeader.substring(7);
-     final String userEmail = jwtService.extractUsername(refreshToken);
-
-     if (userEmail == null) {
-     throw new NotFoundException("User not found for the provided refresh token.");
-     }
-
-     var user = this.userRepository.findByEmail(userEmail)
-     .orElseThrow(() -> new UsernameNotFoundException("The user was not found"));
-
-     try {
-     if (!jwtService.isTokenValid(refreshToken, user)) {
-     throw new BadCredentialsException("Invalid refresh token.");
-     }
-
-     var generatedAccessToken = jwtService.generateAccessToken(user);
-     revokeAllTokensForUser(user);
-     saveUserTokenToRepository(user, generatedAccessToken);
-
-     setAccessTokenAndRefreshTokenCookies(response, generatedAccessToken, refreshToken);
-
-     var authenticationResponse = AuthenticationResponse.builder()
-     .id(user.getId())
-     .firstname(user.getFirstname())
-     .lastname(user.getLastname())
-     .email(user.getEmail())
-     .build();
-     response.setContentType("application/json");
-     new ObjectMapper().writeValue(response.getOutputStream(), authenticationResponse);
-
-     log.info("[X] Token refresh successful for email: {}", userEmail);
-     } catch (BadCredentialsException e) {
-     log.warn("[X] Failed to refresh token for user with email: {} - Invalid refresh token", userEmail);
-     throw e;
-     } catch (Exception e) {
-     log.error("[X] Unexpected error during token refresh for user with email: {}", userEmail, e);
-     throw new InternalServerErrorException("An unexpected error occurred during token refresh.");
-     }
-     }
-     */
-
 }
