@@ -5,6 +5,11 @@ import lombok.*;
 
 import java.util.Set;
 
+/**
+ * Represents a category of grocery items in the application.
+ * Each grocery item belongs to a category, which provides useful information such as the type of item and the unit of
+ * measurement.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -13,6 +18,7 @@ import java.util.Set;
 @Entity
 @Table(name = "category")
 public class Category {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")

@@ -14,6 +14,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * This class is an implementation of the FridgeService interface, providing methods for managing fridges in the system.
+ * It handles the business logic for operations related to fridges, including adding, updating, retrieving, and deleting
+ * fridges. It uses the FridgeRepository and HouseholdRepository to interact with the database and apply the necessary
+ * changes.
+ */
 @Slf4j
 @Service
 public class FridgeServiceImplementation implements FridgeService {
@@ -38,7 +44,9 @@ public class FridgeServiceImplementation implements FridgeService {
     }
 
     /**
-     * Converts a Fridge object to a FridgeDto object using ModelMapper.
+     * Converts a Fridge object to a FridgeDto object using ModelMapper. This method
+     * simplifies the process of converting between the domain model and the data
+     * transfer object.
      *
      * @param fridge The Fridge object to be converted.
      * @return A FridgeDto object with the same properties as the given Fridge object.
@@ -48,7 +56,9 @@ public class FridgeServiceImplementation implements FridgeService {
     }
 
     /**
-     * Converts a FridgeDto object to a Fridge object using ModelMapper.
+     * Converts a FridgeDto object to a Fridge object using ModelMapper. This method
+     * simplifies the process of converting between the data transfer object and the
+     * domain model.
      *
      * @param fridgeDto The FridgeDto object to be converted.
      * @return A Fridge object with the same properties as the given FridgeDto object.
@@ -58,12 +68,13 @@ public class FridgeServiceImplementation implements FridgeService {
     }
 
     /**
-     * Adds a new Fridge to the database.
+     * Adds a new Fridge to the database. This method validates the input FridgeDto, converts it to a Fridge object,
+     * associates it with the specified household, and persists it to the database.
      *
      * @param fridgeDto A FridgeDto object representing the new Fridge to be added.
      * @return A FridgeDto object representing the new Fridge that was added to the database.
      * @throws BadRequestException if the FridgeDto name is empty or null, if the household ID does not exist in the database,
-     * if a Fridge with the same name already exists for the household, or if the household already has a fridge.
+     *         if a Fridge with the same name already exists for the household, or if the household already has a fridge.
      */
     @Override
     public FridgeDto addFridge(FridgeDto fridgeDto) {
@@ -92,12 +103,14 @@ public class FridgeServiceImplementation implements FridgeService {
 
 
     /**
-     * Updates an existing Fridge in the database.
+     * Updates an existing Fridge in the database. This method validates the input FridgeDto, retrieves the existing
+     * Fridge from the database, updates its properties, and saves the changes back to the database.
      *
      * @param fridgeDto A FridgeDto object representing the Fridge to be updated.
      * @return A FridgeDto object representing the updated Fridge in the database.
-     * @throws BadRequestException if the FridgeDto ID or name is empty or null, if the Fridge does not exist in the database,
-     * if the household ID does not exist in the database, or if a Fridge with the same name already exists for the household.
+     * @throws BadRequestException if the FridgeDto ID or name is empty or null, if the Fridge does not exist in the
+     *         database, if the household ID does not exist in the database, or if a Fridge with the same name already
+     *         exists for the household.
      */
     @Override
     public FridgeDto updateFridge(FridgeDto fridgeDto) {
