@@ -1,3 +1,4 @@
+
 package edu.ntnu.idatt2106_09.backend.service.groceryItem;
 
 import edu.ntnu.idatt2106_09.backend.dto.*;
@@ -25,6 +26,11 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+
+/**
+ The GroceryItemServiceImpl class is responsible for implementing the logic for managing Grocery Items in the application.
+ It manages the removal, updating, retrieving and adding of groceryitems in shoppinglists, fridges and recipes.
+ */
 
 @Slf4j
 @Service
@@ -341,6 +347,12 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         }
     }
 
+    /**
+     @param shoppinglistId the ID of the shopping list to update the grocery item in
+     @param groceryItemDto a DTO representing the updated grocery item
+     @return a ResponseEntity containing the updated grocery item as a DTO and an HTTP status code indicating the outcome of the operation
+     @throws NotFoundException if either the grocery item or the shopping list is not found
+     */
     @Override
     public ResponseEntity<GroceryItemDto> updateGroceryItemInShoppinglist(Long shoppinglistId, GroceryItemDto groceryItemDto) {
         Long groceryItemId = groceryItemDto.getGroceryItemId();
@@ -572,6 +584,13 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         }
     }
 
+    /**
+     Updates a grocery item in the fridge with the given  fridgeId and GroceryItemDto .
+     @param fridgeId the ID of the fridge to update the grocery item in
+     @param groceryItemDto the DTO containing the updated grocery item information
+     @return a ResponseEntity with the updated  GroceryItemDto and HTTP status OK, or HTTP status NOT_FOUND if
+     either the grocery item or fridge could not be found
+     */
     @Override
     public ResponseEntity<GroceryItemDto> updateGroceryItemInFridge(Long fridgeId, GroceryItemDto groceryItemDto) {
         Long groceryItemId = groceryItemDto.getGroceryItemId();
@@ -611,6 +630,11 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         }
     }
 
+    /**
+     Returns a ResponseEntity with a Set of all GroceryItemDto objects in the database.
+     @return ResponseEntity with a Set of all GroceryItemDto objects.
+     If there are no grocery items in the database, returns a ResponseEntity with HttpStatus.NO_CONTENT.
+     */
     @Override
     public ResponseEntity<Set<GroceryItemDto>> getAllGroceryItems() {
         log.debug("[X] Fetching all Grocery Items");
@@ -629,6 +653,12 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         return new ResponseEntity<>(groceryItemToBeReturned, HttpStatus.OK);
     }
 
+    /**
+     Retrieves a GroceryItem by its ID.
+     @param groceryItemId the ID of the GroceryItem to retrieve.
+     @return a ResponseEntity containing the retrieved GroceryItemDto and HTTP status code 200 OK if successful,
+     or HTTP status code 404 NOT FOUND if the GroceryItem with the specified ID cannot be found.
+     */
     @Override
     public ResponseEntity<GroceryItemDto> getGroceryItemById(Long groceryItemId) {
         log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
