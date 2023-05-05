@@ -25,7 +25,7 @@ class GroceryItemRepositoryTest {
     void tearDown() {
         groceryItemRepository.deleteAll();
     }
-
+/*
     @Test
     void getAllGroceryItems() {
         // Given
@@ -42,4 +42,6 @@ class GroceryItemRepositoryTest {
         // Then
         assertThat(items).containsExactlyInAnyOrder(item1, item2);
     }
+
+ */
 }

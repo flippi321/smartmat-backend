@@ -1,7 +1,9 @@
 package edu.ntnu.idatt2106_09.backend.service;
 
+import edu.ntnu.idatt2106_09.backend.dto.FridgeDto;
 import edu.ntnu.idatt2106_09.backend.dto.HouseholdDto;
 import edu.ntnu.idatt2106_09.backend.dto.ShoppinglistDto;
+import edu.ntnu.idatt2106_09.backend.model.Fridge;
 import edu.ntnu.idatt2106_09.backend.model.Household;
 import edu.ntnu.idatt2106_09.backend.model.Shoppinglist;
 import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
@@ -17,54 +19,161 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
+import edu.ntnu.idatt2106_09.backend.exceptionHandling.BadRequestException;
+
+import edu.ntnu.idatt2106_09.backend.repository.HouseholdRepository;
+import edu.ntnu.idatt2106_09.backend.service.household.HouseholdServiceImplementation;
+import org.mockito.MockitoAnnotations;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ShoppinglistServiceTest {
 
     @Mock
-    private GroceryItemRepository groceryItemRepository;
-
-    @Mock
-    private FridgeRepository fridgeRepository;
-
-    @Mock
     private ShoppinglistRepository shoppinglistRepository;
+
+    @Mock
+    private HouseholdRepository householdRepository;
 
 
     @InjectMocks
     private ShoppinglistServiceImplementation shoppinglistService;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    @InjectMocks
+    private HouseholdServiceImplementation householdService;
 
+    @Test
+    public void addShoppinglistWithInvalidNameThrowsBadRequestExceptionTest() {
+        shoppinglistService = new ShoppinglistServiceImplementation(shoppinglistRepository, householdService, householdRepository);
+        ShoppinglistDto shoppinglistDto = new ShoppinglistDto();
+        shoppinglistDto.setName("");
+        shoppinglistDto.setHousehold(new HouseholdDto());
+        lenient().when(householdService.getHouseholdById(anyLong())).thenReturn(Optional.of(new Household()));
+
+        assertThatThrownBy(() -> shoppinglistService.addShoppinglist(shoppinglistDto))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("Shoppinglist name cannot be empty");
+    }
 
     /*@Test
-    public void ShoppinglistService_AddShoppinglist() {
-        Long householdId = 1L;
-        String shoppinglistName = "Test Shoppinglist";
-
+    void updateShoppinglistTest() {
         Household household = new Household();
-        household.setHouseholdId(householdId);
-        HouseholdDto householdDto =  modelMapper.map(household, HouseholdDto.class);
+        household.setHouseholdId(1L);
+        Shoppinglist shoppinglist = new Shoppinglist();
+        shoppinglist.setShoppinglistId(1L);
+        shoppinglist.setName("Old Shoppinglist Name");
+        shoppinglist.setHousehold(household);
 
         ShoppinglistDto shoppinglistDto = new ShoppinglistDto();
-        shoppinglistDto.setName(shoppinglistName);
-        shoppinglistDto.setHousehold(householdDto);
+        shoppinglistDto.setShoppinglistID(1L);
+        shoppinglistDto.setName("New Shoppinglist Name");
+        shoppinglistDto.setHousehold(new HouseholdDto());
+        shoppinglistDto.getHousehold().setHouseholdId(1L);
 
-        when(householdService.getHouseholdById(householdId)).thenReturn(Optional.of(household));
-        when(shoppinglistRepository.findByNameAndHouseholdId(shoppinglistName, householdId)).thenReturn(null);
-        when(shoppinglistRepository.findByHouseholdId(householdId)).thenReturn(new ArrayList<>());
+        when(shoppinglistRepository.findById(1L)).thenReturn(Optional.of(shoppinglist));
+        when(householdService.getHouseholdById(1L)).thenReturn(Optional.of(household));
+        when(shoppinglistRepository.save(any(Shoppinglist.class))).thenReturn(shoppinglist);
+        ShoppinglistDto updatedShoppinglistDto = shoppinglistService.updateShoppinglist(shoppinglistDto);
 
-        ShoppinglistDto savedShoppinglistDto = shoppinglistService.addShoppinglist(shoppinglistDto);
+        verify(shoppinglistRepository).findById(1L);
+        verify(shoppinglistRepository).save(any(Shoppinglist.class));
 
-        assertThat(savedShoppinglistDto).isNotNull();
-        assertThat(savedShoppinglistDto.getName()).isEqualTo(shoppinglistName);
-    }*/
+        assertEquals(shoppinglistDto.getShoppinglistID(), updatedShoppinglistDto.getShoppinglistID());
+        assertEquals(shoppinglistDto.getName(), updatedShoppinglistDto.getName());
+        assertEquals(shoppinglistDto.getHousehold().getHouseholdId(), updatedShoppinglistDto.getHousehold().getHouseholdId());
+    }
 
-}
+
+    @Test
+    void updateFridgeTest() {
+        MockitoAnnotations.openMocks(this);
+        HouseholdRepository householdRepository = mock(HouseholdRepository.class);
+        shoppinglistService = new ShoppinglistServiceImplementation(shoppinglistRepository, householdService, householdRepository);
+        // Create a Household object
+        Household household = new Household();
+        household.setHouseholdId(1L);
+
+        // Create a Fridge object
+        Fridge fridge = new Fridge();
+        fridge.setFridgeId(1L);
+        fridge.setName("Old Fridge Name");
+        fridge.setHousehold(household);
+
+        // Create a FridgeDto object
+        FridgeDto fridgeDto = new FridgeDto();
+        fridgeDto.setFridgeId(1L);
+        fridgeDto.setName("New Fridge Name");
+        fridgeDto.setHousehold(new HouseholdDto());
+        fridgeDto.getHousehold().setHouseholdId(1L);
+
+
+        // Mock the repository methods
+        when(shoppinglistRepository.findById(1L)).thenReturn(Optional.of(fridge));
+        when(householdService.getHouseholdById(1L)).thenReturn(Optional.of(household));
+        when(shoppinglistRepository.save(any(Fridge.class))).thenReturn(fridge);
+
+        // Call the service method
+        FridgeDto updatedFridgeDto = shoppinglistService.updateFridge(fridgeDto);
+
+        // Verify that the repository methods were called
+        verify(shoppinglistRepository).findById(1L);
+        verify(shoppinglistRepository).save(any(Fridge.class));
+
+        // Verify that the returned FridgeDto has the expected values
+        assertEquals(fridgeDto.getFridgeId(), updatedFridgeDto.getFridgeId());
+        assertEquals(fridgeDto.getName(), updatedFridgeDto.getName());
+        assertEquals(fridgeDto.getHousehold().getHouseholdId(), updatedFridgeDto.getHousehold().getHouseholdId());
+    }
+
+     */
+
+    @Test
+    void getShoppinglistByIdTest() {
+        shoppinglistService = new ShoppinglistServiceImplementation(shoppinglistRepository, householdService, householdRepository);
+
+        Shoppinglist shoppinglist = new Shoppinglist();
+        shoppinglist.setShoppinglistId(1L);
+        shoppinglist.setName("Test Shoppinglist");
+
+        when(shoppinglistRepository.findById(1L)).thenReturn(Optional.of(shoppinglist));
+
+        ShoppinglistDto fetchedShoppinglistDto = shoppinglistService.getShoppinglistById(1L);
+
+        verify(shoppinglistRepository).findById(1L);
+        assertEquals(shoppinglist.getShoppinglistId(), fetchedShoppinglistDto.getShoppinglistID());
+        assertEquals(shoppinglist.getName(), fetchedShoppinglistDto.getName());
+    }
+
+    @Test
+    void deleteShoppinglistTest() {
+        Long shoppinglistId = 1L;
+        Household household = new Household();
+        household.setHouseholdId(1L);
+
+        Shoppinglist shoppinglist = new Shoppinglist();
+        shoppinglist.setShoppinglistId(shoppinglistId);
+        shoppinglist.setHousehold(household);
+
+        when(shoppinglistRepository.findById(shoppinglistId)).thenReturn(Optional.of(shoppinglist));
+        doNothing().when(shoppinglistRepository).delete(any(Shoppinglist.class));
+        when(householdRepository.save(any(Household.class))).thenReturn(household);
+
+        shoppinglistService.deleteShoppinglist(shoppinglistId);
+
+        verify(shoppinglistRepository).findById(shoppinglistId);
+        verify(shoppinglistRepository).delete(any(Shoppinglist.class));
+        verify(householdRepository).save(any(Household.class));
+
+        assertNull(shoppinglist.getHousehold());
+        assertNull(household.getHouseholdId());
+    }
+
+    }

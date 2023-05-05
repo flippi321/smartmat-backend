@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Set;
 
 @Repository
-public interface GroceryItemFridgeRepository extends JpaRepository<GroceryItem, Long> {
+public interface GroceryItemFridgeRepository extends JpaRepository<GroceryItemFridge, Long> {
     @Query("SELECT g FROM GroceryItemFridge g WHERE g.fridge.fridgeId = :fridgeId")
     Set<GroceryItemFridge> findAllByFridgeId(Long fridgeId);
 }

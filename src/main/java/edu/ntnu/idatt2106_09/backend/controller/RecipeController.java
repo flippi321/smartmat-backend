@@ -6,7 +6,7 @@ import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeDTO;
 import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeResponseDTO;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.Recipe;
-import edu.ntnu.idatt2106_09.backend.service.RecipeService;
+import edu.ntnu.idatt2106_09.backend.service.recipe.RecipeServiceImplementation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -31,7 +32,7 @@ import java.util.Set;
 public class RecipeController {
 
     @Autowired
-    private RecipeService recipeService;
+    private RecipeServiceImplementation recipeServiceImplementation;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -45,7 +46,7 @@ public class RecipeController {
     @ApiResponse(responseCode = "500", description = "Internal server error")
     public ResponseEntity<Object> addRecipe(@RequestBody RecipeDTO recipeDTO) {
         log.debug("Adding a new Recipe named: {} ", recipeDTO.getName());
-        return recipeService.addRecipe(recipeDTO);
+        return recipeServiceImplementation.addRecipe(recipeDTO);
     }
 
 
@@ -53,7 +54,7 @@ public class RecipeController {
     @Operation(summary = "Get a simplified recipe by ID", description = "Get a simplified recipe with the specified ID")
     public ResponseEntity<RecipeDTO> getSimplifiedRecipeById(@PathVariable Long recipeId) {
         log.debug("Fetching recipe with id: {}", recipeId);
-        Recipe recipe = recipeService.getRecipeById(recipeId)
+        Recipe recipe = recipeServiceImplementation.getRecipeById(recipeId)
                 .orElseThrow(() -> new NotFoundException("recipe with id " + recipeId + " not found"));
         log.debug("Recipe with id {} found", recipeId);
         RecipeDTO recipeDTO = modelMapper.map(recipe, RecipeDTO.class);
@@ -66,7 +67,8 @@ public class RecipeController {
     @ApiResponse(responseCode = "400", description = "Invalid input provided")
     @ApiResponse(responseCode = "404", description = "Recipe not found")
     public ResponseEntity<Object> getRecipeById(@PathVariable Long recipeId) {
-        return recipeService.getRecipeAndAllIngredients(recipeId);
+        log.debug("Fetching recipe with id: {}", recipeId);
+        return recipeServiceImplementation.getRecipeAndAllIngredients(recipeId);
     }
 
     @GetMapping
@@ -74,7 +76,7 @@ public class RecipeController {
     @Operation(summary = "Get all recipes", description = "Get all recipes stored in the database")
     public ResponseEntity<Set<RecipeDTO>> getAllRecipes() {
         log.debug("Retrieving all recipes");
-        return recipeService.getAllRecipe();
+        return recipeServiceImplementation.getAllRecipe();
     }
 
 
@@ -83,20 +85,22 @@ public class RecipeController {
     @ApiResponse(responseCode = "400", description = "Invalid input provided")
     @ApiResponse(responseCode = "404", description = "Recipe not found")
     @Operation(summary = "Delete a recipe by ID", description = "Delete a recipe with the specified ID from the database")
-    public ResponseEntity<Object> deleteRecipe(@PathVariable Long recipeId) {
-        log.debug("Deleting Recipe with id:" + recipeId);
-        return recipeService.deleteRecipe(recipeId);
+    public ResponseEntity<Void> deleteRecipe(@PathVariable Long recipeId) {
+        recipeServiceImplementation.deleteRecipe(recipeId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping("/recommender/{fridgeId}")
-    @Operation(summary = "Get a recommended recipe", description = "Receive a Recipe based on the contents of the fridge")
-    public ResponseEntity<List<RecipeResponseDTO>> getRecipeRecommendedList(@PathVariable Long fridgeId) {
+    @GetMapping("/recommender/{fridgeId}/{portions}")
+    @Operation(summary = "Get a list of recommended recipes", description = "Get a list of recommended recipes based on the contents of a fridge")
+    public ResponseEntity<List<RecipeResponseDTO>> getRecipeRecommendedList(@PathVariable Long fridgeId, @PathVariable int portions) {
         // Retrieve the List<List<GroceryItemRecipeDTO>> based on the fridgeId (implement this in your service layer)
-        List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeService.getRecommendedRecipes(fridgeId);
+        List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeServiceImplementation.getRecommendedRecipes(fridgeId, portions);
         // Convert the list of GroceryItemRecipeDTO to the desired format
-        List<RecipeResponseDTO> response = recipeService.convertToRecipeResponseDTOList(listOfGroceryItemRecipeLists);
+        List<RecipeResponseDTO> response = recipeServiceImplementation.convertToRecipeResponseDTO(listOfGroceryItemRecipeLists);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    @GetMapping("/weekRecommender/{fridgeId}/{portions}")
+    public ResponseEntity<Object> getRecommendedWeekMenuList(@PathVariable Long fridgeId, @PathVariable int portions) {
     @GetMapping("/weekRecommender/{fridgeId}")
     @Operation(summary = "Get a list of recommended recipes", description = "Get a list of recommended recipes based on the contents of a fridge")
     @ApiResponse(responseCode = "200", description = "OK")
@@ -104,9 +108,8 @@ public class RecipeController {
     @ApiResponse(responseCode = "404", description = "Fridge not found")
     public ResponseEntity<Object> getRecommendedWeekMenuList(@PathVariable Long fridgeId) {
         try{
-            List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeService.retrieveRecommendedWeekMenu(fridgeId);
-            List<RecipeResponseDTO> response = recipeService.convertToRecipeResponseDTOList(listOfGroceryItemRecipeLists);
-
+            List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeServiceImplementation.retrieveRecommendedWeekMenu(fridgeId, portions);
+            List<RecipeResponseDTO> response = recipeServiceImplementation.convertToRecipeResponseDTO(listOfGroceryItemRecipeLists);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
         catch (NotFoundException e){
@@ -114,6 +117,8 @@ public class RecipeController {
         }
     }
 
+    @GetMapping("/missingIngredients/{fridgeId}/{recipeId}/{portions}")
+    public ResponseEntity<Object> getMissingIngredients(@PathVariable Long fridgeId, @PathVariable Long recipeId,@PathVariable int portions) {
     @GetMapping("/missingIngredients/{fridgeId}/{recipeId}")
     @Operation(summary = "Get missing ingredients of a recipe", description = "Returns two items in list. One represents the missing ingredients, while the other is the original recipe")    @ApiResponse(responseCode = "200", description = "Fridge updated successfully", content = @Content(schema = @Schema(implementation = FridgeDto.class)))
     @ApiResponse(responseCode = "200", description = "OK")
@@ -121,7 +126,7 @@ public class RecipeController {
     @ApiResponse(responseCode = "404", description = "Fridge or Recipe not found")
     public ResponseEntity<Object> getMissingIngredients(@PathVariable Long fridgeId, @PathVariable Long recipeId) {
         try{
-            List<RecipeResponseDTO> responseDto = recipeService.getMissingIngredientsAndOriginalRecipe(fridgeId,recipeId);
+            List<RecipeResponseDTO> responseDto = recipeServiceImplementation.getMissingIngredientsAndOriginalRecipe(fridgeId,recipeId, portions);
             return new ResponseEntity<>(responseDto,HttpStatus.OK);
         }
         catch (NotFoundException e){

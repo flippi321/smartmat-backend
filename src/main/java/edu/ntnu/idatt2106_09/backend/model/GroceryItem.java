@@ -37,37 +37,15 @@ public class GroceryItem {
     @JoinColumn(name = "category_id")
     private Category category;
 
-
-    /**
-    @OneToMany(
-            mappedBy = "groceryItem",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
-    private Set<GroceryItemFridge> fridges = new HashSet<>();
-    */
-
-    /**
-    public void addFridge(Fridge fridge) {
-        GroceryItemFridge groceryItemFridge = new GroceryItemFridge(fridge,this);
-        fridges.add(groceryItemFridge);
-        fridge.getGroceries().add(groceryItemFridge);
+    public GroceryItem(long groceryItemId, String name) {
+        this.groceryItemId = groceryItemId;
+        this.name = name;
     }
-     */
 
-    /**
-    public void removeFridge(Fridge fridge) {
-        for (Iterator<GroceryItemFridge> iterator = fridges.iterator();
-             iterator.hasNext(); ) {
-            GroceryItemFridge groceryItemFridge = iterator.next();
-
-            if (groceryItemFridge.getGroceryItem().equals(this) &&
-                    groceryItemFridge.getFridge().equals(fridge)) {
-                iterator.remove();
-                groceryItemFridge.getFridge().getGroceries().remove(groceryItemFridge);
-                groceryItemFridge.setGroceryItem(null);
-                groceryItemFridge.setFridge(null);
-            }
-        }
+    public GroceryItem(long groceryItemId, String name, int actualShelfLife) {
+        this.groceryItemId = groceryItemId;
+        this.name = name;
+        this.actualShelfLife = actualShelfLife;
     }
-     */
+
 }

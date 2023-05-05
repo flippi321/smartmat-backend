@@ -1,5 +1,8 @@
 package edu.ntnu.idatt2106_09.backend.model;
 
+import edu.ntnu.idatt2106_09.backend.dto.FridgeDtoWithoutHousehold;
+import edu.ntnu.idatt2106_09.backend.dto.ShoppinglistDto;
+import edu.ntnu.idatt2106_09.backend.dto.UserDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +23,12 @@ public class Household {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "invitationNr", unique = true)
+    private Long invitationNr;
+
     @OneToOne(mappedBy = "household", cascade = CascadeType.ALL, orphanRemoval = true)
     private Fridge fridge;
+
+    @OneToOne(mappedBy = "household", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Shoppinglist shoppinglist;
 }

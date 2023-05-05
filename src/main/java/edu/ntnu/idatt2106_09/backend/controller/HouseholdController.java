@@ -1,33 +1,121 @@
 package edu.ntnu.idatt2106_09.backend.controller;
 
-import edu.ntnu.idatt2106_09.backend.dto.CategoryDto;
+import edu.ntnu.idatt2106_09.backend.dto.HouseholdDto;
+import edu.ntnu.idatt2106_09.backend.dto.HouseholdDtoForHouseholdService;
+import edu.ntnu.idatt2106_09.backend.dto.UserDto;
+import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.Household;
-import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemService;
 import edu.ntnu.idatt2106_09.backend.service.household.HouseholdService;
-import edu.ntnu.idatt2106_09.backend.service.household.HouseholdServiceImplementation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
-@Controller
-@CrossOrigin(origins = "http://localhost:5173")
-@RequestMapping("/api/households")
+@RestController
+@RequestMapping("/api/household")
 public class HouseholdController {
 
-    @Autowired
-    private HouseholdService householdService;
+    private final HouseholdService householdService;
+
+    public HouseholdController(HouseholdService householdService) {
+        this.householdService = householdService;
+    }
 
     @GetMapping("/{householdId}")
-    public Optional<Household> getHouseholdById(@PathVariable Long householdId) {
+    public Optional<HouseholdDtoForHouseholdService> getHouseholdById(@PathVariable("householdId") Long householdId) {
         log.debug("[X] Call to return a household by id");
-        return householdService.getHouseholdById(householdId);
+        return householdService.getHouseholdByIdAsDto(householdId);
     }
+
+    @GetMapping("/byUser/{userId}")
+    public ResponseEntity<HouseholdDtoForHouseholdService> getHouseholdByUserId(@PathVariable("userId") Integer userId) {
+        log.debug("[X] Call to return a household by a users id");
+        return householdService.getHouseholdByUserId(userId);
+    }
+
+
+
+
+    /*
+    {
+        "firstname" : "test1",
+        "lastname" : "test1surname",
+        "email" : "test1@test.com",
+        "password" : "passord"
+      }
+        */
+    @PostMapping("/addNewUser/{userId}/{invitationNr}")
+    public ResponseEntity<UserDto> addUserToHousehold(@PathVariable("userId") Integer userId, @PathVariable("invitationNr") Long invitationNr) {
+        log.debug("[X] Call add a new user to a household");
+        return householdService.addUserToHousehold(invitationNr, userId);
+    }
+
+
+
+    /*
+    * {
+        "name" : "householdfor1user2",
+        "fridge" : {
+	        "name" : "fridgeforhousehold2"
+            },
+        "shoppinglist": {
+	        "name" : "shoppinglistforhousehold2"
+            }
+       }*/
+
+    //works but throws sendError() error
+    @PostMapping("/create/{userId}")
+    public ResponseEntity<HouseholdDtoForHouseholdService> createHousehold(@PathVariable("userId") Integer userId, @RequestBody HouseholdDtoForHouseholdService householdDto) {
+        log.debug("[X] Call to create a new household");
+        return householdService.createHousehold(userId, householdDto);
+    }
+
+
+
+
+    /*
+    {
+        "id": 1,
+        "email": "test3@test.com",
+        "firstname": "test3",
+        "lastname": "test3surname",
+        "password": null
+    },
+    {
+        "id": 2,
+        "email": "test43@test.com",
+        "firstname": "test4",
+        "lastname": "test4surname",
+        "password": null
+    }
+     */
+    @GetMapping("/users/{householdId}")
+    public Set<UserDto> getAllUsersInHousehold(@PathVariable("householdId") Long householdId) {
+        log.debug("[X] Call to return all users in a household");
+        return householdService.getAllUsersInHousehold(householdId);
+    }
+
+
+
+    /*
+    {
+        "name" : "householdfor1user2",
+        "fridge" : {
+	        "name" : "fridgeforhousehold2"
+        },
+        "shoppinglist": {
+	        "name" : "shoppinglistforhousehold2"
+        }
+    }
+     */
+    @PutMapping("/update/{householdId}")
+    public ResponseEntity<HouseholdDtoForHouseholdService> updateHousehold(@PathVariable("householdId") Long householdId, @RequestBody HouseholdDtoForHouseholdService householdDto) {
+        log.debug("[X] Call to update the household info");
+        return householdService.updateHousehold(householdId, householdDto);
+    }
+
 }

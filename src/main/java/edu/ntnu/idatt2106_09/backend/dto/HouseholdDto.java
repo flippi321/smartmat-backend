@@ -11,4 +11,5 @@ public class HouseholdDto {
 
     private Long householdId;
     private String name;
+
 }

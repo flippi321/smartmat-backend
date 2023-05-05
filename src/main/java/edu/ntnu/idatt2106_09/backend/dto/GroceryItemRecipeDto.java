@@ -11,5 +11,11 @@ import lombok.*;
 public class GroceryItemRecipeDto {
     private RecipeDTO recipe;
     private GroceryItemDto groceryItem;
-    private int amount;
+    private double amount;
+
+
+    public GroceryItemRecipeDto(GroceryItemDto groceryItemDto, int amount) {
+        this.groceryItem = groceryItemDto;
+        this.amount = amount;
+    }
 }
