@@ -12,6 +12,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+/**
+ * Represents a fridge in the application associated with a specific household.
+ * A fridge contains a collection of grocery items and their corresponding details, such as quantity, purchase date,
+ * and expiration date. It also provides methods for adding, removing, and updating grocery items within the fridge.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -43,11 +48,25 @@ public class Fridge {
             fetch = FetchType.EAGER)
     private Set<GroceryItemFridge> groceries = new HashSet<>();
 
+    /**
+     * Adds a grocery item to the fridge along with the specified amount.
+     * This method creates a new GroceryItemFridge object to associate the item with the fridge.
+     *
+     * @param groceryItem The grocery item to be added to the fridge.
+     * @param amount The quantity of the grocery item to be added.
+     */
     public void addGroceryItem(GroceryItem groceryItem, double amount) {
         GroceryItemFridge groceryItemFridge = new GroceryItemFridge(this, groceryItem, amount);
         groceries.add(groceryItemFridge);
     }
 
+    /**
+     * Removes a grocery item from the fridge based on the provided timestamp.
+     * This method iterates through the groceries list and removes the specified item with the given timestamp.
+     *
+     * @param groceryItem The grocery item to be removed from the fridge.
+     * @param timestamp The timestamp of the grocery item to be removed.
+     */
     public void removeGroceryItem(GroceryItem groceryItem, LocalDateTime timestamp) {
         for (Iterator<GroceryItemFridge> iterator = groceries.iterator();
              iterator.hasNext(); ) {
@@ -63,6 +82,15 @@ public class Fridge {
         }
     }
 
+    /**
+     * Updates the grocery item's amount, actual shelf life, and expiration date in the fridge based on the provided timestamp.
+     *
+     * @param groceryItem The grocery item to be updated.
+     * @param amount The new amount for the grocery item.
+     * @param actualShelfLife The updated actual shelf life of the grocery item.
+     * @param negative A boolean value to indicate if the shelf life should be decreased (true) or increased (false).
+     * @param timestamp The timestamp of the grocery item to be updated.
+     */
     public void updateGroceryItem(GroceryItem groceryItem, double amount, int actualShelfLife, boolean negative, LocalDateTime timestamp) {
         for (GroceryItemFridge groceryItemFridge : groceries) {
             if (groceryItemFridge.getFridge().equals(this) &&
