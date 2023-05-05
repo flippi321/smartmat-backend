@@ -311,6 +311,7 @@ public class HouseholdServiceImplementation implements HouseholdService {
      */
     @Override
     public ResponseEntity<HouseholdDtoForHouseholdService> updateHousehold(Long householdId, HouseholdDtoForHouseholdService householdDto) {
+        modelMapper = new ModelMapper();
         Optional<Household> householdOptional = householdRepository.findById(householdId);
         if (householdOptional.isPresent()) {
             Household household = householdOptional.get();
