@@ -63,7 +63,7 @@ public class CategoryServiceImplementation implements CategoryService {
      *         If the category is found, the HTTP status is set to OK.
      * @throws NotFoundException if the category with the given ID is not found.
      */
-    public ResponseEntity<Object> getCategoryById(Long categoryId) {
+    public ResponseEntity<CategoryDto> getCategoryById(Long categoryId) {
         log.debug("Fetching Category with id: {}", categoryId);
         try {
             Category category = categoryRepository.findById(categoryId)
@@ -74,7 +74,7 @@ public class CategoryServiceImplementation implements CategoryService {
             return new ResponseEntity<>(categoryDto, HttpStatus.OK);
         }
         catch (NotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
