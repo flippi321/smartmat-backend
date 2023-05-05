@@ -101,7 +101,6 @@ public class FridgeServiceImplementation implements FridgeService {
         return savedFridgeDto;
     }
 
-
     /**
      * Updates an existing Fridge in the database. This method validates the input FridgeDto, retrieves the existing
      * Fridge from the database, updates its properties, and saves the changes back to the database.
@@ -144,10 +143,10 @@ public class FridgeServiceImplementation implements FridgeService {
      */
     @Override
     public FridgeDto getFridgeById(Long fridgeId) {
-        log.debug("Fetching Fridge by id: {}", fridgeId);
+        log.debug("[X] Fetching Fridge by id: {}", fridgeId);
         Fridge fridge = fridgeRepository.findById(fridgeId)
                 .orElseThrow(() -> {
-                        log.warn("Fridge not found with id: {}", fridgeId);
+                        log.warn("[X] Fridge not found with id: {}", fridgeId);
                         return new NotFoundException("Fridge with id " + fridgeId + " not found");
                 });
         return castFridgetoToDto(fridge);
@@ -163,7 +162,7 @@ public class FridgeServiceImplementation implements FridgeService {
     public void deleteFridge(Long fridgeId) {
         Fridge fridge = fridgeRepository.findById(fridgeId)
                 .orElseThrow(() -> {
-                    log.warn("Fridge not found with id: {}", fridgeId);
+                    log.warn("[X] Fridge not found with id: {}", fridgeId);
                     return new NotFoundException("Fridge with id " + fridgeId + " not found for deletion");
                 });
         Household household = fridge.getHousehold();
