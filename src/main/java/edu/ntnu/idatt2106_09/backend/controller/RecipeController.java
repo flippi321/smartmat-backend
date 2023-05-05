@@ -1,6 +1,5 @@
 package edu.ntnu.idatt2106_09.backend.controller;
 
-
 import edu.ntnu.idatt2106_09.backend.dto.FridgeDto;
 import edu.ntnu.idatt2106_09.backend.dto.GroceryItemRecipeDto;
 import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeDTO;
@@ -23,11 +22,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
 @Slf4j
 @Tag(name = "Recipe Controller", description = "Recipe management operations")
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/recipes")
 
 public class RecipeController {
