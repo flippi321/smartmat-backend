@@ -10,7 +10,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ShoppinglistTest {
-
     private Shoppinglist shoppinglist;
 
     @BeforeEach
@@ -22,8 +21,9 @@ public class ShoppinglistTest {
     public void testAddGroceryItem() {
         GroceryItem groceryItem = new GroceryItem();
         double amount = 1;
+        int actualShelfLife = 5;
 
-        shoppinglist.addGroceryItem(groceryItem, amount);
+        shoppinglist.addGroceryItem(groceryItem, amount, actualShelfLife);
 
         assertThat(shoppinglist.getGroceries()).hasSize(1);
         assertThat(shoppinglist.getGroceries().iterator().next().getGroceryItem()).isEqualTo(groceryItem);
@@ -35,10 +35,13 @@ public class ShoppinglistTest {
         Shoppinglist shoppinglist = new Shoppinglist();
         GroceryItem groceryItem = new GroceryItem();
         double amount = 1;
-        shoppinglist.addGroceryItem(groceryItem, amount);
+        int actualShelfLife = 5;
+
+        shoppinglist.addGroceryItem(groceryItem, amount, actualShelfLife);
         assertEquals(1, shoppinglist.getGroceries().size());
         LocalDateTime timestamp = shoppinglist.getGroceries().iterator().next().getTimestamp();
         shoppinglist.removeGroceryItem(groceryItem, timestamp);
         assertEquals(0, shoppinglist.getGroceries().size());
     }
+
 }

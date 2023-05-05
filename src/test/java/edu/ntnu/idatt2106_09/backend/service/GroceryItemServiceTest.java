@@ -6,12 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
 import edu.ntnu.idatt2106_09.backend.dto.*;
 import edu.ntnu.idatt2106_09.backend.model.*;
 import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
+import edu.ntnu.idatt2106_09.backend.repository.GroceryItemFridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRepository;
 import edu.ntnu.idatt2106_09.backend.repository.ShoppinglistRepository;
 import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemServiceImplementation;
@@ -36,53 +38,12 @@ class GroceryItemServiceTest {
     @Mock
     private ShoppinglistRepository shoppinglistRepository;
 
+    @Mock
+    private GroceryItemFridgeRepository groceryItemFridgeRepository;
+
 
     @InjectMocks
     private GroceryItemServiceImplementation groceryItemService;
-
-    //TESTS FOR GROCERY ITEMS IN RELATION TO SHOPPINGLIST AND FRIDGE
-    @Test
-    public void GroceryItemService_TransferGroceryItemsToFridge() {
-        Long shoppinglistId = 1L;
-        Long fridgeId = 1L;
-        Set<GroceryItemDto> groceryItems = new HashSet<>();
-        GroceryItemDto item1 = new GroceryItemDto();
-        item1.setGroceryItemId(1L);
-        item1.setTimestamp(LocalDateTime.now());
-        GroceryItemDto item2 = new GroceryItemDto();
-        item2.setGroceryItemId(2L);
-        item2.setTimestamp(LocalDateTime.now());
-        groceryItems.add(item1);
-        groceryItems.add(item2);
-
-        Shoppinglist shoppinglist = new Shoppinglist();
-        shoppinglist.setShoppinglistId(shoppinglistId);
-
-        Fridge fridge = new Fridge();
-        fridge.setFridgeId(fridgeId);
-
-        for (GroceryItemDto groceryItemDto : groceryItems) {
-            Long groceryItemId = groceryItemDto.getGroceryItemId();
-            GroceryItem groceryItem = new GroceryItem();
-            groceryItem.setGroceryItemId(groceryItemId);
-            Category category = new Category();
-            category.setName("Matvare");
-            groceryItem.setCategory(category);
-            when(groceryItemRepository.findById(groceryItemId)).thenReturn(Optional.of(groceryItem));
-            shoppinglist.addGroceryItem(groceryItem, 1);
-        }
-
-        when(shoppinglistRepository.findById(shoppinglistId)).thenReturn(Optional.of(shoppinglist));
-        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(fridge));
-
-        assertThat(shoppinglist.getGroceries().size()).isEqualTo(2);
-
-        groceryItemService.transferGroceryItemsToFridge(shoppinglistId, fridgeId, groceryItems);
-
-        verify(shoppinglistRepository, times(2)).save(any(Shoppinglist.class));
-        verify(fridgeRepository, times(2)).save(any(Fridge.class));
-    }
-
 
 
     //TESTS FOR GROCERY ITEMS IN RELATION TO SHOPPINGLIST
@@ -114,34 +75,6 @@ class GroceryItemServiceTest {
         assertThat(response.getBody().size()).isEqualTo(1);
     }
 
-    @Test
-    public void GroceryItemService_AddGroceryItemsToShoppinglist_ActualShelfLifeSetToExpectedShelfLife() {
-        Long shoppinglistId = 1L;
-        Long groceryItemId = 1L;
-        double amount = 1.0;
-        int expectedShelfLife = 3;
-
-        Shoppinglist shoppinglist = new Shoppinglist();
-        shoppinglist.setShoppinglistId(shoppinglistId);
-
-        GroceryItem groceryItem = new GroceryItem();
-        groceryItem.setGroceryItemId(groceryItemId);
-        groceryItem.setExpectedShelfLife(expectedShelfLife);
-
-        Set<GroceryItemDto> groceryItems = new HashSet<>();
-        GroceryItemDto groceryItemDto = new GroceryItemDto();
-        groceryItemDto.setGroceryItemId(groceryItemId);
-        groceryItemDto.setAmount(amount);
-        groceryItems.add(groceryItemDto);
-
-        when(groceryItemRepository.findById(groceryItemId)).thenReturn(Optional.of(groceryItem));
-        when(shoppinglistRepository.findById(shoppinglistId)).thenReturn(Optional.of(shoppinglist));
-
-        ResponseEntity<Set<GroceryItemDto>> response = groceryItemService.addGroceryItemsToShoppinglist(shoppinglistId, groceryItems);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().iterator().next().getActualShelfLife()).isEqualTo(expectedShelfLife);
-    }
 
     @Test
     public void GroceryItemService_AddGroceryItemsToShoppinglist_ShoppinglistNotFound() {
@@ -175,10 +108,10 @@ class GroceryItemServiceTest {
         shoppinglist.setShoppinglistId(shoppinglistId);
         GroceryItem groceryItem1 = new GroceryItem();
         groceryItem1.setGroceryItemId(1L);
-        GroceryItemShoppinglist groceryItemShoppinglist1 = new GroceryItemShoppinglist(shoppinglist, groceryItem1, 1);
+        GroceryItemShoppinglist groceryItemShoppinglist1 = new GroceryItemShoppinglist(shoppinglist, groceryItem1, 1, 1);
         GroceryItem groceryItem2 = new GroceryItem();
         groceryItem2.setGroceryItemId(2L);
-        GroceryItemShoppinglist groceryItemShoppinglist2 = new GroceryItemShoppinglist(shoppinglist, groceryItem2, 2);
+        GroceryItemShoppinglist groceryItemShoppinglist2 = new GroceryItemShoppinglist(shoppinglist, groceryItem2, 2, 1);
         Set<GroceryItemShoppinglist> groceries = new HashSet<>();
         groceries.add(groceryItemShoppinglist1);
         groceries.add(groceryItemShoppinglist2);
@@ -204,10 +137,9 @@ class GroceryItemServiceTest {
         groceryItem.setGroceryItemId(groceryItemId);
         groceryItem.setName("Test");
         groceryItem.setExpectedShelfLife(7);
-        groceryItem.setActualShelfLife(7);
         groceryItem.setImageLink("test");
 
-        shoppinglist.addGroceryItem(groceryItem, 1);
+        shoppinglist.addGroceryItem(groceryItem, 1, 1);
 
         when(shoppinglistRepository.findById(shoppinglistId)).thenReturn(Optional.of(shoppinglist));
 
@@ -217,7 +149,6 @@ class GroceryItemServiceTest {
         assertThat(response.getBody().getGroceryItemId()).isEqualTo(groceryItemId);
         assertThat(response.getBody().getName()).isEqualTo("Test");
         assertThat(response.getBody().getExpectedShelfLife()).isEqualTo(7);
-        assertThat(response.getBody().getActualShelfLife()).isEqualTo(7);
         assertThat(response.getBody().getImageLink()).isEqualTo("test");
         assertThat(response.getBody().getAmount()).isEqualTo(1);
     }
@@ -232,7 +163,7 @@ class GroceryItemServiceTest {
         for (int i = 1; i <= 2; i++) {
             GroceryItem groceryItem = new GroceryItem();
             groceryItem.setGroceryItemId((long) i);
-            shoppinglist.addGroceryItem(groceryItem, 1);
+            shoppinglist.addGroceryItem(groceryItem, 1, 1);
         }
 
         when(shoppinglistRepository.findById(shoppinglistId)).thenReturn(Optional.of(shoppinglist));
@@ -254,10 +185,10 @@ class GroceryItemServiceTest {
         GroceryItem groceryItem1 = new GroceryItem();
         groceryItem1.setGroceryItemId(groceryItemId1);
         LocalDateTime timestamp = LocalDateTime.now();
-        GroceryItemShoppinglist groceryItemShoppinglist1 = new GroceryItemShoppinglist(shoppinglist, groceryItem1, 1);
+        GroceryItemShoppinglist groceryItemShoppinglist1 = new GroceryItemShoppinglist(shoppinglist, groceryItem1, 1, 1);
         GroceryItem groceryItem2 = new GroceryItem();
         groceryItem2.setGroceryItemId(groceryItemId2);
-        GroceryItemShoppinglist groceryItemShoppinglist2 = new GroceryItemShoppinglist(shoppinglist, groceryItem2, 1);
+        GroceryItemShoppinglist groceryItemShoppinglist2 = new GroceryItemShoppinglist(shoppinglist, groceryItem2, 1, 1);
         Set<GroceryItemShoppinglist> groceries = new HashSet<>();
         groceries.add(groceryItemShoppinglist1);
         groceries.add(groceryItemShoppinglist2);
@@ -308,14 +239,12 @@ class GroceryItemServiceTest {
         GroceryItemDto oldGroceryItemDto = new GroceryItemDto();
         oldGroceryItemDto.setGroceryItemId(oldGroceryItem.getGroceryItemId());
         oldGroceryItemDto.setName(oldGroceryItem.getName());
-        oldGroceryItemDto.setActualShelfLife(oldGroceryItem.getActualShelfLife());
         oldGroceryItemDto.setExpectedShelfLife(oldGroceryItem.getExpectedShelfLife());
         oldGroceryItemDto.setCategory(oldGroceryItem.getCategory());
 
         GroceryItemDto newGroceryItemDto = new GroceryItemDto();
         newGroceryItemDto.setGroceryItemId(newGroceryItem.getGroceryItemId());
         newGroceryItemDto.setName(newGroceryItem.getName());
-        newGroceryItemDto.setActualShelfLife(actualShelfLife);
         newGroceryItemDto.setExpectedShelfLife(newGroceryItem.getExpectedShelfLife());
         newGroceryItemDto.setCategory(newGroceryItem.getCategory());
         newGroceryItemDto.setAmount(amount);
@@ -391,7 +320,7 @@ class GroceryItemServiceTest {
     }
 
     @Test
-    public void GroceryItemService_AddGroceryItemsToFridge_ActualShelfLifeSetToExpectedShelfLife() {
+    public void GroceryItemService_AddGroceryItemsToFridge() {
         Long fridgeId = 1L;
         Long groceryItemId = 1L;
         double amount = 1.0;
@@ -416,7 +345,14 @@ class GroceryItemServiceTest {
         ResponseEntity<Set<GroceryItemDto>> response = groceryItemService.addGroceryItemsToFridge(fridgeId, groceryItems);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().iterator().next().getActualShelfLife()).isEqualTo(expectedShelfLife);
+
+        Set<GroceryItemDto> responseBody = response.getBody();
+        assertThat(responseBody).isNotNull();
+        assertThat(responseBody).hasSize(1);
+
+        GroceryItemDto responseItem = responseBody.iterator().next();
+        assertThat(responseItem.getGroceryItemId()).isEqualTo(groceryItemId);
+        assertThat(responseItem.getAmount()).isEqualTo(amount);
     }
 
 
@@ -525,43 +461,14 @@ class GroceryItemServiceTest {
     }
 
 
-    @Test
-    public void GroceryItemService_UpdateGroceryItemInFridge_ReturnGroceryItemDto() {
-        Long fridgeId = 1L;
-        Long groceryItemId = 1L;
-        double amount = 2.0;
-        Integer actualShelfLife = 3;
-
-        GroceryItemDto groceryItemDto = new GroceryItemDto();
-        groceryItemDto.setGroceryItemId(groceryItemId);
-        groceryItemDto.setAmount(amount);
-        groceryItemDto.setActualShelfLife(actualShelfLife);
-
-        Fridge fridge = new Fridge();
-        fridge.setFridgeId(fridgeId);
-
-        GroceryItem groceryItem = new GroceryItem();
-        groceryItem.setGroceryItemId(groceryItemId);
-        fridge.addGroceryItem(groceryItem, 1);
-
-        when(groceryItemRepository.findById(groceryItemId)).thenReturn(Optional.of(groceryItem));
-        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(fridge));
-
-        ResponseEntity<GroceryItemDto> response = groceryItemService.updateGroceryItemInFridge(fridgeId, groceryItemDto);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().getGroceryItemId()).isEqualTo(groceryItemId);
-        assertThat(response.getBody().getAmount()).isEqualTo(amount);
-    }
-
 
 
     //TESTS FOR GROCERY ITEMS
     @Test
     public void GroceryItemService_GetAllGroceryItems_ReturnGroceryItemDtoSet() {
         Set<GroceryItem> groceryItems = new HashSet<>();
-        groceryItems.add(GroceryItem.builder().groceryItemId(1L).name("banana").expectedShelfLife(7).actualShelfLife(8).imageLink("test").build());
-        groceryItems.add(GroceryItem.builder().groceryItemId(2L).name("apple").expectedShelfLife(14).actualShelfLife(15).imageLink("test").build());
+        groceryItems.add(GroceryItem.builder().groceryItemId(1L).name("banana").expectedShelfLife(7).imageLink("test").build());
+        groceryItems.add(GroceryItem.builder().groceryItemId(2L).name("apple").expectedShelfLife(14).imageLink("test").build());
         when(groceryItemRepository.getAllGroceryItems()).thenReturn(groceryItems);
 
         ResponseEntity<Set<GroceryItemDto>> groceryItemsReturn = groceryItemService.getAllGroceryItems();
@@ -574,7 +481,7 @@ class GroceryItemServiceTest {
     @Test
     public void GroceryItemService_FindById_ReturnGroceryItemDto() {
         long droceryItemId = 1L;
-        GroceryItem groceryItem = GroceryItem.builder().groceryItemId(1L).name("banana").expectedShelfLife(7).actualShelfLife(8).imageLink("test").build();
+        GroceryItem groceryItem = GroceryItem.builder().groceryItemId(1L).name("banana").expectedShelfLife(7).imageLink("test").build();
         when(groceryItemRepository.findById(droceryItemId)).thenReturn(Optional.ofNullable(groceryItem));
 
         ResponseEntity<GroceryItemDto> groceryItemReturn = groceryItemService.getGroceryItemById(droceryItemId);
@@ -588,14 +495,12 @@ class GroceryItemServiceTest {
         GroceryItemDto updatedGroceryItemDto = new GroceryItemDto();
         updatedGroceryItemDto.setName("apple");
         updatedGroceryItemDto.setExpectedShelfLife(10);
-        updatedGroceryItemDto.setActualShelfLife(12);
         updatedGroceryItemDto.setImageLink("test");
 
         GroceryItem groceryItem = new GroceryItem();
         groceryItem.setGroceryItemId(groceryItemId);
         groceryItem.setName("banana");
         groceryItem.setExpectedShelfLife(7);
-        groceryItem.setActualShelfLife(7);
         groceryItem.setImageLink("test2");
 
         when(groceryItemRepository.findById(groceryItemId)).thenReturn(Optional.of(groceryItem));
@@ -605,7 +510,6 @@ class GroceryItemServiceTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("apple", groceryItem.getName());
         assertEquals(10, groceryItem.getExpectedShelfLife());
-        assertEquals(12, groceryItem.getActualShelfLife());
         assertEquals("test", groceryItem.getImageLink());
     }
 
@@ -624,6 +528,8 @@ class GroceryItemServiceTest {
         verify(groceryItemRepository).deleteById(groceryItemId);
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
+
+
 
 
 

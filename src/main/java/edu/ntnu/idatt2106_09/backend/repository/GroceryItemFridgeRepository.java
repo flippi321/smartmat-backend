@@ -21,6 +21,9 @@ public interface GroceryItemFridgeRepository extends JpaRepository<GroceryItemFr
     @Query("SELECT g FROM GroceryItemFridge g WHERE g.id.fridgeId = :fridgeId AND g.id.groceryItemId = :groceryItemId ORDER BY g.expirationDate ASC")
     List<GroceryItemFridge> findByFridgeIdAndGroceryItemId(Long fridgeId, Long groceryItemId);
 
+    @Query("SELECT g FROM GroceryItemFridge g WHERE g.id.fridgeId = :fridgeId AND g.id.groceryItemId = :groceryItemId AND g.id.timestamp = :timestamp")
+    GroceryItemFridge findByGroceryItemIdAndTimestamp(Long fridgeId, Long groceryItemId, LocalDateTime timestamp);
+
     @Modifying
     @Transactional
     @Query("DELETE FROM GroceryItemFridge g WHERE g.id.fridgeId = :fridgeId AND g.id.groceryItemId = :groceryItemId AND g.id.timestamp = :timestamp")

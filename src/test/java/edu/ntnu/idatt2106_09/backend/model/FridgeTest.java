@@ -23,7 +23,7 @@ public class FridgeTest {
         GroceryItem groceryItem = new GroceryItem();
         double amount = 1.0;
 
-        fridge.addGroceryItem(groceryItem, amount);
+        fridge.addGroceryItem(groceryItem, amount, LocalDate.now());
 
         assertThat(fridge.getGroceries()).hasSize(1);
         assertThat(fridge.getGroceries().iterator().next().getGroceryItem()).isEqualTo(groceryItem);
@@ -36,28 +36,11 @@ public class FridgeTest {
         Fridge fridge = new Fridge();
         GroceryItem groceryItem = new GroceryItem();
         double amount = 1.0;
-        fridge.addGroceryItem(groceryItem, amount);
+        fridge.addGroceryItem(groceryItem, amount, LocalDate.now());
         assertEquals(1, fridge.getGroceries().size());
         LocalDateTime timestamp = fridge.getGroceries().iterator().next().getTimestamp();
         fridge.removeGroceryItem(groceryItem, timestamp);
         assertEquals(0, fridge.getGroceries().size());
     }
 
-    /*
-    @Test
-    public void testUpdateGroceryItem() {
-        Fridge fridge = new Fridge();
-        GroceryItem groceryItem = new GroceryItem();
-        int amount = 1;
-        fridge.addGroceryItem(groceryItem, amount);
-        assertEquals(1, fridge.getGroceries().iterator().next().getAmount());
-        LocalDate expirationDate = fridge.getGroceries().iterator().next().getExpirationDate();
-        int newAmount = 2;
-        int actualShelfLife = 3;
-        boolean negative = false;
-        fridge.updateGroceryItem(groceryItem, newAmount, actualShelfLife, negative);
-        assertEquals(newAmount, fridge.getGroceries().iterator().next().getAmount());
-        assertEquals(expirationDate.plusDays(actualShelfLife), fridge.getGroceries().iterator().next().getExpirationDate());
-    }
-*/
 }

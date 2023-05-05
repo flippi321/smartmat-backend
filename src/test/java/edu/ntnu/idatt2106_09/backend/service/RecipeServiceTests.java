@@ -46,7 +46,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class RecipeServiceTests {
 
-
     @Test
     void getRecipeAndAllIngredientsTest() {
         Long recipeId = 1L;
@@ -370,6 +369,8 @@ class RecipeServiceTests {
         // Verify
         Assertions.assertArrayEquals(new double[]{0.6666666666666666, 1, 0.0}, result, 0.001);
     }
+
+
 
     //Vi burde egentlig hatt tester som tester selve algoritmen mer, men vi hadde ikke tid.
     //Testen under fungerer - en av hjelpemetodene til metoden vi tester sier at

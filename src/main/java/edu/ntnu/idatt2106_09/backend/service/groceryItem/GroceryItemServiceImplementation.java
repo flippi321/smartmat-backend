@@ -46,10 +46,11 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
     /**
      * Made for mocking in 'GroceryItemTest'
      */
-    public GroceryItemServiceImplementation(GroceryItemRepository groceryItemRepository, FridgeRepository fridgeRepository, ShoppinglistRepository shoppinglistRepository) {
+    public GroceryItemServiceImplementation(GroceryItemRepository groceryItemRepository, FridgeRepository fridgeRepository, ShoppinglistRepository shoppinglistRepository, GroceryItemFridgeRepository groceryItemFridgeRepository) {
         this.groceryItemRepository = groceryItemRepository;
         this.fridgeRepository = fridgeRepository;
         this.shoppinglistRepository = shoppinglistRepository;
+        this.groceryItemFridgeRepository = groceryItemFridgeRepository;
     }
 
     /**
@@ -122,7 +123,9 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                                 if (fridgeOptional.isPresent()) {
                                     Fridge fridge = fridgeOptional.get();
                                     log.info("[X] Fridge with id {} found", fridgeId);
-                                    fridge.addGroceryItem(groceryItem, grocery.getAmount());
+                                    LocalDate expirationDate;
+                                    expirationDate = LocalDate.now().plusDays(groceryItemDto.getActualShelfLife());
+                                    fridge.addGroceryItem(groceryItem, grocery.getAmount(), expirationDate);
                                     fridgeRepository.save(fridge);
                                     shoppinglist.removeGroceryItem(groceryItem, timestamp);
                                     shoppinglistRepository.save(shoppinglist);
@@ -169,15 +172,11 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                 if (shoppinglistOptional.isPresent()) {
                     Shoppinglist shoppinglist = shoppinglistOptional.get();
                     log.info("[X] Shoppinglist with id {} found", shoppinglistId);
-                    shoppinglist.addGroceryItem(groceryItem, amount);
-                    if (actualShelfLife == null || actualShelfLife == 0) {
-                        groceryItem.setActualShelfLife(groceryItem.getExpectedShelfLife());
-                    } else {
-                        groceryItem.setActualShelfLife(actualShelfLife);
-                    }
+                    shoppinglist.addGroceryItem(groceryItem, amount, actualShelfLife);
                     shoppinglistRepository.save(shoppinglist);
                     GroceryItemDto addedGroceryItemDto = castGroceryItemToDto(groceryItem);
                     addedGroceryItemDto.setAmount(amount);
+                    addedGroceryItemDto.setActualShelfLife(actualShelfLife);
                     groceryItemDtos.add(addedGroceryItemDto);
                     log.info("[X] Grocery Item with id {} added to Shoppinglist with id {}", groceryItemId, shoppinglistId);
                 } else {
@@ -213,7 +212,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                     groceryItemDto.setGroceryItemId(grocery.getGroceryItemId());
                     groceryItemDto.setName(grocery.getGroceryItem().getName());
                     groceryItemDto.setExpectedShelfLife(grocery.getGroceryItem().getExpectedShelfLife());
-                    groceryItemDto.setActualShelfLife(grocery.getGroceryItem().getActualShelfLife());
+                    groceryItemDto.setActualShelfLife(grocery.getActualShelfLife());
                     groceryItemDto.setImageLink(grocery.getGroceryItem().getImageLink());
                     groceryItemDto.setCategory(grocery.getGroceryItem().getCategory());
                     groceryItemDto.setAmount(grocery.getAmount());
@@ -255,7 +254,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                         groceryItemDto.setGroceryItemId(grocery.getGroceryItemId());
                         groceryItemDto.setName(grocery.getGroceryItem().getName());
                         groceryItemDto.setExpectedShelfLife(grocery.getGroceryItem().getExpectedShelfLife());
-                        groceryItemDto.setActualShelfLife(grocery.getGroceryItem().getActualShelfLife());
+                        groceryItemDto.setActualShelfLife(grocery.getActualShelfLife());
                         groceryItemDto.setImageLink(grocery.getGroceryItem().getImageLink());
                         groceryItemDto.setCategory(grocery.getGroceryItem().getCategory());
                         groceryItemDto.setAmount(grocery.getAmount());
@@ -364,15 +363,11 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                 Shoppinglist shoppinglist = shoppinglistOptional.get();
                 log.info("[X] Shoppinglist with id {} found", shoppinglistId);
                 shoppinglist.removeGroceryItem(groceryItem, timestamp);
-                shoppinglist.addGroceryItem(groceryItem, amount);
-                if (actualShelfLife == null || actualShelfLife == 0) {
-                    groceryItem.setActualShelfLife(groceryItem.getExpectedShelfLife());
-                } else {
-                    groceryItem.setActualShelfLife(actualShelfLife);
-                }
+                shoppinglist.addGroceryItem(groceryItem, amount, actualShelfLife);
                 shoppinglistRepository.save(shoppinglist);
                 GroceryItemDto updatedGroceryItemDto = castGroceryItemToDto(groceryItem);
                 updatedGroceryItemDto.setAmount(amount);
+                updatedGroceryItemDto.setActualShelfLife(actualShelfLife);
                 log.info("[X] Grocery Item with id {} updated in Shoppinglist with id {}", groceryItemId, shoppinglistId);
                 return new ResponseEntity<>(updatedGroceryItemDto, HttpStatus.OK);
             } else {
@@ -401,6 +396,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
             Long groceryItemId = groceryItemDto.getGroceryItemId();
             double amount = groceryItemDto.getAmount();
             Integer actualShelfLife = groceryItemDto.getActualShelfLife();
+            Integer expectedShelfLife = groceryItemDto.getExpectedShelfLife();
             log.debug("[X] Fetching Grocery Item with id: {}", groceryItemId);
             try {
                 GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
@@ -410,12 +406,13 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                 if (fridgeOptional.isPresent()) {
                     Fridge fridge = fridgeOptional.get();
                     log.info("[X] Fridge with id {} found", fridgeId);
-                    if (actualShelfLife == null || actualShelfLife == 0) {
-                        groceryItem.setActualShelfLife(groceryItem.getExpectedShelfLife());
+                    LocalDate expirationDate;
+                    if (actualShelfLife != expectedShelfLife) {
+                        expirationDate = LocalDate.now().plusDays(actualShelfLife);
                     } else {
-                        groceryItem.setActualShelfLife(actualShelfLife);
+                        expirationDate = LocalDate.now().plusDays(expectedShelfLife);
                     }
-                    fridge.addGroceryItem(groceryItem, amount);
+                    fridge.addGroceryItem(groceryItem, amount, expirationDate);
                     fridgeRepository.save(fridge);
                     GroceryItemDto addedGroceryItemDto = castGroceryItemToDto(groceryItem);
                     addedGroceryItemDto.setAmount(amount);
@@ -454,7 +451,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                     groceryItemDto.setGroceryItemId(grocery.getGroceryItemId());
                     groceryItemDto.setName(grocery.getGroceryItem().getName());
                     groceryItemDto.setExpectedShelfLife(grocery.getGroceryItem().getExpectedShelfLife());
-                    groceryItemDto.setActualShelfLife(grocery.getGroceryItem().getActualShelfLife());
+                    groceryItemDto.setActualShelfLife((int)ChronoUnit.DAYS.between(grocery.getPurchaseDate(), grocery.getExpirationDate()));
                     groceryItemDto.setImageLink(grocery.getGroceryItem().getImageLink());
                     groceryItemDto.setCategory(grocery.getGroceryItem().getCategory());
                     groceryItemDto.setAmount(grocery.getAmount());
@@ -496,7 +493,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                         GroceryItemFridgeDto groceryItemDto = new GroceryItemFridgeDto();
                         groceryItemDto.setGroceryItemId(grocery.getGroceryItemId());
                         groceryItemDto.setName(grocery.getGroceryItem().getName());
-                        groceryItemDto.setExpectedShelfLife(grocery.getGroceryItem().getActualShelfLife());
+                        groceryItemDto.setActualShelfLife((int)ChronoUnit.DAYS.between(grocery.getPurchaseDate(), grocery.getExpirationDate()));
                         groceryItemDto.setCategory(grocery.getGroceryItem().getCategory());
                         groceryItemDto.setAmount(grocery.getAmount());
                         groceryItemDto.setDays_since_purchase(ChronoUnit.DAYS.between(LocalDate.now(), grocery.getPurchaseDate()));
@@ -603,15 +600,14 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
             if (fridgeOptional.isPresent()) {
                 Fridge fridge = fridgeOptional.get();
                 log.info("[X] Fridge with id {} found", fridgeId);
-                boolean negative = false;
-                if(actualShelfLife >= groceryItem.getActualShelfLife()){
-                    actualShelfLife = actualShelfLife-groceryItem.getActualShelfLife();
-                    negative = false;
-                }else if(actualShelfLife < groceryItem.getActualShelfLife()) {
-                    actualShelfLife = Math.abs(groceryItem.getActualShelfLife() - actualShelfLife);
-                    negative = true;
+                GroceryItemFridge groceryItemFridge =groceryItemFridgeRepository.findByGroceryItemIdAndTimestamp(fridgeId, groceryItemId, timestamp);
+                LocalDate expirationDate;
+                if (actualShelfLife >= 0) {
+                    expirationDate = groceryItemFridge.getPurchaseDate().plusDays(actualShelfLife);
+                } else {
+                    expirationDate = groceryItemFridge.getPurchaseDate().minusDays(actualShelfLife);
                 }
-                fridge.updateGroceryItem(groceryItem, amount, actualShelfLife, negative, timestamp);
+                fridge.updateGroceryItem(groceryItem, amount, expirationDate, timestamp);
                 fridgeRepository.save(fridge);
                 GroceryItemDto updatedGroceryItemDto = castGroceryItemToDto(groceryItem);
                 updatedGroceryItemDto.setAmount(amount);
@@ -695,9 +691,6 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                 }
                 if (updatedGroceryItemDto.getExpectedShelfLife() != 0) {
                     groceryItem.setExpectedShelfLife(updatedGroceryItemDto.getExpectedShelfLife());
-                }
-                if (updatedGroceryItemDto.getActualShelfLife() != 0) {
-                    groceryItem.setActualShelfLife(updatedGroceryItemDto.getActualShelfLife());
                 }
                 if (updatedGroceryItemDto.getImageLink() != null) {
                     groceryItem.setImageLink(updatedGroceryItemDto.getImageLink());

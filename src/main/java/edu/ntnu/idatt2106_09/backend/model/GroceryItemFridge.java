@@ -31,13 +31,22 @@ public class GroceryItemFridge {
      * @param groceryItem the GroceryItem being stored in the Fridge.
      * @param amount the quantity of the GroceryItem in the Fridge.
      */
+    public GroceryItemFridge(Fridge fridge, GroceryItem groceryItem, double amount, LocalDate expirationDate) {
+        this.fridge = fridge;
+        this.groceryItem = groceryItem;
+        this.id = new GroceryItemFridgeId(fridge.getFridgeId(), groceryItem.getGroceryItemId(), LocalDateTime.now());
+        this.amount = amount;
+        this.purchaseDate = LocalDate.now();
+        this.expirationDate = expirationDate;
+    }
+
     public GroceryItemFridge(Fridge fridge, GroceryItem groceryItem, double amount) {
         this.fridge = fridge;
         this.groceryItem = groceryItem;
         this.id = new GroceryItemFridgeId(fridge.getFridgeId(), groceryItem.getGroceryItemId(), LocalDateTime.now());
         this.amount = amount;
         this.purchaseDate = LocalDate.now();
-        this.expirationDate = LocalDate.now().plusDays(groceryItem.getActualShelfLife());
+        this.expirationDate = LocalDate.now().plusDays(groceryItem.getExpectedShelfLife());
     }
 
     @ManyToOne(fetch = FetchType.LAZY)

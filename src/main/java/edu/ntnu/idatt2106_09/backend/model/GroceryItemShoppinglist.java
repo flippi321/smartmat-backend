@@ -30,11 +30,12 @@ public class GroceryItemShoppinglist {
      * @param groceryItem the GroceryItem being added to the Shoppinglist.
      * @param amount the quantity of the GroceryItem in the Shoppinglist.
      */
-    public GroceryItemShoppinglist(Shoppinglist shoppinglist, GroceryItem groceryItem, double amount) {
+    public GroceryItemShoppinglist(Shoppinglist shoppinglist, GroceryItem groceryItem, double amount, int actualShelfLife) {
         this.shoppinglist = shoppinglist;
         this.groceryItem = groceryItem;
         this.id = new GroceryItemShoppinglistId(shoppinglist.getShoppinglistId(), groceryItem.getGroceryItemId(), LocalDateTime.now());
         this.amount = amount;
+        this.actualShelfLife = actualShelfLife;
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -49,6 +50,9 @@ public class GroceryItemShoppinglist {
 
     @Column(name = "amount")
     private double amount;
+
+    @Column(name = "actual_shelf_life")
+    private int actualShelfLife;
 
     /**
      * Retrieves the identifier of the associated GroceryItem.

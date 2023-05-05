@@ -6,6 +6,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.NaturalIdCache;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -54,8 +55,8 @@ public class Shoppinglist {
      * @param groceryItem The grocery item to be added to the shopping list.
      * @param amount The quantity of the grocery item to be added.
      */
-    public void addGroceryItem(GroceryItem groceryItem, double amount) {
-        GroceryItemShoppinglist groceryItemShoppinglist = new GroceryItemShoppinglist(this, groceryItem, amount);
+    public void addGroceryItem(GroceryItem groceryItem, double amount, int actualShelfLife) {
+        GroceryItemShoppinglist groceryItemShoppinglist = new GroceryItemShoppinglist(this, groceryItem, amount, actualShelfLife);
         groceries.add(groceryItemShoppinglist);
     }
 
@@ -78,6 +79,19 @@ public class Shoppinglist {
                 iterator.remove();
                 groceryItemShoppinglist.setShoppinglist(null);
                 groceryItemShoppinglist.setGroceryItem(null);
+            }
+        }
+    }
+
+    public void updateGroceryItem(GroceryItem groceryItem, double amount, int actualShelfLife, LocalDateTime timestamp) {
+        for (GroceryItemShoppinglist groceryItemShoppinglist : groceries) {
+            if (groceryItemShoppinglist.getShoppinglist().equals(this) &&
+                    groceryItemShoppinglist.getGroceryItem().equals(groceryItem) &&
+                    groceryItemShoppinglist.getTimestamp().equals(timestamp)) {
+                groceryItemShoppinglist.setAmount(amount);
+                groceryItemShoppinglist.setActualShelfLife(actualShelfLife);
+
+                return;
             }
         }
     }
