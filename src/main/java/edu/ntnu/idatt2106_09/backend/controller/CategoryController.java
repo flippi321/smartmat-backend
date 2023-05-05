@@ -49,7 +49,7 @@ public class CategoryController {
     @Operation(summary = "Get category by ID", description = "Fetch a specific category by its ID")
     @ApiResponse(responseCode = "404", description = "Categories table empty")
     @ApiResponse(responseCode = "200", description = "Ok")
-    public ResponseEntity<Object> getCategoryById(@PathVariable Long categoryId) {
+    public ResponseEntity<CategoryDto> getCategoryById(@PathVariable Long categoryId) {
         log.debug("[X] Call to return a category item by id");
         return categoryService.getCategoryById(categoryId);
     }
