@@ -1,4 +1,4 @@
-package edu.ntnu.idatt2106_09.backend.token;
+package edu.ntnu.idatt2106_09.backend.model.token;
 
 import edu.ntnu.idatt2106_09.backend.model.user.User;
 import jakarta.persistence.*;

@@ -1,8 +1,8 @@
-package edu.ntnu.idatt2106_09.backend.config;
+package edu.ntnu.idatt2106_09.backend.service.security;
 
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.BadRequestException;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
-import edu.ntnu.idatt2106_09.backend.token.TokenRepository;
+import edu.ntnu.idatt2106_09.backend.repository.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

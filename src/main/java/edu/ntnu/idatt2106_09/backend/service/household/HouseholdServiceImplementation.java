@@ -1,6 +1,5 @@
 package edu.ntnu.idatt2106_09.backend.service.household;
 
-import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationService;
 import edu.ntnu.idatt2106_09.backend.dto.*;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.Fridge;
@@ -11,6 +10,7 @@ import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.HouseholdRepository;
 import edu.ntnu.idatt2106_09.backend.repository.ShoppinglistRepository;
 import edu.ntnu.idatt2106_09.backend.repository.UserRepository;
+import edu.ntnu.idatt2106_09.backend.service.security.AuthenticationService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
