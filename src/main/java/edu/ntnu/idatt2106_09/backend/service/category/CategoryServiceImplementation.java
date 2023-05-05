@@ -71,12 +71,17 @@ public class CategoryServiceImplementation implements CategoryService {
      */
     public ResponseEntity<CategoryDto> getCategoryById(Long categoryId) {
         log.debug("Fetching Category with id: {}", categoryId);
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new NotFoundException("Category with id " + categoryId + " not found"));
+        try {
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new NotFoundException("Category with id " + categoryId + " not found"));
 
-        log.info("[x] Category with id {} found", categoryId);
-        CategoryDto categoryDto = castCategoryToDto(category);
-        return new ResponseEntity<>(categoryDto, HttpStatus.OK);
+            log.info("[x] Category with id {} found", categoryId);
+            CategoryDto categoryDto = castCategoryToDto(category);
+            return new ResponseEntity<>(categoryDto, HttpStatus.OK);
+        }
+        catch (NotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @Override
@@ -128,7 +133,7 @@ public class CategoryServiceImplementation implements CategoryService {
             categoryRepository.delete(categoryToDelete.get());
             categoryRepository.deleteById(categoryId);
             log.info("[x] Category with id {} deleted", categoryId);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             log.warn("[x] Category with id {} not found for delete request", categoryId);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

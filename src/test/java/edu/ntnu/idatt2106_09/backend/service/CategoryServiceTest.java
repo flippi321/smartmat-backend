@@ -81,7 +81,7 @@ public class CategoryServiceTest {
         ResponseEntity<CategoryDto> response = categoryService.deleteCategory(1L);
 
         assertThat(response).isNotNull();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         verify(categoryRepository).deleteById(1L);
     }
 

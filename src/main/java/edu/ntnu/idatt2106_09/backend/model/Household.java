@@ -1,13 +1,15 @@
 package edu.ntnu.idatt2106_09.backend.model;
 
-import edu.ntnu.idatt2106_09.backend.dto.FridgeDtoWithoutHousehold;
-import edu.ntnu.idatt2106_09.backend.dto.ShoppinglistDto;
-import edu.ntnu.idatt2106_09.backend.dto.UserDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Represents a household containing information about members and their associated fridge.
+ * The Household class stores information about the members and their fridge, and enables management of grocery items
+ * within the fridge.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

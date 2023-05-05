@@ -2,9 +2,11 @@
 package edu.ntnu.idatt2106_09.backend.service.groceryItem;
 
 import edu.ntnu.idatt2106_09.backend.dto.*;
+import edu.ntnu.idatt2106_09.backend.dto.recipe.IngredientDTO;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
 import edu.ntnu.idatt2106_09.backend.model.*;
 import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
+import edu.ntnu.idatt2106_09.backend.repository.GroceryItemFridgeRepository;
 import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRepository;
 import edu.ntnu.idatt2106_09.backend.repository.ShoppinglistRepository;
 import jakarta.annotation.PostConstruct;
@@ -44,6 +46,8 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
     private FridgeRepository fridgeRepository;
     @Autowired
     private ShoppinglistRepository shoppinglistRepository;
+    @Autowired
+    private GroceryItemFridgeRepository groceryItemFridgeRepository;
 
     /**
      * Made for mocking in 'GroceryItemTest'
@@ -843,5 +847,74 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
             log.warn("[X] Exception caught: {}", ex.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @Override
+    public ResponseEntity<Object> removeGroceryItemsFromFridge(Long fridgeId, List<IngredientDTO> ingredients) {
+        try {
+            for (int i = 0; i < ingredients.size(); i++) {
+                removeAmountFromFridge(fridgeId, ingredients.get(i));
+            }
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        catch (NotFoundException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+
+    }
+
+    public double removeAmountFromFridge(Long fridgeId, IngredientDTO ingredient) {
+        Long groceryItemId = ingredient.getId();
+        double amountToBeRemoved = ingredient.getAmount();
+        double amountRemoved = 0.0;
+        double currentAmount;
+
+        // Checks if the fridge exist
+        Optional<Fridge> fridge = fridgeRepository.findById(fridgeId);
+        if(fridge.isEmpty()) throw new NotFoundException("Fridge with id " + fridgeId + " not found");
+
+        List<GroceryItemFridge> groceryItemFridgeList =  groceryItemFridgeRepository.findByFridgeIdAndGroceryItemId(fridgeId,groceryItemId);
+        List<GroceryItemFridge> itemsToBeRemoved = new ArrayList<>();
+        List<GroceryItemFridge> itemsToBeUpdated = new ArrayList<>();
+
+        for(int i = 0; i < groceryItemFridgeList.size(); i++) {
+            currentAmount = groceryItemFridgeList.get(i).getAmount();
+            if(currentAmount<=amountToBeRemoved) {
+                itemsToBeRemoved.add(groceryItemFridgeList.get(i));
+                amountRemoved+=currentAmount;
+                amountToBeRemoved-=currentAmount;
+            }
+            else if(currentAmount>amountRemoved){
+                amountRemoved+= amountToBeRemoved;
+                groceryItemFridgeList.get(i).setAmount(currentAmount-amountRemoved);
+                itemsToBeUpdated.add(groceryItemFridgeList.get(i));
+                amountToBeRemoved=0.0;
+            }
+
+
+            if(amountToBeRemoved<=0.0) break;
+
+        }
+
+        //Remove the items in itemsToBeRemoved
+        GroceryItemFridge currentItem;
+        for(int i = 0; i < itemsToBeRemoved.size(); i++) {
+            currentItem = itemsToBeRemoved.get(i);
+            groceryItemFridgeRepository.deleteByFridgeIdAndGroceryItemIdAndTimestamp(fridgeId,
+                    currentItem.getGroceryItemId(), currentItem.getTimestamp());
+        }
+
+
+        //Update the items to correct amount
+        for(int i = 0; i < itemsToBeUpdated.size(); i++ ) {
+            currentItem = itemsToBeUpdated.get(i);
+
+            System.out.println("Fridge AAAA AAAA");
+            System.out.println(fridgeId + " " + currentItem.getGroceryItemId() + " " + currentItem.getTimestamp() + " " + currentItem.getAmount());
+            groceryItemFridgeRepository.updateAmountByFridgeIdAndGroceryItemIdAndTimestamp(fridgeId, currentItem.getGroceryItemId(),
+                    currentItem.getTimestamp(), currentItem.getAmount());
+        }
+
+        return amountToBeRemoved;
     }
 }
