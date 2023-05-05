@@ -63,10 +63,14 @@ public class ShoppinglistServiceTest {
                 .hasMessage("Shoppinglist name cannot be empty");
     }
 
-    /*@Test
+    @Test
     void updateShoppinglistTest() {
+        MockitoAnnotations.openMocks(this);
+        HouseholdRepository householdRepository = mock(HouseholdRepository.class);
+        shoppinglistService = new ShoppinglistServiceImplementation(shoppinglistRepository, householdService, householdRepository);
         Household household = new Household();
         household.setHouseholdId(1L);
+
         Shoppinglist shoppinglist = new Shoppinglist();
         shoppinglist.setShoppinglistId(1L);
         shoppinglist.setName("Old Shoppinglist Name");
@@ -81,6 +85,7 @@ public class ShoppinglistServiceTest {
         when(shoppinglistRepository.findById(1L)).thenReturn(Optional.of(shoppinglist));
         when(householdService.getHouseholdById(1L)).thenReturn(Optional.of(household));
         when(shoppinglistRepository.save(any(Shoppinglist.class))).thenReturn(shoppinglist);
+
         ShoppinglistDto updatedShoppinglistDto = shoppinglistService.updateShoppinglist(shoppinglistDto);
 
         verify(shoppinglistRepository).findById(1L);
@@ -91,49 +96,6 @@ public class ShoppinglistServiceTest {
         assertEquals(shoppinglistDto.getHousehold().getHouseholdId(), updatedShoppinglistDto.getHousehold().getHouseholdId());
     }
 
-
-    @Test
-    void updateFridgeTest() {
-        MockitoAnnotations.openMocks(this);
-        HouseholdRepository householdRepository = mock(HouseholdRepository.class);
-        shoppinglistService = new ShoppinglistServiceImplementation(shoppinglistRepository, householdService, householdRepository);
-        // Create a Household object
-        Household household = new Household();
-        household.setHouseholdId(1L);
-
-        // Create a Fridge object
-        Fridge fridge = new Fridge();
-        fridge.setFridgeId(1L);
-        fridge.setName("Old Fridge Name");
-        fridge.setHousehold(household);
-
-        // Create a FridgeDto object
-        FridgeDto fridgeDto = new FridgeDto();
-        fridgeDto.setFridgeId(1L);
-        fridgeDto.setName("New Fridge Name");
-        fridgeDto.setHousehold(new HouseholdDto());
-        fridgeDto.getHousehold().setHouseholdId(1L);
-
-
-        // Mock the repository methods
-        when(shoppinglistRepository.findById(1L)).thenReturn(Optional.of(fridge));
-        when(householdService.getHouseholdById(1L)).thenReturn(Optional.of(household));
-        when(shoppinglistRepository.save(any(Fridge.class))).thenReturn(fridge);
-
-        // Call the service method
-        FridgeDto updatedFridgeDto = shoppinglistService.updateFridge(fridgeDto);
-
-        // Verify that the repository methods were called
-        verify(shoppinglistRepository).findById(1L);
-        verify(shoppinglistRepository).save(any(Fridge.class));
-
-        // Verify that the returned FridgeDto has the expected values
-        assertEquals(fridgeDto.getFridgeId(), updatedFridgeDto.getFridgeId());
-        assertEquals(fridgeDto.getName(), updatedFridgeDto.getName());
-        assertEquals(fridgeDto.getHousehold().getHouseholdId(), updatedFridgeDto.getHousehold().getHouseholdId());
-    }
-
-     */
 
     @Test
     void getShoppinglistByIdTest() {

@@ -28,7 +28,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
-
 public class HouseholdServiceTests {
     @Mock
     private HouseholdRepository householdRepository;

@@ -3,6 +3,9 @@ package edu.ntnu.idatt2106_09.backend.service.user;
 import edu.ntnu.idatt2106_09.backend.dto.UserDto;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.InternalServerErrorException;
 import edu.ntnu.idatt2106_09.backend.model.user.User;
+import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
+import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRepository;
+import edu.ntnu.idatt2106_09.backend.repository.ShoppinglistRepository;
 import edu.ntnu.idatt2106_09.backend.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,10 @@ public class UserServiceImplementation implements UserService{
 
     @Autowired
     private UserRepository userRepository;
+
+    public UserServiceImplementation(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
 
     @Override
