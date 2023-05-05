@@ -28,7 +28,7 @@ public class FridgeServiceImplementation implements FridgeService {
     private HouseholdRepository householdRepository;
 
     @Autowired
-    private ModelMapper modelMapper;
+    private ModelMapper modelMapper = new ModelMapper();
 
     public FridgeServiceImplementation(FridgeRepository fridgeRepository,
                                        HouseholdServiceImplementation householdService, HouseholdRepository householdRepository) {

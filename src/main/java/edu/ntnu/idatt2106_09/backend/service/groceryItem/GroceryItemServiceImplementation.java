@@ -29,7 +29,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
 
 
     @Autowired
-    private ModelMapper modelMapper;
+    private ModelMapper modelMapper = new ModelMapper();
 
     @Autowired
     private GroceryItemRepository groceryItemRepository;

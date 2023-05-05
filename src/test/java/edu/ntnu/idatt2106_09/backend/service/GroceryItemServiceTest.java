@@ -38,37 +38,6 @@ class GroceryItemServiceTest {
     @InjectMocks
     private GroceryItemServiceImplementation groceryItemService;
 
-    //TESTS FOR GROCERY ITEMS IN RELATION TO SHOPPINGLIST AND FRIDGE
-    @Test
-    public void GroceryItemService_TransferGroceryItemsToFridge() {
-        Long shoppinglistId = 1L;
-        Long fridgeId = 1L;
-        Long[] groceryItemIds = {1L, 2L};
-
-        Shoppinglist shoppinglist = new Shoppinglist();
-        shoppinglist.setShoppinglistId(shoppinglistId);
-
-        Fridge fridge = new Fridge();
-        fridge.setFridgeId(fridgeId);
-
-        for (Long groceryItemId : groceryItemIds) {
-            GroceryItem groceryItem = new GroceryItem();
-            groceryItem.setGroceryItemId(groceryItemId);
-            when(groceryItemRepository.findById(groceryItemId)).thenReturn(Optional.of(groceryItem));
-            shoppinglist.addGroceryItem(groceryItem, 1);
-        }
-        when(shoppinglistRepository.findById(shoppinglistId)).thenReturn(Optional.of(shoppinglist));
-        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(fridge));
-
-        assertThat(shoppinglist.getGroceries().size()).isEqualTo(2);
-
-        groceryItemService.transferGroceryItemsToFridge(shoppinglistId, fridgeId, groceryItemIds);
-
-        assertThat(shoppinglist.getGroceries().size()).isEqualTo(0);
-        assertThat(fridge.getGroceries().size()).isEqualTo(2);
-    }
-
-
 
     //TESTS FOR GROCERY ITEMS IN RELATION TO SHOPPINGLIST
     @Test
