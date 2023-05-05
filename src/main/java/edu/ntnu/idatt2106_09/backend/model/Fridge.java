@@ -7,6 +7,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -55,8 +56,8 @@ public class Fridge {
      * @param groceryItem The grocery item to be added to the fridge.
      * @param amount The quantity of the grocery item to be added.
      */
-    public void addGroceryItem(GroceryItem groceryItem, double amount) {
-        GroceryItemFridge groceryItemFridge = new GroceryItemFridge(this, groceryItem, amount);
+    public void addGroceryItem(GroceryItem groceryItem, double amount, LocalDate expirationDate) {
+        GroceryItemFridge groceryItemFridge = new GroceryItemFridge(this, groceryItem, amount, expirationDate);
         groceries.add(groceryItemFridge);
     }
 
@@ -87,21 +88,16 @@ public class Fridge {
      *
      * @param groceryItem The grocery item to be updated.
      * @param amount The new amount for the grocery item.
-     * @param actualShelfLife The updated actual shelf life of the grocery item.
-     * @param negative A boolean value to indicate if the shelf life should be decreased (true) or increased (false).
      * @param timestamp The timestamp of the grocery item to be updated.
      */
-    public void updateGroceryItem(GroceryItem groceryItem, double amount, int actualShelfLife, boolean negative, LocalDateTime timestamp) {
+    public void updateGroceryItem(GroceryItem groceryItem, double amount, LocalDate expirationDate, LocalDateTime timestamp) {
         for (GroceryItemFridge groceryItemFridge : groceries) {
             if (groceryItemFridge.getFridge().equals(this) &&
                     groceryItemFridge.getGroceryItem().equals(groceryItem) &&
                     groceryItemFridge.getTimestamp().equals(timestamp)) {
-                groceryItemFridge.setAmount(amount);
-                if(negative == false){
-                    groceryItemFridge.setExpirationDate(groceryItemFridge.getExpirationDate().plusDays(actualShelfLife));
-                }else if(negative == true) {
-                    groceryItemFridge.setExpirationDate(groceryItemFridge.getExpirationDate().minusDays(actualShelfLife));
-                }
+                    groceryItemFridge.setAmount(amount);
+                    groceryItemFridge.setExpirationDate(expirationDate);
+
                 return;
             }
         }

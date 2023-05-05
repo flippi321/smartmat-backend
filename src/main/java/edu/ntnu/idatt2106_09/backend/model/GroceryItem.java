@@ -32,9 +32,6 @@ public class GroceryItem {
     @Column(name = "expected_shelf_life")
     private int expectedShelfLife;
 
-    @Column(name = "actual_shelf_life")
-    private int actualShelfLife;
-
     @Column(name = "image_link")
     private String imageLink;
 
@@ -53,16 +50,4 @@ public class GroceryItem {
         this.name = name;
     }
 
-    /**
-     * Constructs a new GroceryItem with the specified ID, name, and actual shelf life.
-     *
-     * @param groceryItemId The unique ID of the grocery item.
-     * @param name The name of the grocery item.
-     * @param actualShelfLife The actual shelf life of the grocery item, in days.
-     */
-    public GroceryItem(long groceryItemId, String name, int actualShelfLife) {
-        this.groceryItemId = groceryItemId;
-        this.name = name;
-        this.actualShelfLife = actualShelfLife;
-    }
 }
