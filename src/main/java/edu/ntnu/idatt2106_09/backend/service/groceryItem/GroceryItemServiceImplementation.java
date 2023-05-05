@@ -149,9 +149,6 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         }
     }
 
-
-
-    //BELOW ARE CRUD METHODS FOR GROCERY ITEM IN RELATION TO A SHOPPINGLIST
     /**
      * Adds one or more GroceryItems to a Shoppinglist and returns a ResponseEntity containing a Set of the added GroceryItemDtos.
      *
@@ -344,48 +341,6 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         }
     }
 
-    /*
-    /**
-     * Removes grocery items from a shopping list.
-     *
-     * @param shoppinglistId the ID of the shopping list to remove items from
-     * @param groceryItemIds the IDs of the grocery items to remove from the shopping list
-     * @return a ResponseEntity containing a ShoppinglistDto if successful, or NOT_FOUND if an exception is caught
-     * @throws NotFoundException if the shopping list or grocery item(s) cannot be found
-
-    @Override
-    public ResponseEntity<ShoppinglistDto> removeGroceryItemsFromShoppinglist(Long shoppinglistId, Long[] groceryItemIds) {
-        log.debug("[X] Fetching Grocery Items with ids: {}", Arrays.toString(groceryItemIds));
-        try {
-            List<GroceryItem> groceryItems = new ArrayList<>();
-            for (Long groceryItemId : groceryItemIds) {
-                GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
-                        .orElseThrow(() -> new NotFoundException("groceryItem with id " + groceryItemId + " not found"));
-                log.info("[X] Grocery Item with id {} found", groceryItemId);
-                groceryItems.add(groceryItem);
-            }
-            Optional<Shoppinglist> shoppinglistOptional = shoppinglistRepository.findById(shoppinglistId);
-            if (shoppinglistOptional.isPresent()) {
-                Shoppinglist shoppinglist = shoppinglistOptional.get();
-                log.info("[X] Shoppinglist with id {} found", shoppinglistId);
-                for (GroceryItem groceryItem : groceryItems) {
-                    shoppinglist.removeGroceryItem(groceryItem);
-                }
-                shoppinglistRepository.save(shoppinglist);
-                ShoppinglistDto shoppinglistDto = castShoppinglistToDto(shoppinglist);
-                log.info("[X] Grocery Items with ids {} removed from Shoppinglist with id {}", Arrays.toString(groceryItemIds), shoppinglistId);
-                return new ResponseEntity<>(shoppinglistDto, HttpStatus.OK);
-            } else {
-                throw new NotFoundException("shoppingList with id " + shoppinglistId + " not found");
-            }
-        } catch (NotFoundException ex) {
-            log.warn("[X] Exception caught: {}", ex.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-     */
-
     @Override
     public ResponseEntity<GroceryItemDto> updateGroceryItemInShoppinglist(Long shoppinglistId, GroceryItemDto groceryItemDto) {
         Long groceryItemId = groceryItemDto.getGroceryItemId();
@@ -421,13 +376,6 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
-
-
-
-
-
-    //BELOW ARE CRUD METHODS FOR GROCERY ITEM IN RELATION TO A FRIDGE'
 
     /**
      * Adds a set of grocery items to the fridge with the given fridgeId.
@@ -476,7 +424,6 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         }
         return new ResponseEntity<>(groceryItemDtos, HttpStatus.OK);
     }
-
 
     /**
      * Retrieve all grocery items in the specified fridge.
@@ -625,48 +572,6 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         }
     }
 
-    /*
-    /**
-     * Remove grocery items from a fridge by fridge ID and grocery item IDs.
-     *
-     * @param fridgeId the ID of the fridge from which grocery items are to be removed.
-     * @param groceryItemIds an array of grocery item IDs to be removed from the fridge.
-     * @return a ResponseEntity with FridgeDto as the response body and HTTP status OK (200) if the operation was successful.
-     * @throws NotFoundException if the fridge or any of the grocery items is not found in the database.
-     */
-
-    /*public ResponseEntity<FridgeDto> removeGroceryItemsFromFridge(Long fridgeId, Long[] groceryItemIds) {
-        log.debug("[X] Fetching Grocery Items with ids: {}", Arrays.toString(groceryItemIds));
-        try {
-            List<GroceryItem> groceryItems = new ArrayList<>();
-            for (Long groceryItemId : groceryItemIds) {
-                GroceryItem groceryItem = groceryItemRepository.findById(groceryItemId)
-                        .orElseThrow(() -> new NotFoundException("groceryItem with id " + groceryItemId + " not found"));
-                log.info("[X] Grocery Item with id {} found", groceryItemId);
-                groceryItems.add(groceryItem);
-            }
-            Optional<Fridge> fridgeOptional = fridgeRepository.findById(fridgeId);
-            if (fridgeOptional.isPresent()) {
-                Fridge fridge = fridgeOptional.get();
-                log.info("[X] Fridge with id {} found", fridgeId);
-                for (GroceryItem groceryItem : groceryItems) {
-                    fridge.removeGroceryItem(groceryItem, timestamp);
-                }
-                fridgeRepository.save(fridge);
-                FridgeDto fridgeDto = castFridgeToDto(fridge);
-                log.info("[X] Grocery Items with ids {} removed from Fridge with id {}", Arrays.toString(groceryItemIds), fridgeId);
-                return new ResponseEntity<>(fridgeDto, HttpStatus.OK);
-            } else {
-                throw new NotFoundException("fridge with id " + fridgeId + " not found");
-            }
-        } catch (NotFoundException ex) {
-            log.warn("[X] Exception caught: {}", ex.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }*/
-
-
-
     @Override
     public ResponseEntity<GroceryItemDto> updateGroceryItemInFridge(Long fridgeId, GroceryItemDto groceryItemDto) {
         Long groceryItemId = groceryItemDto.getGroceryItemId();
@@ -706,14 +611,6 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         }
     }
 
-
-
-
-
-
-
-
-                        //BELOW ARE CRUD METHODS FOR GROCERYITEM ALONE
     @Override
     public ResponseEntity<Set<GroceryItemDto>> getAllGroceryItems() {
         log.debug("[X] Fetching all Grocery Items");
@@ -731,7 +628,6 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         log.info("[X] {} Grocery Items found", groceryItemToBeReturned.size());
         return new ResponseEntity<>(groceryItemToBeReturned, HttpStatus.OK);
     }
-
 
     @Override
     public ResponseEntity<GroceryItemDto> getGroceryItemById(Long groceryItemId) {

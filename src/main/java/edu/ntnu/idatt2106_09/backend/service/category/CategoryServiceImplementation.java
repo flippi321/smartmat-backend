@@ -17,6 +17,14 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Implementation of the CategoryService interface, providing methods to interact with Category objects.
+ * This class handles the retrieval, update, and deletion of categories, as well as the conversion between
+ * Category and CategoryDto objects.
+ *
+ * The CategoryServiceImplementation class utilizes the CategoryRepository to fetch and update categories,
+ * and the ModelMapper library to map between Category and CategoryDto objects.
+ */
 @Slf4j
 @Service
 public class CategoryServiceImplementation implements CategoryService {
@@ -32,13 +40,14 @@ public class CategoryServiceImplementation implements CategoryService {
         return modelMapper.map(category, CategoryDto.class);
     }
 
-    @Override
     /**
-     * Retrieves all the categories available and returns them as a set of CategoryDto objects wrapped in a ResponseEntity.
+     * Retrieves all the categories available and returns them as a set of CategoryDto objects wrapped in a
+     * ResponseEntity.
      *
      * @return A ResponseEntity containing a set of CategoryDto objects representing all the categories available.
      *         If the set is empty, the HTTP status is set to NO_CONTENT, otherwise, the HTTP status is set to OK.
      */
+    @Override
     public ResponseEntity<Set<CategoryDto>> getAllCategories() {
         log.debug("Fetching all categories");
         Set<Category> allCategories = categoryRepository.getAllCategories();
@@ -54,7 +63,6 @@ public class CategoryServiceImplementation implements CategoryService {
         return new ResponseEntity<>(categoriesToBeReturned, HttpStatus.OK);
     }
 
-    @Override
     /**
      * Retrieves a category by its ID and returns the category as a CategoryDto object wrapped in a ResponseEntity.
      *
@@ -63,6 +71,7 @@ public class CategoryServiceImplementation implements CategoryService {
      *         If the category is found, the HTTP status is set to OK.
      * @throws NotFoundException if the category with the given ID is not found.
      */
+    @Override
     public ResponseEntity<CategoryDto> getCategoryById(Long categoryId) {
         log.debug("Fetching Category with id: {}", categoryId);
         try {
@@ -78,7 +87,6 @@ public class CategoryServiceImplementation implements CategoryService {
         }
     }
 
-    @Override
     /**
      * Updates a category with the provided categoryId using the information from the updatedCategoryDto object.
      * The method only updates the fields that are not null in the updatedCategoryDto.
@@ -89,6 +97,7 @@ public class CategoryServiceImplementation implements CategoryService {
      *         If the category is updated successfully, the HTTP status is set to OK.
      *         If the category with the given ID is not found, the HTTP status is set to NOT_FOUND.
      */
+    @Override
     public ResponseEntity<CategoryDto> updateCategory(Long categoryId, CategoryDto updatedCategoryDto) {
         log.debug("Updating Category with id: {}", categoryId);
         Optional<Category> categoryToUpdate = categoryRepository.findById(categoryId);
@@ -110,7 +119,6 @@ public class CategoryServiceImplementation implements CategoryService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Override
     /**
      * Deletes a category with the provided categoryId.
      *
@@ -119,6 +127,7 @@ public class CategoryServiceImplementation implements CategoryService {
      *         If the category is deleted successfully, the HTTP status is set to OK.
      *         If the category with the given ID is not found, the HTTP status is set to NOT_FOUND.
      */
+    @Override
     public ResponseEntity<CategoryDto> deleteCategory(Long categoryId) {
         log.debug("Deleting Category with id: {}", categoryId);
         Optional<Category> categoryToDelete = categoryRepository.findById(categoryId);
