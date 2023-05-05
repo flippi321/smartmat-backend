@@ -17,6 +17,11 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+/**
+ * An authentication filter that checks incoming requests for a valid JWT token.
+ * This filter is executed once per request and is responsible for validating the JWT token in the "Authorization"
+ * header.
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -25,6 +30,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final TokenRepository tokenRepository;
 
+    /**
+     * Validates the JWT token from the request's "Authorization" header.
+     * If the token is valid, the filter sets the authentication context and proceeds with the request.
+     *
+     * @param request the HttpServletRequest being processed.
+     * @param response the HttpServletResponse being processed.
+     * @param filterChain the filter chain that this filter is part of.
+     * @throws ServletException if an error occurs during request processing.
+     * @throws IOException if an input or output error occurs during request processing.
+     */
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
@@ -35,14 +50,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // When we make a call, the token that lies within the header must be passed. Extracting that below.
         final String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response); // Passing the request and response to the next filter.
+            filterChain.doFilter(request, response);
             return;
         }
 
-        final String token = authorizationHeader.substring(7); // Starting from pos no. 7 as we're skipping 'Bearer '.
+        final String token = authorizationHeader.substring(7);
         final String userEmail = jwtService.extractUsername(token);
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);

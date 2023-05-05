@@ -31,6 +31,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -143,24 +144,19 @@ class RecipeServiceTests {
         given(fridgeRepository.findById(fridgeId)).willReturn(Optional.of(fridge));
 
         Set<GroceryItemFridge> groceryItemFridge = new HashSet<>();
-        GroceryItemFridge gif1 = new GroceryItemFridge();
-        gif1.setAmount(2.0);
-        gif1.setExpirationDate(LocalDate.now());
-        gif1.setPurchaseDate(LocalDate.now());
         GroceryItem groceryItem1 = new GroceryItem();
         groceryItem1.setGroceryItemId(1L);
         groceryItem1.setName("Test Grocery Item 1");
-        gif1.setGroceryItem(groceryItem1);
+        GroceryItemFridge gif1 = new GroceryItemFridge(fridge, groceryItem1, 2.0);
         groceryItemFridge.add(gif1);
 
-        GroceryItemFridge gif2 = new GroceryItemFridge();
-        gif2.setAmount(3.0);
-        gif2.setExpirationDate(LocalDate.now());
-        gif2.setPurchaseDate(LocalDate.now());
+
+
+
         GroceryItem groceryItem2 = new GroceryItem();
         groceryItem2.setGroceryItemId(2L);
         groceryItem2.setName("Test Grocery Item 2");
-        gif2.setGroceryItem(groceryItem2);
+        GroceryItemFridge gif2 = new GroceryItemFridge(fridge, groceryItem2, 3.0);
         groceryItemFridge.add(gif2);
 
         given(groceryItemFridgeRepository.findAllByFridgeId(fridgeId)).willReturn(groceryItemFridge);
@@ -272,8 +268,8 @@ class RecipeServiceTests {
 
         // Setup
         Map<Long, GroceryItemFridgeAlgoDto> fridge = new HashMap<>();
-        GroceryItemFridgeAlgoDto item1 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(1L, "Milk"), 1, LocalDate.now(), LocalDate.now().plusDays(7));
-        GroceryItemFridgeAlgoDto item2 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(2L, "Eggs"), 3, LocalDate.now(), LocalDate.now().plusDays(14));
+        GroceryItemFridgeAlgoDto item1 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(1L, "Milk"), 1, LocalDate.now(), LocalDate.now().plusDays(7), null);
+        GroceryItemFridgeAlgoDto item2 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(2L, "Eggs"), 3, LocalDate.now(), LocalDate.now().plusDays(14), null);
         fridge.put(1L, item1);
         fridge.put(2L, item2);
 
@@ -332,8 +328,8 @@ class RecipeServiceTests {
     public void testGetWeightListOfRecipeList() {
         // Setup
         Map<Long, GroceryItemFridgeAlgoDto> fridge = new HashMap<>();
-        GroceryItemFridgeAlgoDto item1 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(1L, "Milk"), 1, LocalDate.now(), LocalDate.now().plusDays(7));
-        GroceryItemFridgeAlgoDto item2 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(2L, "Eggs"), 3, LocalDate.now(), LocalDate.now().plusDays(14));
+        GroceryItemFridgeAlgoDto item1 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(1L, "Milk"), 1, LocalDate.now(), LocalDate.now().plusDays(7), null);
+        GroceryItemFridgeAlgoDto item2 = new GroceryItemFridgeAlgoDto(null, new GroceryItemDto(2L, "Eggs"), 3, LocalDate.now(), LocalDate.now().plusDays(14), null);
         fridge.put(1L, item1);
         fridge.put(2L, item2);
 
