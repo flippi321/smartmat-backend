@@ -87,7 +87,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
      *
      * @param shoppinglistId A Long representing the ID of the Shoppinglist to transfer the GroceryItems from.
      * @param fridgeId A Long representing the ID of the Fridge to transfer the GroceryItems to.
-     * @param groceryItemIds An array of Longs representing the IDs of the GroceryItems to transfer.
+     * @param groceryItems A set of grocery items representing to be transferred.
      * @throws NotFoundException if the Shoppinglist, Fridge, or GroceryItem with the given ID does not exist in the database.
      * @throws DataAccessException if an error occurs while accessing the database.
      * @throws HibernateException if an error occurs while Hibernate is executing a query or interacting with the database.
@@ -309,7 +309,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
      * Removes a grocery item from a shopping list.
      *
      * @param shoppinglistId the ID of the shopping list to remove the grocery item from
-     * @param groceryItemId  the ID of the grocery item to remove from the shopping list
+     * @param groceryItems  the grocery items to be removed
      * @return a ResponseEntity with a ShoppinglistDto representing the updated shopping list or NOT_FOUND if either the shopping list or grocery item is not found
      * @throws NotFoundException if the grocery item with the given ID is not found
      */
@@ -590,7 +590,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
     /**
      * Removes the given grocery item from the fridge with the specified ID.
      * @param fridgeId the ID of the fridge from which the grocery item should be removed
-     * @param groceryItemId the ID of the grocery item to be removed
+     * @param groceryItemDto the grocery item to be removed
      * @return a ResponseEntity containing the updated FridgeDto object and an HTTP status code
      * @throws NotFoundException if either the fridge or the grocery item cannot be found
      */
@@ -630,8 +630,8 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
      * @return a ResponseEntity with FridgeDto as the response body and HTTP status OK (200) if the operation was successful.
      * @throws NotFoundException if the fridge or any of the grocery items is not found in the database.
      */
-    @Override
-    public ResponseEntity<FridgeDto> removeGroceryItemsFromFridge(Long fridgeId, Long[] groceryItemIds) {
+
+    /*public ResponseEntity<FridgeDto> removeGroceryItemsFromFridge(Long fridgeId, Long[] groceryItemIds) {
         log.debug("[X] Fetching Grocery Items with ids: {}", Arrays.toString(groceryItemIds));
         try {
             List<GroceryItem> groceryItems = new ArrayList<>();
@@ -646,7 +646,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
                 Fridge fridge = fridgeOptional.get();
                 log.info("[X] Fridge with id {} found", fridgeId);
                 for (GroceryItem groceryItem : groceryItems) {
-                    fridge.removeGroceryItem(groceryItem);
+                    fridge.removeGroceryItem(groceryItem, timestamp);
                 }
                 fridgeRepository.save(fridge);
                 FridgeDto fridgeDto = castFridgeToDto(fridge);
@@ -659,8 +659,8 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
             log.warn("[X] Exception caught: {}", ex.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-    }
-     */
+    }*/
+
 
 
     @Override
@@ -708,18 +708,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
 
 
 
-    //BELOW ARE CRUD METHODS FOR GROCERYITEM ALONE
 
-    /**
-     * Remove grocery items from a fridge by fridge ID and grocery item IDs.
-     *
-     * @param fridgeId the ID of the fridge from which grocery items are to be removed.
-     * @param groceryItemIds an array of grocery item IDs to be removed from the fridge.
-     *
-     * @return a ResponseEntity with FridgeDto as the response body and HTTP status OK (200) if the operation was successful.
-     *
-     * @throws NotFoundException if the fridge or any of the grocery items is not found in the database.
-     */
                         //BELOW ARE CRUD METHODS FOR GROCERYITEM ALONE
     @Override
     public ResponseEntity<Set<GroceryItemDto>> getAllGroceryItems() {

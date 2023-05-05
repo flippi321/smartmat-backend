@@ -1,5 +1,6 @@
 package edu.ntnu.idatt2106_09.backend.controller;
 
+
 import edu.ntnu.idatt2106_09.backend.dto.FridgeDto;
 import edu.ntnu.idatt2106_09.backend.dto.GroceryItemRecipeDto;
 import edu.ntnu.idatt2106_09.backend.dto.recipe.RecipeDTO;
@@ -100,13 +101,11 @@ public class RecipeController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @GetMapping("/weekRecommender/{fridgeId}/{portions}")
-    public ResponseEntity<Object> getRecommendedWeekMenuList(@PathVariable Long fridgeId, @PathVariable int portions) {
-    @GetMapping("/weekRecommender/{fridgeId}")
     @Operation(summary = "Get a list of recommended recipes", description = "Get a list of recommended recipes based on the contents of a fridge")
     @ApiResponse(responseCode = "200", description = "OK")
     @ApiResponse(responseCode = "400", description = "Invalid input provided")
     @ApiResponse(responseCode = "404", description = "Fridge not found")
-    public ResponseEntity<Object> getRecommendedWeekMenuList(@PathVariable Long fridgeId) {
+    public ResponseEntity<Object> getRecommendedWeekMenuList(@PathVariable Long fridgeId, @PathVariable int portions) {
         try{
             List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeServiceImplementation.retrieveRecommendedWeekMenu(fridgeId, portions);
             List<RecipeResponseDTO> response = recipeServiceImplementation.convertToRecipeResponseDTO(listOfGroceryItemRecipeLists);
@@ -118,13 +117,11 @@ public class RecipeController {
     }
 
     @GetMapping("/missingIngredients/{fridgeId}/{recipeId}/{portions}")
-    public ResponseEntity<Object> getMissingIngredients(@PathVariable Long fridgeId, @PathVariable Long recipeId,@PathVariable int portions) {
-    @GetMapping("/missingIngredients/{fridgeId}/{recipeId}")
     @Operation(summary = "Get missing ingredients of a recipe", description = "Returns two items in list. One represents the missing ingredients, while the other is the original recipe")    @ApiResponse(responseCode = "200", description = "Fridge updated successfully", content = @Content(schema = @Schema(implementation = FridgeDto.class)))
     @ApiResponse(responseCode = "200", description = "OK")
     @ApiResponse(responseCode = "400", description = "Invalid input provided")
     @ApiResponse(responseCode = "404", description = "Fridge or Recipe not found")
-    public ResponseEntity<Object> getMissingIngredients(@PathVariable Long fridgeId, @PathVariable Long recipeId) {
+    public ResponseEntity<Object> getMissingIngredients(@PathVariable Long fridgeId, @PathVariable Long recipeId,@PathVariable int portions) {
         try{
             List<RecipeResponseDTO> responseDto = recipeServiceImplementation.getMissingIngredientsAndOriginalRecipe(fridgeId,recipeId, portions);
             return new ResponseEntity<>(responseDto,HttpStatus.OK);
