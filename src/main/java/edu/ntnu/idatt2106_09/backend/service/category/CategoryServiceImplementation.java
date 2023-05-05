@@ -49,7 +49,7 @@ public class CategoryServiceImplementation implements CategoryService {
      */
     @Override
     public ResponseEntity<Set<CategoryDto>> getAllCategories() {
-        log.debug("Fetching all categories");
+        log.debug("[X] Fetching all categories");
         Set<Category> allCategories = categoryRepository.getAllCategories();
         Set<CategoryDto> categoriesToBeReturned = new HashSet<>();
         for (Category category : allCategories) {
@@ -59,7 +59,7 @@ public class CategoryServiceImplementation implements CategoryService {
         if (categoriesToBeReturned.isEmpty()) {
             return new ResponseEntity<>(categoriesToBeReturned, HttpStatus.NO_CONTENT);
         }
-        log.info("[x] Categories found");
+        log.info("[X] Categories found");
         return new ResponseEntity<>(categoriesToBeReturned, HttpStatus.OK);
     }
 
@@ -73,12 +73,12 @@ public class CategoryServiceImplementation implements CategoryService {
      */
     @Override
     public ResponseEntity<CategoryDto> getCategoryById(Long categoryId) {
-        log.debug("Fetching Category with id: {}", categoryId);
+        log.debug("[X] Fetching Category with id: {}", categoryId);
         try {
             Category category = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new NotFoundException("Category with id " + categoryId + " not found"));
 
-            log.info("[x] Category with id {} found", categoryId);
+            log.info("[X] Category with id {} found", categoryId);
             CategoryDto categoryDto = castCategoryToDto(category);
             return new ResponseEntity<>(categoryDto, HttpStatus.OK);
         }
@@ -99,7 +99,7 @@ public class CategoryServiceImplementation implements CategoryService {
      */
     @Override
     public ResponseEntity<CategoryDto> updateCategory(Long categoryId, CategoryDto updatedCategoryDto) {
-        log.debug("Updating Category with id: {}", categoryId);
+        log.debug("[X] Updating Category with id: {}", categoryId);
         Optional<Category> categoryToUpdate = categoryRepository.findById(categoryId);
 
         if (categoryToUpdate.isPresent()) {
@@ -112,10 +112,10 @@ public class CategoryServiceImplementation implements CategoryService {
             }
             categoryRepository.save(category);
         } else {
-            log.warn("[x] Category with id {} not found for update request", categoryId);
+            log.warn("[X] Category with id {} not found for update request", categoryId);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        log.info("[x] Category with id {} updated", categoryId);
+        log.info("[X] Category with id {} updated", categoryId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -129,18 +129,17 @@ public class CategoryServiceImplementation implements CategoryService {
      */
     @Override
     public ResponseEntity<CategoryDto> deleteCategory(Long categoryId) {
-        log.debug("Deleting Category with id: {}", categoryId);
+        log.debug("[X] Deleting Category with id: {}", categoryId);
         Optional<Category> categoryToDelete = categoryRepository.findById(categoryId);
 
         if (categoryToDelete.isPresent()) {
             categoryRepository.delete(categoryToDelete.get());
             categoryRepository.deleteById(categoryId);
-            log.info("[x] Category with id {} deleted", categoryId);
+            log.info("[X] Category with id {} deleted", categoryId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
-            log.warn("[x] Category with id {} not found for delete request", categoryId);
+            log.warn("[X] Category with id {} not found for delete request", categoryId);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
 }
