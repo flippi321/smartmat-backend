@@ -101,10 +101,7 @@ public class RecipeController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @GetMapping("/weekRecommender/{fridgeId}/{portions}")
-    @Operation(summary = "Get a list of recommended recipes", description = "Get a list of recommended recipes based on the contents of a fridge")
-    @ApiResponse(responseCode = "200", description = "OK")
-    @ApiResponse(responseCode = "400", description = "Invalid input provided")
-    @ApiResponse(responseCode = "404", description = "Fridge not found")
+    @Operation(summary = "Get a list of 7 recommended recipes", description = "Returns a list of 7 recommended recipes. If there is not any recipes to be recommended, it will also add filler recipes")
     public ResponseEntity<Object> getRecommendedWeekMenuList(@PathVariable Long fridgeId, @PathVariable int portions) {
         try{
             List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeServiceImplementation.retrieveRecommendedWeekMenu(fridgeId, portions);
@@ -117,10 +114,7 @@ public class RecipeController {
     }
 
     @GetMapping("/missingIngredients/{fridgeId}/{recipeId}/{portions}")
-    @Operation(summary = "Get missing ingredients of a recipe", description = "Returns two items in list. One represents the missing ingredients, while the other is the original recipe")    @ApiResponse(responseCode = "200", description = "Fridge updated successfully", content = @Content(schema = @Schema(implementation = FridgeDto.class)))
-    @ApiResponse(responseCode = "200", description = "OK")
-    @ApiResponse(responseCode = "400", description = "Invalid input provided")
-    @ApiResponse(responseCode = "404", description = "Fridge or Recipe not found")
+    @Operation(summary = "Get a list of both ingredients missing from a recipe and the original recipe", description = "Returns a list which contains a list of ingredients that is missing from a fridge to make a recipe, and also returns the original recipe ")
     public ResponseEntity<Object> getMissingIngredients(@PathVariable Long fridgeId, @PathVariable Long recipeId,@PathVariable int portions) {
         try{
             List<RecipeResponseDTO> responseDto = recipeServiceImplementation.getMissingIngredientsAndOriginalRecipe(fridgeId,recipeId, portions);
