@@ -3,9 +3,6 @@ package edu.ntnu.idatt2106_09.backend.service.user;
 import edu.ntnu.idatt2106_09.backend.dto.UserDto;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.InternalServerErrorException;
 import edu.ntnu.idatt2106_09.backend.model.user.User;
-import edu.ntnu.idatt2106_09.backend.repository.FridgeRepository;
-import edu.ntnu.idatt2106_09.backend.repository.GroceryItemRepository;
-import edu.ntnu.idatt2106_09.backend.repository.ShoppinglistRepository;
 import edu.ntnu.idatt2106_09.backend.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * The UserServiceImplementation class is responsible for implementing the logic for managing Users in the application.
+ * It allows for updating and retrieving a user
+ */
 @Slf4j
 @Service
 public class UserServiceImplementation implements UserService{
@@ -25,7 +26,15 @@ public class UserServiceImplementation implements UserService{
         this.userRepository = userRepository;
     }
 
-
+    /**
+     * Updates an existing user with the given email address.
+     *
+     * @param oldEmail The email address of the user to be updated.
+     * @param userDto The UserDto object containing the updated user information.
+     * @return A ResponseEntity containing the updated UserDto object.
+     * @throws ResponseStatusException If the user with the given email address is not found.
+     * @throws InternalServerErrorException If an unexpected error occurs during the update.
+     */
     @Override
     public ResponseEntity<UserDto> updateUser(String oldEmail, UserDto userDto) {
         log.debug("[X] Attempting to update user with email: {}", userDto.getEmail());
@@ -55,7 +64,14 @@ public class UserServiceImplementation implements UserService{
         }
     }
 
-
+    /**
+     * Retrieves a user by their unique identifier.
+     *
+     * @param id the identifier of the user to retrieve
+     * @return a ResponseEntity containing the user DTO if found, or an error response if the user was not found
+     * @throws ResponseStatusException if the user was not found
+     * @throws InternalServerErrorException if an unexpected error occurs during retrieval
+     */
     @Override
     public ResponseEntity<UserDto> getUserById(Integer id) {
         log.debug("[X] Attempting to retrieve user with id: {}", id);

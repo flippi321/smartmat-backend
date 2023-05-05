@@ -26,7 +26,10 @@ public class AppConfiguration {
     private final UserRepository userRepository;
 
     /**
-     * Fetches and return the username from the database using the UserRepository.
+     * Provides a UserDetailsService implementation that fetches a user from the database using the UserRepository.
+     *
+     * @return an instance of UserDetailsService.
+     * @throws UsernameNotFoundException if the requested user is not found in the database.
      */
     @Bean
     public UserDetailsService userDetailsService() {
@@ -35,8 +38,10 @@ public class AppConfiguration {
     }
 
     /**
-     * This 'AuthenticationProvider' is the DAO which is responsible to fetch the user details also encode passwords etc.
-     * For this we have many implementations, one of them being the 'DaoAuthenticationProvider'.
+     * Creates a DaoAuthenticationProvider bean, which is responsible for fetching user details and encoding passwords.
+     * This bean is used for authentication purposes within the application.
+     *
+     * @return an instance of AuthenticationProvider (DaoAuthenticationProvider)
      */
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -51,14 +56,24 @@ public class AppConfiguration {
         return authenticationProvider;
     }
 
+
     /**
-     * Manages the authentication process.
+     * Configures and returns an AuthenticationManager instance that manages the authentication process.
+     *
+     * @param configuration an instance of AuthenticationConfiguration.
+     * @return an instance of AuthenticationManager.
+     * @throws Exception if an error occurs during the configuration of the AuthenticationManager.
      */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
+    /**
+     * Provides a PasswordEncoder implementation (BCryptPasswordEncoder) to be used for encoding and decoding passwords.
+     *
+     * @return an instance of PasswordEncoder (BCryptPasswordEncoder).
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

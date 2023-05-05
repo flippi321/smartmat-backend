@@ -33,14 +33,17 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+/**
+ * The RecipeServiceImplementation class is responsible for implementing the logic for managing Recipes in the
+ * application. Its main functionality is generating recipes for the user that are most suited, based on what
+ * groceryitems are present in the fridge and their expiration dates.
+ */
 @Service
 @Slf4j
 public class RecipeServiceImplementation implements RecipeService {
 
-
     @Autowired
     private RecipeRepository recipeRepository;
-
 
     @Autowired
     private GroceryItemRecipeRepository groceryItemRecipeRepository;
@@ -54,13 +57,15 @@ public class RecipeServiceImplementation implements RecipeService {
     @Autowired
     private GroceryItemServiceImplementation groceryItemService;
 
-
     @Autowired
     private FridgeRepository fridgeRepository;
 
     @Autowired
     private ModelMapper modelMapper;
 
+    /**
+     * Made for mocking in 'RecipeServiceTest'
+     */
     public RecipeServiceImplementation(RecipeRepository recipeRepository){
         this.recipeRepository = recipeRepository;
     }
@@ -69,6 +74,7 @@ public class RecipeServiceImplementation implements RecipeService {
         this.groceryItemRecipeRepository = groceryItemRecipeRepository;
 
     }
+
     public RecipeServiceImplementation(GroceryItemFridgeRepository groceryItemFridgeRepository, FridgeRepository fridgeRepository,
                          FridgeServiceImplementation fridgeService, GroceryItemServiceImplementation groceryItemService){
         this.groceryItemFridgeRepository = groceryItemFridgeRepository;
@@ -77,6 +83,7 @@ public class RecipeServiceImplementation implements RecipeService {
         this.groceryItemService = groceryItemService;
 
     }
+
     public RecipeServiceImplementation(GroceryItemFridgeRepository groceryItemFridgeRepository, FridgeRepository fridgeRepository,
                          FridgeServiceImplementation fridgeService, GroceryItemServiceImplementation groceryItemService,
                          ModelMapper modelMapper){
@@ -88,40 +95,36 @@ public class RecipeServiceImplementation implements RecipeService {
 
     }
 
-
     public RecipeServiceImplementation(RecipeRepository recipeRepository, GroceryItemServiceImplementation groceryItemService){
         this.recipeRepository = recipeRepository;
         this.groceryItemService = groceryItemService;
     }
-
 
     public RecipeServiceImplementation(RecipeRepository recipeRepository, GroceryItemServiceImplementation groceryItemService,
                          ModelMapper modelMapper){
         this.recipeRepository = recipeRepository;
         this.groceryItemService = groceryItemService;
         this.modelMapper = modelMapper;
-
     }
+
     public RecipeServiceImplementation(RecipeRepository recipeRepository, ModelMapper modelMapper){
         this.recipeRepository = recipeRepository;
         this.modelMapper = modelMapper;
     }
-    public RecipeServiceImplementation(){
 
-    }
+    public RecipeServiceImplementation() {}
 
     public RecipeServiceImplementation(RecipeRepository recipeRepository, FridgeRepository fridgeRepository) {
         this.recipeRepository = recipeRepository;
         this.fridgeRepository = fridgeRepository;
     }
 
-
-
     /**
      * Adds a new recipe to the repository and returns a ResponseEntity object containing the added recipe in DTO form.
      *
      * @param recipe The RecipeDTO object containing the recipe data to be added.
-     * @return ResponseEntity<Object> containing the added recipe in RecipeDTO form if successful, or an error message and HTTP status if unsuccessful.
+     * @return ResponseEntity<Object> containing the added recipe in RecipeDTO form if successful, or an error message
+     *         and HTTP status if unsuccessful.
      * @throws Exception If an error occurs while adding the recipe to the repository.
      */
     @Override
@@ -135,8 +138,6 @@ public class RecipeServiceImplementation implements RecipeService {
         }
     }
 
-
-
     /**
      * Retrieves a recipe by its ID from the repository.
      *
@@ -147,7 +148,6 @@ public class RecipeServiceImplementation implements RecipeService {
     public Optional<Recipe> getRecipeById(Long recipeId){
         return recipeRepository.findById(recipeId);
     }
-
 
     /**
      * Retrieves a recipe and its associated ingredients by the recipe ID.
@@ -187,14 +187,10 @@ public class RecipeServiceImplementation implements RecipeService {
 
             return new ResponseEntity<>(recipeResponseDTO, HttpStatus.OK);
         } catch (NotFoundException ex) {
-            log.warn("[x] Exception caught: {}", ex.getMessage());
+            log.warn("[X] Exception caught: {}", ex.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
     }
-
-
-
 
     /**
      * Retrieves all the recipes available and returns them as a set of RecipeDTO objects wrapped in a ResponseEntity.
@@ -203,7 +199,6 @@ public class RecipeServiceImplementation implements RecipeService {
      */
     @Override
     public ResponseEntity<Set<RecipeDTO>>  getAllRecipe() {
-
             Set<Recipe> recipes = recipeRepository.getAllRecipes();
 
             Set<RecipeDTO> recipeDTOs = recipes.stream()
@@ -211,18 +206,15 @@ public class RecipeServiceImplementation implements RecipeService {
                     .collect(Collectors.toSet());
 
             return new ResponseEntity<>(recipeDTOs, HttpStatus.OK);
-
     }
 
-
-
     /**
-     * Retrieves a recipe and its associated ingredients by the recipe ID.
+     * Deletes the recipe with the given recipeId from the database.
      *
-     * @param recipeId The ID of the recipe to be retrieved along with its ingredients.
-     * @return ResponseEntity<Object> containing the recipe and its ingredients in a RecipeResponseDTO format if found,
-     *         or an HTTP status of NOT_FOUND if the recipe with the specified ID does not exist.
-     * @throws NotFoundException If the recipe with the specified ID is not found in the repository.
+     * @param recipeId the id of the recipe to be deleted
+     * @return ResponseEntity<Object> with HTTP status OK and the deleted recipe as a RecipeDTO if the recipe was
+     *         successfully deleted, ResponseEntity<Object> with HTTP status NOT_FOUND and an error message if the
+     *         recipe with the given recipeId was not found
      */
     @Override
     public ResponseEntity<Object> deleteRecipe(Long recipeId) {
@@ -232,12 +224,13 @@ public class RecipeServiceImplementation implements RecipeService {
                 Recipe recipe = recipeOptional.get();
                 RecipeDTO recipeDTO = modelMapper.map(recipe, RecipeDTO.class);
                 recipeRepository.deleteById(recipeId);
-                return new ResponseEntity<>(recipeDTO, HttpStatus.OK);
+                log.info("Recipe with id " + recipe.getRecipe_id() + " deleted");
+                return new ResponseEntity<>(recipeDTO, HttpStatus.NO_CONTENT);
             } else {
                 throw new NotFoundException("recipe with id " + recipeId + " not found");
             }
         } catch (NotFoundException ex) {
-            log.warn("[x] Exception caught: {}", ex.getMessage());
+            log.warn("[X] Exception caught: {}", ex.getMessage());
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
@@ -250,7 +243,6 @@ public class RecipeServiceImplementation implements RecipeService {
      * @return HashMap<Long, GroceryItemFridgeAlgoDto> containing grocery items in the fridge as GroceryItemFridgeAlgoDto objects, with grocery item IDs as keys.
      * @throws NotFoundException If the fridge with the specified ID is not found in the repository.
      */
-    // Need to Change hashmap key from Long to add new values to hashmap. Cant have multiple of the sane product
     @Override
     public HashMap<Long, GroceryItemFridgeAlgoDto> retrieveFridgeItemsHashMap(long fridgeId) {
         HashMap<Long, GroceryItemFridgeAlgoDto> map = new HashMap<>();
@@ -262,31 +254,42 @@ public class RecipeServiceImplementation implements RecipeService {
             Set<GroceryItemFridge> groceryItemFridge = groceryItemFridgeRepository.findAllByFridgeId(fridgeId);
 
             GroceryItemFridgeAlgoDto currentGroceryItemFridgeDTO;
+            double currentAmount;
 
             for (GroceryItemFridge gif : groceryItemFridge) {
-                currentGroceryItemFridgeDTO = new GroceryItemFridgeAlgoDto();
-                currentGroceryItemFridgeDTO.setAmount(gif.getAmount());
-                currentGroceryItemFridgeDTO.setExpirationDate(gif.getExpirationDate());
-                currentGroceryItemFridgeDTO.setPurchaseDate(gif.getPurchaseDate());
-                currentGroceryItemFridgeDTO.setFridgeDto(fridgeDTO);
-                currentGroceryItemFridgeDTO.setGroceryItem(modelMapper.map(gif.getGroceryItem(), GroceryItemDto.class));
 
-                map.put(gif.getGroceryItem().getGroceryItemId(), currentGroceryItemFridgeDTO);
+                // If statements is used to handle multiple of the same type of groceries
+                if(map.get(gif.getGroceryItemId()) == null) {
+                    currentGroceryItemFridgeDTO = new GroceryItemFridgeAlgoDto();
+                    currentGroceryItemFridgeDTO.setAmount(gif.getAmount());
+                    currentGroceryItemFridgeDTO.setExpirationDate(gif.getExpirationDate());
+                    currentGroceryItemFridgeDTO.setPurchaseDate(gif.getPurchaseDate());
+                    currentGroceryItemFridgeDTO.setFridgeDto(fridgeDTO);
+                    currentGroceryItemFridgeDTO.setGroceryItem(modelMapper.map(gif.getGroceryItem(), GroceryItemDto.class));
+                    currentGroceryItemFridgeDTO.setTimeStamp(gif.getTimestamp());
+
+
+                    map.put(gif.getGroceryItem().getGroceryItemId(), currentGroceryItemFridgeDTO);
+                }
+                // If the entry already exist. Just update the amount
+                else {
+                    currentAmount = map.get(gif.getGroceryItemId()).getAmount();
+                    map.get(gif.getGroceryItemId()).getGroceryItem().setAmount(currentAmount+gif.getAmount());
+                }
             }
         } else {
-            throw new NotFoundException("Fridge not found");
+            throw new NotFoundException("Fridge with id " + fridgeId + " not found");
         }
-
         return map;
     }
-
 
     /**
      * Retrieves all recipes and their associated grocery items from the repository, and returns them as a list of lists
      * of GroceryItemRecipeDto objects.
+     * Each inner list represents a recipe's grocery items, and the outer list contains all recipes.
      *
-     * @return List<List<GroceryItemRecipeDto>> containing all recipes and their associated grocery items as GroceryItemRecipeDto objects.
-     *         Each inner list represents a recipe's grocery items, and the outer list contains all recipes.
+     * @return List<List<GroceryItemRecipeDto>> containing all recipes and their associated grocery items as
+     *         GroceryItemRecipeDto objects.
      */
     @Override
     public List<List<GroceryItemRecipeDto>> getAllRecipeList() {
@@ -298,11 +301,9 @@ public class RecipeServiceImplementation implements RecipeService {
         GroceryItemRecipeDto currentGIRDTO;
         RecipeDTO currentRecipeDTO;
 
-
         for (Recipe recipe : allRecipes) {
             allGroceryItemRecipe = recipe.getGroceries();
             currentGIRDTOList = new ArrayList<>();
-
 
             currentRecipeDTO = RecipeDTO.builder()
                     .recipe_id(recipe.getRecipe_id())
@@ -321,23 +322,20 @@ public class RecipeServiceImplementation implements RecipeService {
                 currentGIRDTO.setGroceryItem(modelMapper.map(groceryItemRecipe.getGroceryItem(), GroceryItemDto.class));
                 currentGIRDTOList.add(currentGIRDTO);
             }
-
             groceryItemRecipeDTOList.add(currentGIRDTOList);
         }
-
         return groceryItemRecipeDTOList;
     }
-
 
     /**
      * Retrieves a specific recipe and its associated grocery items from the repository, and returns them as a list
      * of GroceryItemRecipeDto objects.
      *
      * @param id The ID of the recipe to be retrieved along with its associated grocery items.
-     * @return List<GroceryItemRecipeDto> containing the specified recipe and its associated grocery items as GroceryItemRecipeDto objects.
+     * @return List<GroceryItemRecipeDto> containing the specified recipe and its associated grocery items as
+     *         GroceryItemRecipeDto objects.
      * @throws NotFoundException If the recipe with the specified ID is not found in the repository.
      */
-
     private List<GroceryItemRecipeDto> getRecipeList(Long id) {
 
         Recipe recipe = recipeRepository.findById(id).orElseThrow(() -> new NotFoundException("No recipe found with id " + id));
@@ -362,22 +360,19 @@ public class RecipeServiceImplementation implements RecipeService {
             currentGIRDTO.setGroceryItem(modelMapper.map(groceryItemRecipe.getGroceryItem(), GroceryItemDto.class));
             groceryItemRecipeDTOList.add(currentGIRDTO);
         }
-
-
-
         return groceryItemRecipeDTOList;
     }
 
     /**
      * Compares the contents of a HashMap representing the fridge to a list of grocery items required to make a recipe,
      * and returns a double value between 0 and 1 indicating the level of matching between the two.
-     * This method calculates the ratio of the number of grocery items required for the recipe that are present in the fridge,
-     * to the total number of grocery items required for the recipe.
+     * This method calculates the ratio of the number of grocery items required for the recipe that are present in the
+     * fridge, to the total number of grocery items required for the recipe.
+     *
      * @return a double value between 0 and 1 representing the level of matching between the fridge contents and the recipe
      */
     @Override
-    public double compareFridgeAndRecipeList
-            (Map<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe) {
+    public double compareFridgeAndRecipeList(Map<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe) {
         GroceryItemRecipeDto recipeItem;
         double fridgeItemAmount;
         double currentPercentage = 0.0;
@@ -385,7 +380,6 @@ public class RecipeServiceImplementation implements RecipeService {
 
         for(int i = 0; i<recipe.size(); i++){
             recipeItem = recipe.get(i);
-
 
             if(fridge.get(recipeItem.getGroceryItem().getGroceryItemId()) != null){
                 fridgeItemAmount = fridge.get(recipeItem.getGroceryItem().getGroceryItemId()).getAmount();
@@ -396,23 +390,24 @@ public class RecipeServiceImplementation implements RecipeService {
                 ingredientPercentage = fridgeItemAmount / recipeItem.getAmount();
                 currentPercentage += ingredientPercentage;
             }
-
         }
-
         return currentPercentage/(recipe.size());
     }
 
     /**
-     * Filters the recipes based on the comparison between fridge contents and recipe grocery items. Only returns recipes
-     * that meet or exceed the defined threshold in RecipeRecommenderConstants.RECOMMENDATION_THRESHOLD.
+     * Filters the recipes based on the comparison between fridge contents and recipe grocery items. Only returns
+     * recipes that meet or exceed the defined threshold in RecipeRecommenderConstants.RECOMMENDATION_THRESHOLD.
      *
-     * @param fridge A Hashtable containing the contents of the fridge with key as GroceryItem ID and value as GroceryItemFridgeDTO.
-     * @param recipeList A list of lists of GroceryItemRecipeDTO objects representing the recipes and their required grocery items.
-     * @return A list of lists of GroceryItemRecipeDTO objects representing the filtered recipes that meet or exceed the threshold.
+     * @param fridge A Hashtable containing the contents of the fridge with key as GroceryItem ID and value as
+     *               GroceryItemFridgeDTO.
+     * @param recipeList A list of lists of GroceryItemRecipeDTO objects representing the recipes and their required
+     *                   grocery items.
+     * @return A list of lists of GroceryItemRecipeDTO objects representing the filtered recipes that meet or exceed
+     *         the threshold.
      */
 
     @Override
-    public List<List<GroceryItemRecipeDto>> getRecipesOverThreshold(
+    public List<List<GroceryItemRecipeDto>> getRecipesOverThreshold (
                     Map<Long, GroceryItemFridgeAlgoDto> fridge,
                     List<List<GroceryItemRecipeDto>> recipeList) {
 
@@ -422,7 +417,6 @@ public class RecipeServiceImplementation implements RecipeService {
             if(compareFridgeAndRecipeList(fridge, recipeList.get(i))>= RecipeRecommenderConstants.RECOMMENDATION_THRESHOLD)
                 recipesAboveTheThreshold.add(recipeList.get(i));
         }
-
         return recipesAboveTheThreshold;
     }
 
@@ -430,8 +424,10 @@ public class RecipeServiceImplementation implements RecipeService {
      * Calculates the weight of each recipe in the recipesOverThreshold list based on the available fridge items.
      * The weight represents how closely the fridge items match the recipe's required grocery items.
      *
-     * @param fridgeMap A HashMap containing the contents of the fridge with key as GroceryItem ID and value as GroceryItemFridgeDTO.
-     * @param recipesOverThreshold A list of lists of GroceryItemRecipeDTO objects representing the filtered recipes that meet or exceed the threshold.
+     * @param fridgeMap A HashMap containing the contents of the fridge with key as GroceryItem ID and value as
+     *                  GroceryItemFridgeDTO.
+     * @param recipesOverThreshold A list of lists of GroceryItemRecipeDTO objects representing the filtered recipes
+     *                             that meet or exceed the threshold.
      * @return A double array containing the weight of each recipe in the recipesOverThreshold list.
      */
     @Override
@@ -449,14 +445,12 @@ public class RecipeServiceImplementation implements RecipeService {
             double weight = compareFridgeAndRecipeList(fridgeMap, recipe);
             weights[i] = weight;
         }
-
         return weights;
     }
 
-
     /**
-     * Sorts the double[] weight and List<List<GroceryItemRecipeDTO>> recipe in descending order based on the values in weight
-     * using the Quick Sort algorithm.
+     * Sorts the double[] weight and List<List<GroceryItemRecipeDTO>> recipe in descending order based on the values in
+     * weight using the Quick Sort algorithm.
      *
      * @param weight A double array containing the weight of each recipe in the recipes list.
      * @param recipes A list of lists of GroceryItemRecipeDTO objects representing the recipes to be sorted.
@@ -472,13 +466,13 @@ public class RecipeServiceImplementation implements RecipeService {
         }
     }
 
-
     /**
-     * A helper method that partitions the given recipes and their associated weights according to the Quick Sort algorithm.
-     * The partitioning process is done in-place, modifying the original recipes and weight arrays.
+     * A helper method that partitions the given recipes and their associated weights according to the Quick Sort
+     * algorithm. The partitioning process is done in-place, modifying the original recipes and weight arrays.
      *
      * @param weight An array of double values representing the weights of the recipes.
-     * @param recipes A list of lists containing GroceryItemRecipeDto objects, where each inner list represents a recipe's grocery items.
+     * @param recipes A list of lists containing GroceryItemRecipeDto objects, where each inner list represents a
+     *                recipe's grocery items.
      * @param low The starting index for the partitioning process in the weight array and recipes list.
      * @param high The ending index for the partitioning process in the weight array and recipes list.
      * @return int The index of the pivot element after the partitioning process is complete.
@@ -518,12 +512,13 @@ public class RecipeServiceImplementation implements RecipeService {
     }
 
     /**
-     * Retrieves recommended recipes based on the available items in the specified fridge. The recommendations are sorted
-     * in descending order of the calculated weight (based on item availability and freshness).
+     * Retrieves recommended recipes based on the available items in the specified fridge. The recommendations are
+     * sorted in descending order of the calculated weight (based on item availability and freshness).
+     * Each inner list represents a recipe's grocery items.
      *
      * @param fridgeId The ID of the fridge for which the recommended recipes are to be retrieved.
-     * @return List<List<GroceryItemRecipeDto>> A list of lists containing recommended recipes and their associated grocery items
-     *         as GroceryItemRecipeDto objects. Each inner list represents a recipe's grocery items.
+     * @return List<List<GroceryItemRecipeDto>> A list of lists containing recommended recipes and their associated
+     *         grocery items as GroceryItemRecipeDto objects.
      */
     @Override
     public List<List<GroceryItemRecipeDto>> getRecommendedRecipes(Long fridgeId, int portions) {
@@ -536,19 +531,17 @@ public class RecipeServiceImplementation implements RecipeService {
         double[] weightList = getWeightListOfRecipeList(fridge, recommendedRecipeList);
         quickSort(weightList, recommendedRecipeList, 0, weightList.length - 1);
 
-
         return recommendedRecipeList;
     }
-
-
 
     /**
      * Converts a list of lists containing GroceryItemRecipeDto objects into a list of RecipeResponseDTO objects.
      * Each RecipeResponseDTO object will contain the recipe details and a list of ingredients (IngredientDTO).
      *
-     * @param listOfGroceryItemRecipeLists A list of lists containing GroceryItemRecipeDto objects, where each inner list
-     *                                     represents a recipe's grocery items.
-     * @return List<RecipeResponseDTO> A list of RecipeResponseDTO objects containing the recipe details and a list of ingredients.
+     * @param listOfGroceryItemRecipeLists A list of lists containing GroceryItemRecipeDto objects, where each inner
+     *                                     list represents a recipe's grocery items.
+     * @return List<RecipeResponseDTO> A list of RecipeResponseDTO objects containing the recipe details and a list of
+     *                                 ingredients.
      */
     @Override
     public List<RecipeResponseDTO> convertToRecipeResponseDTO(List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists) {
@@ -578,7 +571,6 @@ public class RecipeServiceImplementation implements RecipeService {
         return response;
     }
 
-    @Override
     /**
      * Updates the fridge's grocery items after using a recipe. The fridge is represented by a map where the key is
      * the grocery item ID and the value is a GroceryItemFridgeAlgoDto object. This method adjusts the amounts of
@@ -588,6 +580,7 @@ public class RecipeServiceImplementation implements RecipeService {
      *               being a GroceryItemFridgeAlgoDto object.
      * @param recipe A list of GroceryItemRecipeDto objects representing the grocery items used in the recipe.
      */
+    @Override
     public void updateFridgeAfterRecipe(Map<Long, GroceryItemFridgeAlgoDto> fridge, List<GroceryItemRecipeDto> recipe) {
         GroceryItemRecipeDto recipeItem;
         double fridgeItemAmount;
@@ -639,8 +632,6 @@ public class RecipeServiceImplementation implements RecipeService {
         return groceryItemRecipeDTOList;
     }
 
-
-
     /**
      * Retrieves a list of recommended recipes for a week based on the ingredients available in the fridge.
      * The method aims to create a week's menu of recipes that can be prepared using the available ingredients.
@@ -679,27 +670,25 @@ public class RecipeServiceImplementation implements RecipeService {
         Long currentRecipeId;
         List<GroceryItemRecipeDto> foundRecipe;
 
-
         for(int i = 0; i<(7-amountOfRecipesCreated); i++){
             currentRecipeId = getRandomNumberAndExcludeSome(1L, originalRecipeListSize + 0L, recipeIdUsed);
             foundRecipe = getRecipeList(currentRecipeId);
             weekMenu.add(foundRecipe);
             recipeIdUsed.add(currentRecipeId);
         }
-
         return weekMenu;
     }
 
     /**
      * Will compare fridge and recipe and returns a List of GroceryItemRecipeDto which will represent the missing
      * items to create the specific recipe.
+     *
      * @param fridge A hashmap representing the fridge with grocery items
      * @param recipe The Recipe we are comparing
      * @return A list of Grocery items the fridge is missing
      */
     public List<GroceryItemRecipeDto> getMissingIngredient(HashMap<Long, GroceryItemFridgeAlgoDto> fridge,
                                                            Recipe recipe, int portion) {
-
         List<GroceryItemRecipeDto> groceryItemRecipe = getRecipeGroceryList(recipe);
         adjustAmountBasedOnPortion(groceryItemRecipe, portion);
         List<GroceryItemRecipeDto> missingRequiredGroceries = new ArrayList<>();
@@ -730,7 +719,8 @@ public class RecipeServiceImplementation implements RecipeService {
 
     /**
      * Adjust the all GroceryItemRecipeDto amount based on portion size.
-     * Will multiply GroceryItemRecipeDto.amount with portion
+     * Will multiply GroceryItemRecipeDto amount with portion.
+     *
      * @param groceryItemRecipeDtos A list of GroceryItemRecipeDto representing the recipe
      * @param portion int representing poriton
      */
@@ -746,7 +736,8 @@ public class RecipeServiceImplementation implements RecipeService {
     /**
      * Adjust all recipes amount based on portion size.
      * Will multiply GroceryItemRecipeDto amount with portion size
-     * @param groceryItemRecipeDtos A double nested listed represeting a RecipeList
+     *
+     * @param groceryItemRecipeDtos A double nested listed representing a RecipeList
      * @param portion int representing portion
      */
     public void adjustAmountForMultipleRecipesBasedOnPortion(List<List<GroceryItemRecipeDto>> groceryItemRecipeDtos, int portion) {
@@ -754,7 +745,6 @@ public class RecipeServiceImplementation implements RecipeService {
             adjustAmountBasedOnPortion(groceryItemRecipeDtos.get(i), portion);
         }
     }
-
 
     /**
      * Return a random long between min and max, excluding numbers from the specified idList.
@@ -770,13 +760,12 @@ public class RecipeServiceImplementation implements RecipeService {
         Random random = new Random();
         Long randomNumber;
 
-        do{
+        do {
             randomNumber = random.nextLong(max-min) + min;
         } while (idList.contains(randomNumber));
 
         return randomNumber;
     }
-
 
     /**
      * Return a list containing two RecipeResponseDto. The first Dto represents the missing ingredients while
@@ -784,13 +773,15 @@ public class RecipeServiceImplementation implements RecipeService {
      *
      * @param fridgeId the id of the fridge
      * @param recipeId the id of the recipe
-     * @return a list containing two RecipeResponseDto: the first Dto contains the missing ingredients, and the second Dto contains the original Recipe
+     * @return a list containing two RecipeResponseDto: the first Dto contains the missing ingredients, and the second
+     *         Dto contains the original Recipe
      */
     public List<RecipeResponseDTO> getMissingIngredientsAndOriginalRecipe(Long fridgeId, Long recipeId, int portion){
         List<RecipeResponseDTO> response = new ArrayList<>();
 
         HashMap<Long, GroceryItemFridgeAlgoDto> fridge = retrieveFridgeItemsHashMap(fridgeId);
-        Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(() ->  new NotFoundException("No Recipe with id " + recipeId));
+        Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(() ->  new NotFoundException("No Recipe with id "
+                + recipeId));
 
         // Create the Missing Ingredient Response
         RecipeResponseDTO missingIngredientsResponse = new RecipeResponseDTO();
@@ -813,10 +804,8 @@ public class RecipeServiceImplementation implements RecipeService {
 
         response.add(missingIngredientsResponse);
 
-
         //The original recipe
         RecipeResponseDTO originalRecipe = new RecipeResponseDTO();
-
 
         originalRecipe.setRecipe_id(recipe.getRecipe_id());
         originalRecipe.setName(recipe.getName());
@@ -841,13 +830,12 @@ public class RecipeServiceImplementation implements RecipeService {
         return response;
     }
 
-
-
     /**
      * Calculates the expiration date weight for a given item.
      * The weight is determined based on the difference between the current date and the expiration date.
      * If the item has not expired, a weight less than 1 is assigned, with smaller values for items closer to expiration.
-     * If the item has expired, a weight greater than 1 is assigned, with larger values for items that expired longer ago.
+     * If the item has expired, a weight greater than 1 is assigned, with larger values for items that expired longer
+     * ago.
      *
      * @param dateToday      The current date.
      * @param expirationDate The expiration date of the item.
@@ -866,11 +854,6 @@ public class RecipeServiceImplementation implements RecipeService {
             // Item has expired
             weight = 1 + (-RecipeRecommenderConstants.EXPIRED_WEIGHT_CONSTANT * diff);
         }
-
         return weight;
     }
-
-
-
-
 }
