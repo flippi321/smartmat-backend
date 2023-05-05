@@ -8,18 +8,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Set;
+
 /**
- This interface represents the repository for the Category model, extending JpaRepository.
- It provides methods for basic CRUD operations, and a custom method for retrieving all categories.
+ * This interface represents the repository for the Category model, extending JpaRepository.
+ * It provides methods for basic CRUD operations, and a custom method for retrieving all categories.
  */
-
-
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
+
     /**
-     Retrieves all categories in the database.
+     * Retrieves all categories in the database.
      *
-     @return A set of Category objects representing all categories.
+     * @return A set of Category objects representing all categories.
      */
     @Query("SELECT g FROM Category g")
     Set<Category> getAllCategories();

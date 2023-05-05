@@ -1,6 +1,5 @@
 package edu.ntnu.idatt2106_09.backend.repository;
 
-import edu.ntnu.idatt2106_09.backend.model.GroceryItem;
 import edu.ntnu.idatt2106_09.backend.model.GroceryItemFridge;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,15 +7,16 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+
 /**
  * The repository for managing  GroceryItemFridge entities in the database.
  */
 @Repository
 public interface GroceryItemFridgeRepository extends JpaRepository<GroceryItemFridge, Long> {
+
     /**
      * Finds all GroceryItemFridge objects belonging to a fridge with a given ID.
      *
@@ -25,6 +25,7 @@ public interface GroceryItemFridgeRepository extends JpaRepository<GroceryItemFr
      */
     @Query("SELECT g FROM GroceryItemFridge g WHERE g.fridge.fridgeId = :fridgeId")
     Set<GroceryItemFridge> findAllByFridgeId(Long fridgeId);
+
     /**
      * Finds all GroceryItemFridge objects for a given fridge and grocery item, sorted by their expiration date in ascending order.
      *

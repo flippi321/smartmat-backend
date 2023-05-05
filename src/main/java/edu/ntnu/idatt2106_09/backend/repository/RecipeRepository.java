@@ -6,11 +6,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Set;
+
 /**
  This interface is responsible for handling database operations related to the Recipe entity.
  */
 @Repository
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
+
     /**
      * Returns all recipes present in the database.
      *
@@ -18,6 +20,4 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
      */
     @Query("SELECT r FROM Recipe r")
     Set<Recipe> getAllRecipes();
-
-
 }
