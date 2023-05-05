@@ -1,6 +1,7 @@
 package edu.ntnu.idatt2106_09.backend.controller;
 
 import edu.ntnu.idatt2106_09.backend.dto.*;
+import edu.ntnu.idatt2106_09.backend.dto.recipe.IngredientDTO;
 import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 
@@ -83,6 +85,7 @@ public class GroceryItemController {
     /*
     // DELETE (delete grocery items with given ids in a shoppinglist)
     @DeleteMapping("/shoppinglist/deleteItems/{shoppinglistId}")
+    @Operation(summary = "Remove multiple grocery item from a shopping list", description = "Removes multiple grocery items from a shoppinglist by using shoppingListId and a list of groceryItemsId")
     public ResponseEntity<ShoppinglistDto> removeGroceryItemsFromShoppinglist(@PathVariable("shoppinglistId") Long shoppinglistId, @RequestBody Long[] groceryItemIds){
         log.debug("[X] Call to delete a given grocery from shoppinglist");
         return groceryItemService.removeGroceryItemsFromShoppinglist(shoppinglistId, groceryItemIds);
@@ -115,21 +118,18 @@ public class GroceryItemController {
 
 
 
-
-
-
-
     //BELOW ARE API CALLS FOR GROCERYITEM IN RELATION TO A FRIDGE
 
     // POST (Add new grocery items to a fridge)
     @PostMapping("/fridge/add/{fridgeId}")
     public ResponseEntity<Set<GroceryItemDto>> addGroceryItemsToFridge(@PathVariable("fridgeId") Long fridgeId, @RequestBody Set<GroceryItemDto> groceryItems) {
-        log.debug("[X] Call to add crocery to fridge");
+        log.debug("[X] Call to add grocery to fridge");
         return groceryItemService.addGroceryItemsToFridge(fridgeId, groceryItems);
     }
 
     // GET (Get all grocery items in a given fridge)
     @GetMapping("/fridge/{fridgeId}")
+    @Operation(summary = "Get all grocery items in a fridge", description = "Returns all grocery items in a fridge")
     public ResponseEntity<Set<GroceryItemFridgeDto>> getAllGroceryItemsInFridge(@PathVariable Long fridgeId) {
         log.debug("[X] Call to return all grocery items in a given fridge");
         return groceryItemService.getAllGroceryItemsInFridge(fridgeId);
@@ -144,6 +144,7 @@ public class GroceryItemController {
 
     // DELETE (delete all grocery items in a fridge)
     @DeleteMapping("/fridge/deleteAll/{fridgeId}")
+    @Operation(summary = "Delete all grocery items from a fridge", description = "Removes all grocery items from a fridge")
     public ResponseEntity<Void> deleteAllGroceryItemsInFridge(@PathVariable Long fridgeId) {
         log.debug("[X] Call to delete all groceries in fridge = {}", fridgeId);
         return groceryItemService.deleteAllGroceryItemsInFridge(fridgeId);
@@ -156,9 +157,20 @@ public class GroceryItemController {
         return groceryItemService.removeGroceryItemFromFridge(fridgeId, groceryItemDto);
     }
 
+    @DeleteMapping("/fridge/removeAmountFromMultipleItems/{fridgeId}")
+    @Operation(summary = "Modifies or removes amount from items in fridge based on List given", description = "Removes or modifies amount of multiple groceryItems based on IngredientDto list.")
+    public ResponseEntity<Object> removeGroceryItemFromFridgeBasedOnList(@PathVariable Long fridgeId ,
+                                                                                      @RequestBody List<IngredientDTO> ingredients) {
+        log.debug("[X] Call to delete a list of grocery from fridge");
+        return groceryItemService.removeGroceryItemsFromFridge(fridgeId, ingredients);
+
+    }
+
+
     /*
     // DELETE (delete grocery items with given ids in a fridge)
     @DeleteMapping("/fridge/deleteItems/{fridgeId}")
+    @Operation(summary = "Delete a multiple grocery item from a fridge", description = "Removes multiple grocery item from a fridge by using the fridge id and a list grocery item id")
     public ResponseEntity<FridgeDto> removeGroceryItemsFromFridge(@PathVariable("fridgeId") Long fridgeId, @RequestBody Long[] groceryItemIds){
         log.debug("[X] Call to delete a given grocery from shoppinglist");
         return groceryItemService.removeGroceryItemsFromFridge(fridgeId, groceryItemIds);
@@ -195,6 +207,7 @@ public class GroceryItemController {
     //BELOW ARE API CALLS FOR GROCERYITEM ALONE
     // GET (Get all grocery items)
     @GetMapping("/all")
+    @Operation(summary = "Get all the grocery items", description = "Returns all the grocery items")
     public ResponseEntity<Set<GroceryItemDto>>  getAllGroceryItems() {
         log.debug("[X] Call to return all grocery items");
         return groceryItemService.getAllGroceryItems();
@@ -203,6 +216,7 @@ public class GroceryItemController {
     //DONE
     // GET (Get a grocery item with a given id)
     @GetMapping("/{groceryItemId}")
+    @Operation(summary = "Get a specific grocery item", description = "Returns a specific grocery item")
     public ResponseEntity<GroceryItemDto> getGroceryItemById(@PathVariable Long groceryItemId) {
         log.debug("[X] Call to return a grocery item by id");
         return groceryItemService.getGroceryItemById(groceryItemId);
@@ -210,6 +224,7 @@ public class GroceryItemController {
 
     // PUT (Update a grocery item)
     @PutMapping("/update/{groceryItemId}")
+    @Operation(summary = "Update a groceryItem", description = "Updates a groceryItem based on the json object given")
     public ResponseEntity<GroceryItemDto> updateGroceryItem(@PathVariable Long groceryItemId, @RequestBody GroceryItemDto updatedGroceryItemDto) {
         log.debug("[X] Call to update a grocery item with id = {}", groceryItemId);
         return groceryItemService.updateGroceryItem(groceryItemId, updatedGroceryItemDto);
@@ -217,11 +232,11 @@ public class GroceryItemController {
 
     // DELETE (Delete a grocery item by ID completely)
     @DeleteMapping("/delete/{groceryItemId}")
+    @Operation(summary = "Delete a groceryItem", description = "Deletes a groceryItem based on the groceryyItemId and returns the item deleted")
     public ResponseEntity<GroceryItemDto> deleteGroceryItem(@PathVariable Long groceryItemId) {
         log.debug("[X] Call to delete a grocery item with id = {}", groceryItemId);
         return groceryItemService.deleteGroceryItem(groceryItemId);
     }
-
 
 
 }
