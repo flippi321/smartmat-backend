@@ -257,25 +257,23 @@ public class RecipeServiceImplementation implements RecipeService {
             double currentAmount;
 
             for (GroceryItemFridge gif : groceryItemFridge) {
+                currentGroceryItemFridgeDTO = new GroceryItemFridgeAlgoDto();
+                currentGroceryItemFridgeDTO.setExpirationDate(gif.getExpirationDate());
+                currentGroceryItemFridgeDTO.setPurchaseDate(gif.getPurchaseDate());
+                currentGroceryItemFridgeDTO.setFridgeDto(fridgeDTO);
+                currentGroceryItemFridgeDTO.setGroceryItem(modelMapper.map(gif.getGroceryItem(), GroceryItemDto.class));
+                currentGroceryItemFridgeDTO.setTimeStamp(gif.getTimestamp());
 
                 // If statements is used to handle multiple of the same type of groceries
-                if(map.get(gif.getGroceryItemId()) == null) {
-                    currentGroceryItemFridgeDTO = new GroceryItemFridgeAlgoDto();
-                    currentGroceryItemFridgeDTO.setAmount(gif.getAmount());
-                    currentGroceryItemFridgeDTO.setExpirationDate(gif.getExpirationDate());
-                    currentGroceryItemFridgeDTO.setPurchaseDate(gif.getPurchaseDate());
-                    currentGroceryItemFridgeDTO.setFridgeDto(fridgeDTO);
-                    currentGroceryItemFridgeDTO.setGroceryItem(modelMapper.map(gif.getGroceryItem(), GroceryItemDto.class));
-                    currentGroceryItemFridgeDTO.setTimeStamp(gif.getTimestamp());
+                if(map.get(gif.getGroceryItemId()) == null) currentGroceryItemFridgeDTO.setAmount(gif.getAmount());
 
-
-                    map.put(gif.getGroceryItem().getGroceryItemId(), currentGroceryItemFridgeDTO);
-                }
                 // If the entry already exist. Just update the amount
                 else {
                     currentAmount = map.get(gif.getGroceryItemId()).getAmount();
-                    map.get(gif.getGroceryItemId()).getGroceryItem().setAmount(currentAmount+gif.getAmount());
+                    currentGroceryItemFridgeDTO.setAmount(gif.getAmount()+currentAmount);
+
                 }
+                map.put(gif.getGroceryItem().getGroceryItemId(), currentGroceryItemFridgeDTO);
             }
         } else {
             throw new NotFoundException("Fridge with id " + fridgeId + " not found");

@@ -812,9 +812,6 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         //Update the items to correct amount
         for(int i = 0; i < itemsToBeUpdated.size(); i++ ) {
             currentItem = itemsToBeUpdated.get(i);
-
-            System.out.println("Fridge AAAA AAAA");
-            System.out.println(fridgeId + " " + currentItem.getGroceryItemId() + " " + currentItem.getTimestamp() + " " + currentItem.getAmount());
             groceryItemFridgeRepository.updateAmountByFridgeIdAndGroceryItemIdAndTimestamp(fridgeId, currentItem.getGroceryItemId(),
                     currentItem.getTimestamp(), currentItem.getAmount());
         }

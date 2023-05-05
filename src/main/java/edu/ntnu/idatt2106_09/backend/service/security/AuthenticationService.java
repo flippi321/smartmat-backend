@@ -1,16 +1,19 @@
-package edu.ntnu.idatt2106_09.backend.authentication;
+package edu.ntnu.idatt2106_09.backend.service.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.ntnu.idatt2106_09.backend.config.JwtService;
+import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationRequest;
+import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationResponse;
+import edu.ntnu.idatt2106_09.backend.authentication.RegistrationRequest;
+import edu.ntnu.idatt2106_09.backend.service.security.JwtService;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.BadRequestException;
 import edu.ntnu.idatt2106_09.backend.exceptionHandling.InternalServerErrorException;
+import edu.ntnu.idatt2106_09.backend.exceptionHandling.NotFoundException;
+import edu.ntnu.idatt2106_09.backend.repository.TokenRepository;
 import edu.ntnu.idatt2106_09.backend.repository.UserRepository;
-import edu.ntnu.idatt2106_09.backend.token.Token;
-import edu.ntnu.idatt2106_09.backend.token.TokenRepository;
-import edu.ntnu.idatt2106_09.backend.token.TokenType;
+import edu.ntnu.idatt2106_09.backend.model.token.Token;
+import edu.ntnu.idatt2106_09.backend.model.token.TokenType;
 import edu.ntnu.idatt2106_09.backend.model.user.Role;
 import edu.ntnu.idatt2106_09.backend.model.user.User;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +41,12 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * Saves the user's access token to the token repository.
+     *
+     * @param user        The user whose access token is to be saved.
+     * @param accessToken The user's access token.
+     */
     private void saveUserTokenToRepository(User user, String accessToken) {
         var token = Token.builder()
                 .user(user)
@@ -49,6 +58,11 @@ public class AuthenticationService {
         tokenRepository.save(token);
     }
 
+    /**
+     * Revokes all valid tokens for the specified user by marking them as expired and revoked.
+     *
+     * @param user The user whose tokens should be revoked.
+     */
     private void revokeAllTokensForUser(User user) {
         var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
         if (validUserTokens.isEmpty()) {
@@ -63,6 +77,19 @@ public class AuthenticationService {
         tokenRepository.saveAll(validUserTokens);
     }
 
+    /**
+     * Registers a new user by validating the provided registration details and saving the user in the system. The
+     * method generates an access token and a refresh token for successful registration. If the registration is successful,
+     * a new {@link AuthenticationResponse} object is returned to the client, containing the user's information, access
+     * token, and refresh token.
+     *
+     * @param request the {@link RegistrationRequest} object containing the user's registration details, such as
+     *                first name, last name, email, and password
+     * @return an {@link AuthenticationResponse} object containing the user's information, access token, and refresh token
+     * @throws BadRequestException if the provided email is already registered, or any of the required fields are empty
+     *      *                      or null.
+     * @throws InternalServerErrorException if an unexpected error occurs during the registration process
+     */
     public AuthenticationResponse register(RegistrationRequest request) {
         log.debug("[X] Attempting to register a new user with email: {}", request.getEmail());
         try {
@@ -99,7 +126,15 @@ public class AuthenticationService {
         }
     }
 
-    private void validateRegistrationRequest(RegistrationRequest request) {
+    /**
+     * Validates the registration request by checking if the provided email is already registered and ensuring that
+     * none of the required fields are empty or null.
+     *
+     * @param request The registration request containing the user's information.
+     * @throws BadRequestException if the provided email is already registered, or any of the required fields (firstname,
+     *                             lastname, email and password) are empty or null.
+     */
+    private void validateRegistrationRequest(RegistrationRequest request) throws IOException {
         userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
             throw new BadRequestException("The provided email is already registered.");
         });
@@ -121,6 +156,17 @@ public class AuthenticationService {
         });
     }
 
+    /**
+     * Authenticates a user by validating their credentials and generating an access token and a refresh token for
+     * successful authentication. The method uses the {@link AuthenticationManager} to validate the provided email and
+     * password and checks if the user exists in the system. If the authentication is successful, a new access token and
+     * refresh token are generated, and an {@link AuthenticationResponse} object is returned to the client.
+     *
+     * @param request the {@link AuthenticationRequest} object containing the user's email and password for authentication
+     * @return an {@link AuthenticationResponse} object containing the user's information, access token, and refresh token
+     * @throws BadCredentialsException if the provided email and password combination is invalid or the user is not found
+     * @throws InternalServerErrorException if an unexpected error occurs during the authentication process
+     */
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         log.debug("[X] Attempting to authenticate a new user with email: {}", request.getEmail());
         try {
@@ -157,43 +203,12 @@ public class AuthenticationService {
     }
 
     /**
-    public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response) {
-        // ... (existing authentication code)
-
-        // At this point the user is authenticated.
-
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        var generatedAccessToken = jwtService.generateAccessToken(user);
-        var generatedRefreshToken = jwtService.generateRefreshToken(user);
-        revokeAllTokensForUser(user);
-        saveUserTokenToRepository(user, generatedAccessToken);
-
-        // Create cookies for the access token and refresh token
-        Cookie accessTokenCookie = new Cookie("access_token", generatedAccessToken);
-        Cookie refreshTokenCookie = new Cookie("refresh_token", generatedRefreshToken);
-
-        // Set HttpOnly, Secure, and SameSite attributes for both cookies
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true); // Set this to true only for HTTPS connections
-        accessTokenCookie.setPath("/");
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true); // Set this to true only for HTTPS connections
-        refreshTokenCookie.setPath("/");
-
-        // Add the cookies to the HttpServletResponse
-        response.addCookie(accessTokenCookie);
-        response.addCookie(refreshTokenCookie);
-
-        return AuthenticationResponse.builder()
-                .id(user.getId())
-                .firstname(user.getFirstname())
-                .lastname(user.getLastname())
-                .email(user.getEmail())
-                .build();
-    }
+     * Validates the authentication request by ensuring that none of the required fields (email and password) are
+     * empty or null.
+     *
+     * @param request The authentication request containing the user's email and password.
+     * @throws BadCredentialsException if any of the required fields (email and password) are empty or null.
      */
-
-
     private void validateAuthenticationRequest(AuthenticationRequest request) {
         Map<String, String> fields = Map.of(
                 "Email", request.getEmail(),
@@ -210,34 +225,64 @@ public class AuthenticationService {
         });
     }
 
+    /**
+     * Handles a token refresh request by validating the provided refresh token, generating a new access token, and
+     * returning an updated authentication response to the client. This method ensures the security of the
+     * authentication process by validating the tokens and checking for the existence of the user in the system.
+     *
+     * @param request  the {@link HttpServletRequest} object that contains the client request, including the refresh
+     *                 token in the "Authorization" header.
+     * @param response the {@link HttpServletResponse} object that will contain the updated authentication response
+     *                 with a new access token and other user information.
+     * @throws BadRequestException if the token format in the request header is invalid.
+     * @throws NotFoundException if the user is not found for the provided refresh token.
+     * @throws BadCredentialsException if the provided refresh token is invalid.
+     * @throws IOException if an error occurs while writing the authentication response to the output stream.
+     * @throws InternalServerErrorException if an unexpected error occurs during token refresh.
+     */
     public void handleTokenRefreshRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            return;
+            throw new BadRequestException("Invalid token format in the request header.");
         }
 
         final String refreshToken = authorizationHeader.substring(7);
         final String userEmail = jwtService.extractUsername(refreshToken);
-        if (userEmail != null) {
-            var user = this.userRepository.findByEmail(userEmail).orElseThrow();
-            // TODO Should the refresh token also be revoked?
-            // TODO Check for token expiration before using it?
-            // TODO Add logic instead of just using 'orElseThrow()'?
-            if (jwtService.isTokenValid(refreshToken, user)) {
-                var generatedAccessToken = jwtService.generateAccessToken(user);
-                revokeAllTokensForUser(user);
-                saveUserTokenToRepository(user, generatedAccessToken);
-                var authenticationResponse = AuthenticationResponse.builder()
-                        .accessToken(generatedAccessToken)
-                        .refreshToken(refreshToken)
-                        .id(user.getId())
-                        .firstname(user.getFirstname())
-                        .lastname(user.getLastname())
-                        .email(user.getEmail())
-                        .build();
-                response.setContentType("application/json");
-                new ObjectMapper().writeValue(response.getOutputStream(), authenticationResponse);
+
+        if (userEmail == null) {
+            throw new NotFoundException("User not found for the provided refresh token.");
+        }
+
+        var user = this.userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("The user was not found"));
+
+        try {
+            if (!jwtService.isTokenValid(refreshToken, user)) {
+                throw new BadCredentialsException("Invalid refresh token.");
             }
+
+            var generatedAccessToken = jwtService.generateAccessToken(user);
+            revokeAllTokensForUser(user);
+            saveUserTokenToRepository(user, generatedAccessToken);
+
+            var authenticationResponse = AuthenticationResponse.builder()
+                    .accessToken(generatedAccessToken)
+                    .refreshToken(refreshToken)
+                    .id(user.getId())
+                    .firstname(user.getFirstname())
+                    .lastname(user.getLastname())
+                    .email(user.getEmail())
+                    .build();
+            response.setContentType("application/json");
+            new ObjectMapper().writeValue(response.getOutputStream(), authenticationResponse);
+
+            log.info("[X] Token refresh successful for email: {}", userEmail);
+        } catch (BadCredentialsException e) {
+            log.warn("[X] Failed to refresh token for user with email: {} - Invalid refresh token", userEmail);
+            throw e;
+        } catch (Exception e) {
+            log.error("[X] Unexpected error during token refresh for user with email: {}", userEmail, e);
+            throw new InternalServerErrorException("An unexpected error occurred during token refresh.");
         }
     }
 }
