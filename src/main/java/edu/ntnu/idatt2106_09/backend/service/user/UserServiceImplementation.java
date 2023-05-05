@@ -22,6 +22,10 @@ public class UserServiceImplementation implements UserService{
     @Autowired
     private UserRepository userRepository;
 
+    public UserServiceImplementation(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     /**
      * Updates an existing user with the given email address.
      *
