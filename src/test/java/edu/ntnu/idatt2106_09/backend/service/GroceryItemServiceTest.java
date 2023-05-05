@@ -3,8 +3,8 @@ package edu.ntnu.idatt2106_09.backend.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -41,12 +41,19 @@ class GroceryItemServiceTest {
     private GroceryItemServiceImplementation groceryItemService;
 
     //TESTS FOR GROCERY ITEMS IN RELATION TO SHOPPINGLIST AND FRIDGE
-    /*
     @Test
     public void GroceryItemService_TransferGroceryItemsToFridge() {
         Long shoppinglistId = 1L;
         Long fridgeId = 1L;
-        Long[] groceryItemIds = {1L, 2L};
+        Set<GroceryItemDto> groceryItems = new HashSet<>();
+        GroceryItemDto item1 = new GroceryItemDto();
+        item1.setGroceryItemId(1L);
+        item1.setTimestamp(LocalDateTime.now());
+        GroceryItemDto item2 = new GroceryItemDto();
+        item2.setGroceryItemId(2L);
+        item2.setTimestamp(LocalDateTime.now());
+        groceryItems.add(item1);
+        groceryItems.add(item2);
 
         Shoppinglist shoppinglist = new Shoppinglist();
         shoppinglist.setShoppinglistId(shoppinglistId);
@@ -54,7 +61,8 @@ class GroceryItemServiceTest {
         Fridge fridge = new Fridge();
         fridge.setFridgeId(fridgeId);
 
-        for (Long groceryItemId : groceryItemIds) {
+        for (GroceryItemDto groceryItemDto : groceryItems) {
+            Long groceryItemId = groceryItemDto.getGroceryItemId();
             GroceryItem groceryItem = new GroceryItem();
             groceryItem.setGroceryItemId(groceryItemId);
             Category category = new Category();
@@ -63,17 +71,17 @@ class GroceryItemServiceTest {
             when(groceryItemRepository.findById(groceryItemId)).thenReturn(Optional.of(groceryItem));
             shoppinglist.addGroceryItem(groceryItem, 1);
         }
+
         when(shoppinglistRepository.findById(shoppinglistId)).thenReturn(Optional.of(shoppinglist));
         when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(fridge));
 
         assertThat(shoppinglist.getGroceries().size()).isEqualTo(2);
 
-        groceryItemService.transferGroceryItemsToFridge(shoppinglistId, fridgeId, groceryItemIds);
+        groceryItemService.transferGroceryItemsToFridge(shoppinglistId, fridgeId, groceryItems);
 
-        assertThat(shoppinglist.getGroceries().size()).isEqualTo(0);
-        assertThat(fridge.getGroceries().size()).isEqualTo(2);
+        verify(shoppinglistRepository, times(2)).save(any(Shoppinglist.class));
+        verify(fridgeRepository, times(2)).save(any(Fridge.class));
     }
-     */
 
 
 
@@ -236,8 +244,8 @@ class GroceryItemServiceTest {
     }
 
 
-    /*@Test
-    public void GroceryItemService_RemoveGroceryItemFromShoppinglist_ReturnGroceryItemDto() {
+    @Test
+    public void GroceryItemService_RemoveGroceryItemsFromShoppinglist_RemovesGroceryItems() {
         Long shoppinglistId = 1L;
         Long groceryItemId1 = 1L;
         Long groceryItemId2 = 2L;
@@ -257,18 +265,26 @@ class GroceryItemServiceTest {
 
         when(shoppinglistRepository.findById(shoppinglistId)).thenReturn(Optional.of(shoppinglist));
         when(groceryItemRepository.findById(groceryItemId1)).thenReturn(Optional.of(groceryItem1));
+        when(groceryItemRepository.findById(groceryItemId2)).thenReturn(Optional.of(groceryItem2));
 
-        GroceryItemDto groceryItemDto = new GroceryItemDto();
-        groceryItemDto.setGroceryItemId(groceryItemId1);
-        groceryItemDto.setTimestamp(timestamp);
+        Set<GroceryItemDto> groceryItemsDto = new HashSet<>();
+        GroceryItemDto groceryItemDto1 = new GroceryItemDto();
+        groceryItemDto1.setGroceryItemId(groceryItemId1);
+        groceryItemDto1.setTimestamp(timestamp);
+        groceryItemsDto.add(groceryItemDto1);
 
-        ResponseEntity<ShoppinglistDto> response = groceryItemService.removeGroceryItemFromShoppinglist(shoppinglistId, groceryItemDto);
+        GroceryItemDto groceryItemDto2 = new GroceryItemDto();
+        groceryItemDto2.setGroceryItemId(groceryItemId2);
+        groceryItemDto2.setTimestamp(timestamp);
+        groceryItemsDto.add(groceryItemDto2);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }*/
+        groceryItemService.removeGroceryItemsFromShoppinglist(shoppinglistId, groceryItemsDto);
+
+        verify(shoppinglistRepository, times(2)).save(any(Shoppinglist.class));
+    }
 
 
-    @Test
+        @Test
     public void GroceryItemService_UpdateGroceryItemInShoppinglist_ReturnUpdatedGroceryItemDto() {
         Long shoppinglistId = 1L;
         Long oldGroceryItemId = 1L;

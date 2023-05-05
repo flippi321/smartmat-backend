@@ -47,13 +47,7 @@ public class HouseholdServiceTests {
     @InjectMocks
     private HouseholdServiceImplementation householdService;
 
-    @InjectMocks
-    private AuthenticationService authenticationService;
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
-
-/*
     @Test
     public void getHouseholdByIdAsDtoTest() {
         Long householdId = 1L;
@@ -74,10 +68,15 @@ public class HouseholdServiceTests {
         assertThat(response.get().getName()).isEqualTo(household.getName());
         assertThat(response.get().getFridge().getName()).isEqualTo(fridge.getName());
         assertThat(response.get().getShoppinglist().getName()).isEqualTo(shoppinglist.getName());
+
+        assertThat(response.get().getHouseholdId()).isEqualTo(household.getHouseholdId());
+        assertThat(response.get().getFridge()).isNotNull();
+        assertThat(response.get().getShoppinglist()).isNotNull();
     }
 
 
-    @Test
+
+        @Test
     public void getHouseholdByUserIdTest() {
         Integer userId = 1;
         User user = new User();
@@ -195,48 +194,31 @@ public class HouseholdServiceTests {
 
         Set<UserDto> result = householdService.getAllUsersInHousehold(householdId);
         assertThat(result).hasSize(users.size());
+
+        verify(householdRepository).findById(householdId);
+        verify(userRepository).findAllByHousehold(household);
     }
 
- */
 
-
-    /*
     @Test
     public void addUserToHouseholdTest() {
-        Long householdId = 1L;
+        Long invitationNr = 1L;
+        Integer userId = 1;
         Household household = new Household();
-        household.setHouseholdId(householdId);
-        household.setName("Test Household");
-
-        UserDto userDto = new UserDto();
-        userDto.setFirstname("Test");
-        userDto.setLastname("User");
-        userDto.setEmail("test.user@example.com");
-        userDto.setPassword("password");
-
-        RegistrationRequest request = new RegistrationRequest(userDto.getFirstname(), userDto.getLastname(), userDto.getEmail(), userDto.getPassword());
-        AuthenticationResponse response = new AuthenticationResponse();
-        response.setAccessToken("access_token");
-        response.setRefreshToken("refresh_token");
-        response.setEmail("email");
-        response.setFirstname("firstname");
-        response.setLastname("lastname");
-        response.setId(1);
-
+        household.setInvitationNr(invitationNr);
         User user = new User();
-        user.setId(response.getId());
-        user.setFirstname(userDto.getFirstname());
-        user.setLastname(userDto.getLastname());
-        user.setEmail(userDto.getEmail());
+        user.setId(userId);
 
-        when(householdRepository.findById(householdId)).thenReturn(Optional.of(household));
-        when(authenticationService.register(request)).thenReturn(response);
-        when(userRepository.findById(response.getId())).thenReturn(Optional.of(user));
+        when(householdRepository.findByInvitationNr(invitationNr)).thenReturn(Optional.of(household));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
 
-        ResponseEntity<UserDto> result = householdService.addUserToHousehold(householdId, userDto);
-        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(result.getBody().getFirstname()).isEqualTo(user.getFirstname());
+        ResponseEntity<UserDto> response = householdService.addUserToHousehold(invitationNr, userId);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        verify(householdRepository).findByInvitationNr(invitationNr);
+        verify(userRepository).findById(userId);
+        verify(userRepository).save(user);
     }
-     */
 
 }
