@@ -6,6 +6,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
 /**
  * A global exception handler class that handles exceptions thrown by the application controllers and returns
  * a ResponseEntity object with an appropriate HTTP status code and message.

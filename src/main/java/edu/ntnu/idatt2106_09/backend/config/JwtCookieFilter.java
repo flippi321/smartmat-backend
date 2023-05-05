@@ -20,16 +20,6 @@ public class JwtCookieFilter extends OncePerRequestFilter {
 
     /**
      * Searches for the "access_token" cookie in the request and, if found, adds its value to the "Authorization" header.
-     *
-     * @param request the HttpServletRequest being processed.
-     * @param response the HttpServletResponse being processed.
-     * @param filterChain the filter chain that this filter is part of
-     * @throws ServletException if an error occurs during request processing
-     * @throws IOException if an input or output error occurs during request processing
-     */
-
-    /**
-     * Searches for the "access_token" cookie in the request and, if found, adds its value to the "Authorization" header.
      * This is done to allow the JwtAuthenticationFilter to validate the token. The JwtAuthenticationFilter only checks
      * the "Authorization" header for a valid token.
      * @param request the HttpServletRequest being processed.
@@ -54,7 +44,6 @@ public class JwtCookieFilter extends OncePerRequestFilter {
                 request = setAuthorizationHeader(request, "Bearer " + accessTokenCookie.getValue());
             }
         }
-
         filterChain.doFilter(request, response);
     }
 

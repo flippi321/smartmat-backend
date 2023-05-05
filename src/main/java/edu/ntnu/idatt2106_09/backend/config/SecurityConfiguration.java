@@ -13,11 +13,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 /**
- Provides security configuration for the application.
- <p>
- This class is responsible for defining the security rules and configurations, such as authentication, authorization,
- session management, and CORS settings. The class uses JwtAuthenticationFilter and JwtCookieFilter for authentication
- and manages the logout process using a custom logout handler.
+ * Provides security configuration for the application.
+ *
+ * This class is responsible for defining the security rules and configurations, such as authentication, authorization,
+ * session management, and CORS settings. The class uses JwtAuthenticationFilter and JwtCookieFilter for authentication
+ * and manages the logout process using a custom logout handler.
  */
 @Configuration
 @EnableWebSecurity
@@ -30,7 +30,7 @@ public class SecurityConfiguration {
 
     /**
      * Configures the security filter chain for the application.
-     * <p>
+     *
      * This method sets up the security rules and configurations for the application, such as disabling CSRF,
      * configuring CORS, setting up authentication and authorization rules, session management, and logout settings.
      *
@@ -58,7 +58,7 @@ public class SecurityConfiguration {
                 .and()
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtCookieFilter(), JwtAuthenticationFilter.class)
+                //.addFilterBefore(new JwtCookieFilter(), JwtAuthenticationFilter.class)
                 .logout()
                     .logoutUrl("/api/v1/auth/logout")
                     .addLogoutHandler(logoutHandler)

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 /**
  * LogoutService is responsible for handling user logout operations. It implements LogoutHandler from the Spring
  * Security framework.
- * <p>
+ *
  * This class provides the necessary functionality to invalidate the user's access token and clear the
  * SecurityContextHolder during logout.
  */
