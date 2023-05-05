@@ -14,6 +14,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ The FridgeServiceImplementation class is responsible for implementing the logic for managing Fridges in the application.
+ It allows for updating, adding, retrieving and deleting fridges from the database.
+ */
 @Slf4j
 @Service
 public class FridgeServiceImplementation implements FridgeService {
@@ -29,6 +33,10 @@ public class FridgeServiceImplementation implements FridgeService {
 
     @Autowired
     private ModelMapper modelMapper = new ModelMapper();
+
+    /**
+     * Made for mocking in 'FridgeServiceTest'
+     */
 
     public FridgeServiceImplementation(FridgeRepository fridgeRepository,
                                        HouseholdServiceImplementation householdService, HouseholdRepository householdRepository) {

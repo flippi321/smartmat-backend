@@ -25,7 +25,10 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-//det jeg skal gjøre nå er å skrive javadoc for household- og shoppinglist-service-klassene.
+/**
+ The HouseholdServiceImplementation class is responsible for implementing the logic for managing Household in the application.
+ It allows for updating, adding, retrieving and deleting households from the database.
+ */
 @Slf4j
 @Service
 public class HouseholdServiceImplementation implements HouseholdService {
@@ -48,26 +51,50 @@ public class HouseholdServiceImplementation implements HouseholdService {
     @Autowired
     private ModelMapper modelMapper;
 
+    /**
+
+     Casts a Household object to a HouseholdDtoForHouseholdService object using the ModelMapper library.
+     @param household the Household object to be casted
+     @return a HouseholdDtoForHouseholdService object that represents the input Household object
+     */
     private HouseholdDtoForHouseholdService castHouseholdToDto(Household household){
         modelMapper = new ModelMapper();
         return modelMapper.map(household, HouseholdDtoForHouseholdService.class);
     }
 
+    /**
+     Converts a HouseholdDtoForHouseholdService object to a Household object using the ModelMapper library.
+     @param householdDto The HouseholdDtoForHouseholdService object to be converted.
+     @return A Household object converted from the given HouseholdDtoForHouseholdService object.
+     */
     private Household castDtoToHousehold(HouseholdDtoForHouseholdService householdDto){
         modelMapper = new ModelMapper();
         return modelMapper.map(householdDto, Household.class);
     }
 
+    /**
+     Maps a User entity to a UserDto using ModelMapper.
+     @param user the User entity to be mapped
+     @return the UserDto object that represents the User entity
+     */
     private UserDto castUserToDto(User user){
         modelMapper = new ModelMapper();
         return modelMapper.map(user, UserDto.class);
     }
 
+    /**
+
+     Maps a UserDto object to a User object using ModelMapper.
+     @param userdto the UserDto object to map to a User object
+     @return the mapped User object
+     */
     private User castDtoToUser(UserDto userdto){
         return modelMapper.map(userdto, User.class);
     }
 
-
+    /**
+     * Made for mocking in 'HouseholdServiceTest'
+     */
     public HouseholdServiceImplementation(HouseholdRepository householdRepository, UserRepository userRepository, FridgeRepository fridgeRepository, ShoppinglistRepository shoppinglistRepository) {
         this.householdRepository = householdRepository;
         this.userRepository = userRepository;
@@ -77,12 +104,28 @@ public class HouseholdServiceImplementation implements HouseholdService {
     }
 
 
+    /**
+
+     Retrieves the household with the given ID from the database, if it exists.
+     @param householdId the ID of the household to retrieve
+     @return an Optional containing the household with the given ID, or an empty Optional if no household is found
+     */
     @Override
     public Optional<Household> getHouseholdById(Long householdId) {
         return householdRepository.findById(householdId);
     }
 
 
+    /**
+
+     Retrieves a Household with the specified id as a DTO object.
+     @param householdId the id of the Household to retrieve.
+     @return an Optional object containing a DTO representation of the Household if it exists, or an empty Optional if it does not.
+     If an error occurs while retrieving the Household, an empty Optional is returned.
+     The DTO contains the Household's id, name, invitation number, Fridge object (as a FridgeDtoWithoutHousehold), and Shoppinglist object (as a ShoppinglistDto).
+     If the Household has no associated Fridge or Shoppinglist, the corresponding DTO object is null.
+     @throws NullPointerException if the specified id is null
+     */
     @Override
     public Optional<HouseholdDtoForHouseholdService> getHouseholdByIdAsDto(Long householdId) {
         log.debug("Fetching Household with id: {}", householdId);
@@ -115,6 +158,12 @@ public class HouseholdServiceImplementation implements HouseholdService {
     }
 
 
+    /**
+
+     Retrieves a HouseholdDtoForHouseholdService object for the household associated with the given user id.
+     @param userId the id of the user whose household should be retrieved
+     @return a ResponseEntity object with the retrieved HouseholdDtoForHouseholdService object in the body if the user and their household are found, or a not found response if the user is not found
+     */
     @Override
     public ResponseEntity<HouseholdDtoForHouseholdService> getHouseholdByUserId(Integer userId) {
         log.debug("Fetching User with id: {}", userId);
@@ -150,6 +199,14 @@ public class HouseholdServiceImplementation implements HouseholdService {
         "email" : "test1@test.com",
         "password" : "passord"
       }*/
+    /**
+     Adds a user to a household with the given invitation number.
+     @param invitationNr the invitation number of the household to add the user to
+     @param userId the id of the user to be added to the household
+     @return a ResponseEntity with the updated UserDto object
+     @throws ResponseStatusException if no household with the given invitation number or user with the given id exists
+     */
+
     @Override
     public ResponseEntity<UserDto> addUserToHousehold(Long invitationNr, Integer userId) {
         log.debug("Adding user to household with invitationNr: {}", invitationNr);
@@ -174,6 +231,15 @@ public class HouseholdServiceImplementation implements HouseholdService {
         }
     }
 
+    /**
+
+     Creates a new household and saves it to the database. Assigns the current user as a member of the new household.
+     Generates a unique invitation number for the household and creates a new fridge and shopping list for it.
+     @param userId the ID of the current user
+     @param householdDto the DTO containing the data for the new household to be created
+     @return a ResponseEntity containing the DTO for the newly created household and a HTTP status code indicating success
+     or failure of the request
+     */
     @Override
     public ResponseEntity<HouseholdDtoForHouseholdService> createHousehold(Integer userId, HouseholdDtoForHouseholdService householdDto) {
         HouseholdDtoForHouseholdService newHouseholdDto = new HouseholdDtoForHouseholdService();
@@ -232,7 +298,16 @@ public class HouseholdServiceImplementation implements HouseholdService {
     }
 
 
-        @Override
+    /**
+
+     Updates an existing household with the provided id using the provided household DTO object.
+     If the household with the provided id does not exist, a 404 Not Found response is returned.
+     @param householdId The id of the household to be updated
+     @param householdDto The DTO object containing the updated household data
+     @return ResponseEntity A response entity with the updated household DTO object if the update was successful,
+     or a 404 Not Found response if the household with the provided id does not exist
+     */
+    @Override
     public ResponseEntity<HouseholdDtoForHouseholdService> updateHousehold(Long householdId, HouseholdDtoForHouseholdService householdDto) {
         Optional<Household> householdOptional = householdRepository.findById(householdId);
         if (householdOptional.isPresent()) {
@@ -254,6 +329,14 @@ public class HouseholdServiceImplementation implements HouseholdService {
         }
     }
 
+    /**
+     Returns a set of UserDto objects containing information about all users in the household with the specified household ID.
+     If the household is found, it retrieves all users associated with the household and maps their information to a UserDto object,
+     which is then added to a set of UserDto objects. If an error occurs while retrieving the users, an error message is logged
+     and an empty set is returned.
+     @param householdId the ID of the household to retrieve users from
+     @return a set of UserDto objects containing information about all users in the household, or an empty set if an error occurs
+     */
     @Override
     public Set<UserDto> getAllUsersInHousehold(Long householdId) {
         Set<UserDto> userDtos = new HashSet<>();

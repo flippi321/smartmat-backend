@@ -16,7 +16,10 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-
+/**
+ The CategoryServiceImplementation class is responsible for implementing the logic for managing Fridges in the application.
+ It allows for updating, adding, retrieving and deleting fridges from the database.
+ */
 @Slf4j
 @Service
 public class CategoryServiceImplementation implements CategoryService {
@@ -27,6 +30,9 @@ public class CategoryServiceImplementation implements CategoryService {
     @Autowired
     private ModelMapper modelMapper;
 
+    /**
+     * Made for mocking in 'CategoryServiceTest'
+     */
     private CategoryDto castCategoryToDto(Category category){
         modelMapper = new ModelMapper();
         return modelMapper.map(category, CategoryDto.class);

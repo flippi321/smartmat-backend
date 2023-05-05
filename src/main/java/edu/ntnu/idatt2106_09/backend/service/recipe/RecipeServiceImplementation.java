@@ -33,6 +33,11 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+/**
+ The RecipeServiceImplementation class is responsible for implementing the logic for managing Recipes in the application..
+ Its main functionality is generating recipes for the user that are most suited, based on what groceryitems are present
+ in the fridge and their expiration dates.
+ */
 @Service
 @Slf4j
 public class RecipeServiceImplementation implements RecipeService {
@@ -60,6 +65,10 @@ public class RecipeServiceImplementation implements RecipeService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    /**
+     * Made for mocking in 'RecipeServiceTest'
+     */
 
     public RecipeServiceImplementation(RecipeRepository recipeRepository){
         this.recipeRepository = recipeRepository;
@@ -217,12 +226,13 @@ public class RecipeServiceImplementation implements RecipeService {
 
 
     /**
-     * Retrieves a recipe and its associated ingredients by the recipe ID.
-     *
-     * @param recipeId The ID of the recipe to be retrieved along with its ingredients.
-     * @return ResponseEntity<Object> containing the recipe and its ingredients in a RecipeResponseDTO format if found,
-     *         or an HTTP status of NOT_FOUND if the recipe with the specified ID does not exist.
-     * @throws NotFoundException If the recipe with the specified ID is not found in the repository.
+
+     Deletes the recipe with the given recipeId from the database.
+     @param recipeId the id of the recipe to be deleted
+     @return ResponseEntity<Object> with HTTP status OK and the deleted recipe as a RecipeDTO if the recipe was successfully deleted,
+     vbnet
+     Copy code
+     ResponseEntity<Object> with HTTP status NOT_FOUND and an error message if the recipe with the given recipeId was not found
      */
     @Override
     public ResponseEntity<Object> deleteRecipe(Long recipeId) {
