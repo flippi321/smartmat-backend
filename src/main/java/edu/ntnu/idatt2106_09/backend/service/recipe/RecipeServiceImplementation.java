@@ -232,7 +232,8 @@ public class RecipeServiceImplementation implements RecipeService {
                 Recipe recipe = recipeOptional.get();
                 RecipeDTO recipeDTO = modelMapper.map(recipe, RecipeDTO.class);
                 recipeRepository.deleteById(recipeId);
-                return new ResponseEntity<>(recipeDTO, HttpStatus.OK);
+                log.info("Recipe with id " + recipe.getRecipe_id() + " deleted");
+                return new ResponseEntity<>(recipeDTO, HttpStatus.NO_CONTENT);
             } else {
                 throw new NotFoundException("recipe with id " + recipeId + " not found");
             }
@@ -274,7 +275,7 @@ public class RecipeServiceImplementation implements RecipeService {
                 map.put(gif.getGroceryItem().getGroceryItemId(), currentGroceryItemFridgeDTO);
             }
         } else {
-            throw new NotFoundException("Fridge not found");
+            throw new NotFoundException("Fridge with id " + fridgeId + " not found");
         }
 
         return map;
