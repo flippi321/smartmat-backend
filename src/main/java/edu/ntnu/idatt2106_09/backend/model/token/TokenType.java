@@ -1,4 +1,4 @@
-package edu.ntnu.idatt2106_09.backend.token;
+package edu.ntnu.idatt2106_09.backend.model.token;
 
 /**
  * An enum representing the types of tokens that can be used in the application.

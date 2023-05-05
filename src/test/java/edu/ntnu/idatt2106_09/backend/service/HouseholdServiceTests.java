@@ -9,14 +9,10 @@ import static org.mockito.Mockito.when;
 
 import java.util.*;
 
-import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationResponse;
-import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationService;
-import edu.ntnu.idatt2106_09.backend.authentication.RegistrationRequest;
 import edu.ntnu.idatt2106_09.backend.dto.*;
 import edu.ntnu.idatt2106_09.backend.model.*;
 import edu.ntnu.idatt2106_09.backend.model.user.User;
 import edu.ntnu.idatt2106_09.backend.repository.*;
-import edu.ntnu.idatt2106_09.backend.service.groceryItem.GroceryItemServiceImplementation;
 import edu.ntnu.idatt2106_09.backend.service.household.HouseholdServiceImplementation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +21,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 public class HouseholdServiceTests {
@@ -38,14 +33,12 @@ public class HouseholdServiceTests {
     @Mock
     private FridgeRepository fridgeRepository;
 
-
     @Mock
     private ShoppinglistRepository shoppinglistRepository;
 
 
     @InjectMocks
     private HouseholdServiceImplementation householdService;
-
 
     @Test
     public void getHouseholdByIdAsDtoTest() {

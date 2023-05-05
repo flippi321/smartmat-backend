@@ -1,5 +1,6 @@
 package edu.ntnu.idatt2106_09.backend.config;
 
+import edu.ntnu.idatt2106_09.backend.config.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

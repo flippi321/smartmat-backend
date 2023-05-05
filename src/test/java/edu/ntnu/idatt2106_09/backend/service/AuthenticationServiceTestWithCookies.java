@@ -3,12 +3,12 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationRequest;
 import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationResponse;
-import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationService;
+import edu.ntnu.idatt2106_09.backend.service.security.AuthenticationService;
 import edu.ntnu.idatt2106_09.backend.authentication.RegistrationRequest;
-import edu.ntnu.idatt2106_09.backend.config.JwtService;
+ import edu.ntnu.idatt2106_09.backend.service.security.JwtService;
 import edu.ntnu.idatt2106_09.backend.repository.UserRepository;
-import edu.ntnu.idatt2106_09.backend.token.Token;
-import edu.ntnu.idatt2106_09.backend.token.TokenRepository;
+import edu.ntnu.idatt2106_09.backend.model.token.Token;
+import edu.ntnu.idatt2106_09.backend.repository.TokenRepository;
 import edu.ntnu.idatt2106_09.backend.model.user.Role;
 import edu.ntnu.idatt2106_09.backend.model.user.User;
 import jakarta.servlet.ServletOutputStream;

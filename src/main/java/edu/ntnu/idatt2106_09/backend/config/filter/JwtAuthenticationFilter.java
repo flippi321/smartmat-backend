@@ -1,12 +1,18 @@
-package edu.ntnu.idatt2106_09.backend.config;
+package edu.ntnu.idatt2106_09.backend.config.filter;
 
-import edu.ntnu.idatt2106_09.backend.token.TokenRepository;
+import edu.ntnu.idatt2106_09.backend.service.security.JwtService;
+import edu.ntnu.idatt2106_09.backend.repository.TokenRepository;
+import edu.ntnu.idatt2106_09.backend.service.security.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.Arrays;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
