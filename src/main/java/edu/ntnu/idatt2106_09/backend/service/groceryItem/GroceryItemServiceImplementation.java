@@ -685,12 +685,17 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
     }
 
     @Override
-    public ResponseEntity<List<IngredientDTO>> removeGroceryItemsFromFridge(Long fridgeId, List<IngredientDTO> ingredients) {
-        for (int i = 0; i < ingredients.size(); i++) {
-            removeAmountFromFridge(fridgeId, ingredients.get(i));
+    public ResponseEntity<Object> removeGroceryItemsFromFridge(Long fridgeId, List<IngredientDTO> ingredients) {
+        try {
+            for (int i = 0; i < ingredients.size(); i++) {
+                removeAmountFromFridge(fridgeId, ingredients.get(i));
+            }
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        catch (NotFoundException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
 
-        return null;
     }
 
     public double removeAmountFromFridge(Long fridgeId, IngredientDTO ingredient) {
@@ -698,6 +703,10 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         double amountToBeRemoved = ingredient.getAmount();
         double amountRemoved = 0.0;
         double currentAmount;
+
+        // Checks if the fridge exist
+        Optional<Fridge> fridge = fridgeRepository.findById(fridgeId);
+        if(fridge.isEmpty()) throw new NotFoundException("Fridge with id " + fridgeId + " not found");
 
         List<GroceryItemFridge> groceryItemFridgeList =  groceryItemFridgeRepository.findByFridgeIdAndGroceryItemId(fridgeId,groceryItemId);
         List<GroceryItemFridge> itemsToBeRemoved = new ArrayList<>();
@@ -708,7 +717,7 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
             if(currentAmount<=amountToBeRemoved) {
                 itemsToBeRemoved.add(groceryItemFridgeList.get(i));
                 amountRemoved+=currentAmount;
-                amountRemoved-=currentAmount;
+                amountToBeRemoved-=currentAmount;
             }
             else if(currentAmount>amountRemoved){
                 amountRemoved+= amountToBeRemoved;
@@ -735,6 +744,8 @@ public class GroceryItemServiceImplementation implements GroceryItemService {
         for(int i = 0; i < itemsToBeUpdated.size(); i++ ) {
             currentItem = itemsToBeUpdated.get(i);
 
+            System.out.println("Fridge AAAA AAAA");
+            System.out.println(fridgeId + " " + currentItem.getGroceryItemId() + " " + currentItem.getTimestamp() + " " + currentItem.getAmount());
             groceryItemFridgeRepository.updateAmountByFridgeIdAndGroceryItemIdAndTimestamp(fridgeId, currentItem.getGroceryItemId(),
                     currentItem.getTimestamp(), currentItem.getAmount());
         }

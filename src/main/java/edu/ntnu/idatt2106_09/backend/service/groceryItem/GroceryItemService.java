@@ -58,5 +58,5 @@ public interface GroceryItemService {
 
     public ResponseEntity<GroceryItemDto> deleteGroceryItem(Long groceryItemId);
 
-    ResponseEntity<List<IngredientDTO>> removeGroceryItemsFromFridge(Long fridgeId, List<IngredientDTO> ingredients);
+    public ResponseEntity<Object> removeGroceryItemsFromFridge(Long fridgeId, List<IngredientDTO> ingredients);
 }

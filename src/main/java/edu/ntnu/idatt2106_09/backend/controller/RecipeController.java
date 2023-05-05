@@ -86,6 +86,7 @@ public class RecipeController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @GetMapping("/weekRecommender/{fridgeId}/{portions}")
+    @Operation(summary = "Get a list of 7 recommended recipes", description = "Returns a list of 7 recommended recipes. If there is not any recipes to be recommended, it will also add filler recipes")
     public ResponseEntity<Object> getRecommendedWeekMenuList(@PathVariable Long fridgeId, @PathVariable int portions) {
         try{
             List<List<GroceryItemRecipeDto>> listOfGroceryItemRecipeLists = recipeServiceImplementation.retrieveRecommendedWeekMenu(fridgeId, portions);
@@ -98,6 +99,7 @@ public class RecipeController {
     }
 
     @GetMapping("/missingIngredients/{fridgeId}/{recipeId}/{portions}")
+    @Operation(summary = "Get a list of both ingredients missing from a recipe and the original recipe", description = "Returns a list which contains a list of ingredients that is missing from a fridge to make a recipe, and also returns the original recipe ")
     public ResponseEntity<Object> getMissingIngredients(@PathVariable Long fridgeId, @PathVariable Long recipeId,@PathVariable int portions) {
         try{
             List<RecipeResponseDTO> responseDto = recipeServiceImplementation.getMissingIngredientsAndOriginalRecipe(fridgeId,recipeId, portions);
