@@ -34,6 +34,7 @@ public class AuthenticationController {
      * @return a {@link ResponseEntity} containing the {@link AuthenticationResponse} with user information, access
      *         token, and refresh token upon successful registration
      */
+    /**
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegistrationRequest registrationRequest) {
         log.debug("[X] Received registration request for email: {}", registrationRequest.getEmail());
@@ -41,6 +42,7 @@ public class AuthenticationController {
         log.info("[X] Registration request successful for email: {}", registrationRequest.getEmail());
         return ResponseEntity.ok(authenticationResponse);
     }
+    */
 
     /**
      * Registers a new user by creating an account with the provided user details.
@@ -52,15 +54,15 @@ public class AuthenticationController {
      * @return An authentication response containing the registered user's information (ID, first name, last name, and
      *         email).
      */
-    /**
+
      @PostMapping("/register")
-     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegistrationRequest registrationRequest, HttpServletResponse response) {
+     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegistrationRequest registrationRequest,
+                                                            HttpServletResponse response) {
      log.debug("[X] Received registration request for email: {}", registrationRequest.getEmail());
      AuthenticationResponse authenticationResponse = authenticationService.register(registrationRequest, response);
      log.info("[X] Registration request successful for email: {}", registrationRequest.getEmail());
      return ResponseEntity.ok(authenticationResponse);
      }
-     */
 
     /**
      * Authenticates a user by processing an authentication request and returning an {@link AuthenticationResponse}
@@ -71,6 +73,7 @@ public class AuthenticationController {
      * @return a {@link ResponseEntity} containing the {@link AuthenticationResponse} with user information, access
      *         token, and refresh token upon successful authentication
      */
+    /**
      @PostMapping("/authenticate")
      public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest authenticationRequest) {
      log.debug("[X] Received authentication request for email: {}", authenticationRequest.getEmail());
@@ -78,6 +81,7 @@ public class AuthenticationController {
      log.info("[X] Authentication request successful for email: {}", authenticationRequest.getEmail());
      return ResponseEntity.ok(authenticationResponse);
      }
+     */
 
     /**
      * Authenticates a user by verifying the provided credentials.
@@ -88,15 +92,15 @@ public class AuthenticationController {
      * @return An authentication response containing the authenticated user's information (ID, first name, last name,
      *         and email).
      */
-    /**
+
      @PostMapping("/authenticate")
-     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest authenticationRequest, HttpServletResponse response) {
+     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest authenticationRequest,
+                                                                HttpServletResponse response) {
      log.debug("[X] Received authentication request for email: {}", authenticationRequest.getEmail());
      AuthenticationResponse authenticationResponse = authenticationService.authenticate(authenticationRequest, response);
      log.info("[X] Authentication request successful for email: {}", authenticationRequest.getEmail());
      return ResponseEntity.ok(authenticationResponse);
      }
-     */
 
     /**
      * Handles a token refresh request by processing the request and updating the {@link HttpServletResponse} with a new
@@ -109,12 +113,14 @@ public class AuthenticationController {
      *                 other user information
      * @throws IOException if an input or output error is detected when the servlet handles the token refresh request
      */
+    /**
     @PostMapping("/refresh-token")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.debug("[X] Received token refresh request");
         authenticationService.handleTokenRefreshRequest(request, response);
         log.info("[X] Token refresh request successful");
     }
+    */
 
     /**
      * Refreshes a user's access token using the provided refresh token.
@@ -124,12 +130,10 @@ public class AuthenticationController {
      * @param response The HTTP response, containing the updated access token as a cookie.
      * @throws IOException If an error occurs while writing the authentication response to the output stream.
      */
-    /**
      @PostMapping("/refresh-token")
      public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
      log.debug("[X] Received token refresh request");
      authenticationService.handleTokenRefreshRequest(request, response);
      log.info("[X] Token refresh request successful");
      }
-     */
 }

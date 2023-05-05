@@ -1,6 +1,7 @@
 package edu.ntnu.idatt2106_09.backend.config;
 
 import edu.ntnu.idatt2106_09.backend.config.filter.JwtAuthenticationFilter;
+import edu.ntnu.idatt2106_09.backend.config.filter.JwtCookieFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -59,7 +60,7 @@ public class SecurityConfiguration {
                 .and()
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                //.addFilterBefore(new JwtCookieFilter(), JwtAuthenticationFilter.class)
+                .addFilterBefore(new JwtCookieFilter(), JwtAuthenticationFilter.class)
                 .logout()
                     .logoutUrl("/api/v1/auth/logout")
                     .addLogoutHandler(logoutHandler)

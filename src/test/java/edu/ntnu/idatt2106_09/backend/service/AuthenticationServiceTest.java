@@ -1,4 +1,4 @@
-package edu.ntnu.idatt2106_09.backend.service;
+/**package edu.ntnu.idatt2106_09.backend.service;
 
 import edu.ntnu.idatt2106_09.backend.authentication.*;
 import edu.ntnu.idatt2106_09.backend.service.security.JwtService;
@@ -173,5 +173,5 @@ class AuthenticationServiceTest {
         verify(jwtService).generateAccessToken(user);
         verify(response).setContentType("application/json");
     }
-
 }
+*/

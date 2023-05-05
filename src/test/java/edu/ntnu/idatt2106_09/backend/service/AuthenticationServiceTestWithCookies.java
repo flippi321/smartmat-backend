@@ -1,4 +1,4 @@
-/**package edu.ntnu.idatt2106_09.backend.service;
+package edu.ntnu.idatt2106_09.backend.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.ntnu.idatt2106_09.backend.authentication.AuthenticationRequest;
@@ -190,4 +190,3 @@ class AuthenticationServiceTestWithCookies {
         verify(response).getOutputStream();
     }
 }
- */
