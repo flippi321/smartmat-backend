@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -17,10 +18,10 @@ public class GroceryItemShoppinglist {
     @EmbeddedId
     private GroceryItemShoppinglistId id;
 
-    public GroceryItemShoppinglist(Shoppinglist shoppinglist, GroceryItem groceryItem, int amount) {
+    public GroceryItemShoppinglist(Shoppinglist shoppinglist, GroceryItem groceryItem, double amount) {
         this.shoppinglist = shoppinglist;
         this.groceryItem = groceryItem;
-        this.id = new GroceryItemShoppinglistId(shoppinglist.getShoppinglistId(), groceryItem.getGroceryItemId());
+        this.id = new GroceryItemShoppinglistId(shoppinglist.getShoppinglistId(), groceryItem.getGroceryItemId(), LocalDateTime.now());
         this.amount = amount;
     }
 
@@ -35,13 +36,19 @@ public class GroceryItemShoppinglist {
     private GroceryItem groceryItem;
 
     @Column(name = "amount")
-    private int amount;
+    private double amount;
 
     public Long getGroceryItemId() {
         return groceryItem.getGroceryItemId();
     }
+
+    public LocalDateTime getTimestamp() {
+        return id.getTimestamp();
+    }
 }
 
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
@@ -49,4 +56,9 @@ public class GroceryItemShoppinglist {
 class GroceryItemShoppinglistId implements Serializable {
     private Long shoppinglistId;
     private Long groceryItemId;
+    private LocalDateTime timestamp;
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 }

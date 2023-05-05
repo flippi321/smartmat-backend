@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -17,13 +18,13 @@ public class GroceryItemFridge {
     @EmbeddedId
     private GroceryItemFridgeId id;
 
-    public GroceryItemFridge(Fridge fridge, GroceryItem groceryItem, int amount) {
+    public GroceryItemFridge(Fridge fridge, GroceryItem groceryItem, double amount) {
         this.fridge = fridge;
         this.groceryItem = groceryItem;
-        this.id = new GroceryItemFridgeId(fridge.getFridgeId(), groceryItem.getGroceryItemId());
+        this.id = new GroceryItemFridgeId(fridge.getFridgeId(), groceryItem.getGroceryItemId(), LocalDateTime.now());
         this.amount = amount;
         this.purchaseDate = LocalDate.now();
-        this.expirationDate = LocalDate.now().plusDays(groceryItem.getShelfLife());
+        this.expirationDate = LocalDate.now().plusDays(groceryItem.getActualShelfLife());
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,7 +38,7 @@ public class GroceryItemFridge {
     private GroceryItem groceryItem;
 
     @Column(name = "amount")
-    private int amount;
+    private double amount;
 
     @Column(name = "purchase_date")
     private LocalDate purchaseDate = LocalDate.now();
@@ -48,8 +49,14 @@ public class GroceryItemFridge {
     public Long getGroceryItemId() {
         return groceryItem.getGroceryItemId();
     }
+
+    public LocalDateTime getTimestamp() {
+        return id.getTimestamp();
+    }
 }
 
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
@@ -57,4 +64,9 @@ public class GroceryItemFridge {
 class GroceryItemFridgeId implements Serializable {
     private Long fridgeId;
     private Long groceryItemId;
+    private LocalDateTime timestamp;
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 }

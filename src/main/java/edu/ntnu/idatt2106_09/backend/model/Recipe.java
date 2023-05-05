@@ -6,9 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -28,11 +26,21 @@ public class Recipe {
     @Column(name = "description")
     private String description;
 
+    @ElementCollection
+    @CollectionTable(name = "recipe_steps", joinColumns = @JoinColumn(name = "recipe_id"))
+    @OrderColumn(name = "step_order")
+    @Column(name = "step")
+    private List<String> steps = new ArrayList<>();
+
+    @Column(name = "image_link")
+    private String imageLink;
+
     @OneToMany(
             mappedBy = "recipe",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private Set<GroceryItemRecipe> groceries = new HashSet<>();
+
 
     public void addGroceryItem(GroceryItem groceryItem) {
         GroceryItemRecipe groceryItemRecipe = new GroceryItemRecipe(this, groceryItem);

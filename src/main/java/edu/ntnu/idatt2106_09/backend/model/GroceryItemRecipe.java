@@ -27,7 +27,7 @@ public class GroceryItemRecipe {
     private GroceryItem groceryItem;
 
     @Column(name = "amount")
-    private int amount;
+    private double amount;
 
     public GroceryItemRecipe(Recipe recipe, GroceryItem groceryItem) {
         this.recipe = recipe;
