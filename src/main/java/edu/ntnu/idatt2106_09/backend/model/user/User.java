@@ -1,8 +1,7 @@
 package edu.ntnu.idatt2106_09.backend.model.user;
 
-import edu.ntnu.idatt2106_09.backend.model.Category;
 import edu.ntnu.idatt2106_09.backend.model.Household;
-import edu.ntnu.idatt2106_09.backend.token.Token;
+import edu.ntnu.idatt2106_09.backend.model.token.Token;
 import jakarta.persistence.*;
 
 import java.util.Collection;
