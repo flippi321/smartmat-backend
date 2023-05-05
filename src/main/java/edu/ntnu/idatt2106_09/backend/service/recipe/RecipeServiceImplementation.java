@@ -261,7 +261,7 @@ public class RecipeServiceImplementation implements RecipeService {
      * @return HashMap<Long, GroceryItemFridgeAlgoDto> containing grocery items in the fridge as GroceryItemFridgeAlgoDto objects, with grocery item IDs as keys.
      * @throws NotFoundException If the fridge with the specified ID is not found in the repository.
      */
-    // Need to Change hashmap key from Long to add new values to hashmap. Cant have multiple of the sane product
+
     @Override
     public HashMap<Long, GroceryItemFridgeAlgoDto> retrieveFridgeItemsHashMap(long fridgeId) {
         HashMap<Long, GroceryItemFridgeAlgoDto> map = new HashMap<>();
@@ -273,18 +273,28 @@ public class RecipeServiceImplementation implements RecipeService {
             Set<GroceryItemFridge> groceryItemFridge = groceryItemFridgeRepository.findAllByFridgeId(fridgeId);
 
             GroceryItemFridgeAlgoDto currentGroceryItemFridgeDTO;
+            double currentAmount;
 
             for (GroceryItemFridge gif : groceryItemFridge) {
-                currentGroceryItemFridgeDTO = new GroceryItemFridgeAlgoDto();
-                currentGroceryItemFridgeDTO.setAmount(gif.getAmount());
-                currentGroceryItemFridgeDTO.setExpirationDate(gif.getExpirationDate());
-                currentGroceryItemFridgeDTO.setPurchaseDate(gif.getPurchaseDate());
-                currentGroceryItemFridgeDTO.setFridgeDto(fridgeDTO);
-                currentGroceryItemFridgeDTO.setGroceryItem(modelMapper.map(gif.getGroceryItem(), GroceryItemDto.class));
-                currentGroceryItemFridgeDTO.setTimeStamp(gif.getTimestamp());
+
+                // If statements is used to handle multiple of the same type of groceries
+                if(map.get(gif.getGroceryItemId()) != null) {
+                    currentGroceryItemFridgeDTO = new GroceryItemFridgeAlgoDto();
+                    currentGroceryItemFridgeDTO.setAmount(gif.getAmount());
+                    currentGroceryItemFridgeDTO.setExpirationDate(gif.getExpirationDate());
+                    currentGroceryItemFridgeDTO.setPurchaseDate(gif.getPurchaseDate());
+                    currentGroceryItemFridgeDTO.setFridgeDto(fridgeDTO);
+                    currentGroceryItemFridgeDTO.setGroceryItem(modelMapper.map(gif.getGroceryItem(), GroceryItemDto.class));
+                    currentGroceryItemFridgeDTO.setTimeStamp(gif.getTimestamp());
 
 
-                map.put(gif.getGroceryItem().getGroceryItemId(), currentGroceryItemFridgeDTO);
+                    map.put(gif.getGroceryItem().getGroceryItemId(), currentGroceryItemFridgeDTO);
+                }
+                // If the entry already exist. Just update the amount
+                else {
+                    currentAmount = map.get(gif.getGroceryItemId()).getAmount();
+                    map.get(gif.getGroceryItemId()).getGroceryItem().setAmount(currentAmount+gif.getAmount());
+                }
             }
         } else {
             throw new NotFoundException("Fridge with id " + fridgeId + " not found");
